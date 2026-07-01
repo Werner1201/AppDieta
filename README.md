@@ -6,14 +6,23 @@ App local-first de registro alimentar para Android/Termux, com FastAPI, SQLite e
 
 ```bash
 pkg update && pkg upgrade
-pkg install python git sqlite
+pkg install python git sqlite rust clang binutils
 python -m venv .venv
 source .venv/bin/activate
+python -m pip install --upgrade pip setuptools wheel
 pip install -r requirements.txt
 python scripts/init_db.py
 python scripts/seed_foods.py
 python scripts/normalize_food_text.py
 uvicorn app.main:app --host 127.0.0.1 --port 8000
+```
+
+Se o erro for `Failed to build 'pydantic-core'`, instale `rust clang binutils` e rode o `pip install -r requirements.txt` de novo. No Termux, esse pacote pode precisar compilar.
+
+Atalho:
+
+```bash
+bash scripts/setup_termux.sh
 ```
 
 Abra no navegador:
