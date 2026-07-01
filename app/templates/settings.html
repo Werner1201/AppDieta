@@ -2,7 +2,7 @@
 {% block content %}
 <header class="bar"><a href="/">←</a><h1>Metas</h1></header>
 <form class="card stack" method="post" action="/settings">
-  {% for key,label in [('daily_kcal','Calorias'),('daily_carbs','Carboidratos g'),('daily_protein','Proteina g'),('daily_fat','Gordura g'),('daily_water_ml','Agua ml'),('weight_goal','Peso alvo kg')] %}
+  {% for key,label in [('daily_kcal','Calorias'),('daily_carbs','Carboidratos g'),('daily_protein','Proteína g'),('daily_fat','Gordura g'),('daily_water_ml','Água ml'),('weight_goal','Peso alvo kg')] %}
   <label>{{ label }}<input name="{{ key }}" type="number" step="0.1" value="{{ settings[key] }}"></label>
   {% endfor %}
   <button>Salvar</button>

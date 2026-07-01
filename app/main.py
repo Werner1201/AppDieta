@@ -56,10 +56,10 @@ def frequent_foods(conn, meal_type: str, q: str, category: str):
         )
     }
     fallback = {
-        "breakfast": ("Cafe", "Pao", "Ovo", "Leite", "Banana", "Aveia"),
-        "lunch": ("Arroz", "Feijao", "Frango", "Carne", "Batata", "Salada"),
-        "dinner": ("Frango", "Ovo", "Tilapia", "Salada", "Sopa", "Legumes"),
-        "snack": ("Banana", "Iogurte", "Pao", "Chocolate", "Pao De Queijo", "Granola"),
+        "breakfast": ("Café", "Pão", "Ovo", "Leite", "Banana", "Aveia"),
+        "lunch": ("Arroz", "Feijão", "Frango", "Carne", "Batata", "Salada"),
+        "dinner": ("Frango", "Ovo", "Tilápia", "Salada", "Sopa", "Legumes"),
+        "snack": ("Banana", "Iogurte", "Pão", "Chocolate", "Pão de Queijo", "Granola"),
     }.get(meal_type, ())
 
     def rank(food: dict) -> tuple:
@@ -171,7 +171,7 @@ def custom_food(name: str = Form(...), category: str = Form("Personalizado"), kc
     with connect() as conn:
         conn.execute(
             "INSERT INTO foods(name, category, aliases, kcal_100g, carbs_100g, protein_100g, fat_100g, default_unit, grams_per_default_unit, source, is_custom) VALUES(?,?,?,?,?,?,?,?,?,?,1)",
-            (name, category, name.lower(), kcal_100g, carbs_100g, protein_100g, fat_100g, "100 g", grams_per_default_unit, "usuario"),
+            (name, category, name.lower(), kcal_100g, carbs_100g, protein_100g, fat_100g, "100 g", grams_per_default_unit, "usuário"),
         )
         conn.commit()
     return redirect("/foods")

@@ -2,6 +2,6 @@
 {% block content %}
 <section class="streak"><strong>{{ streak.current }}</strong><h1>dias em sequencia</h1><p>Mais um passo em direcao aos seus objetivos.</p></section>
 <section class="card days">{% for d in recent_days %}<div><b>{{ d.strftime('%a') }}</b><span>{{ '🔥' if d.isoformat() in active else '○' }}</span></div>{% endfor %}</section>
-<section class="card"><p>🔥 Maior Sequencia <b class="right">{{ streak.best }}</b></p><p>💧 Passe Sequencia disponivel <b class="right">2/2</b></p></section>
+<section class="card"><p>🔥 Maior Sequência <b class="right">{{ streak.best }}</b></p><p>💧 Passe Sequência disponível <b class="right">2/2</b></p></section>
 <form method="post" action="/commit"><input type="hidden" name="day" value="{{ today }}"><button class="commit">Eu me comprometo</button></form>
 {% endblock %}

@@ -18,14 +18,14 @@
     <div><b>0</b><span>Gastas</span></div>
   </div>
   <div class="macros">
-    {% for key,label,target in [('carbs','Carboidratos','daily_carbs'),('protein','Proteina','daily_protein'),('fat','Gordura','daily_fat')] %}
+    {% for key,label,target in [('carbs','Carboidratos','daily_carbs'),('protein','Proteína','daily_protein'),('fat','Gordura','daily_fat')] %}
     <div><span>{{ label }}</span><progress value="{{ summary.totals[key] }}" max="{{ summary.settings[target] }}"></progress><b>{{ summary.totals[key]|round(1) }} / {{ summary.settings[target]|int }} g</b></div>
     {% endfor %}
   </div>
   <p class="now">🍽 Agora: Comer</p>
 </section>
 
-<section class="section-title"><h2>Alimentacao</h2><a href="/foods">Mais</a></section>
+<section class="section-title"><h2>Alimentação</h2><a href="/foods">Mais</a></section>
 <section class="card meals">
   {% for meal in summary.meals %}
   <a class="meal" href="/meal/{{ meal.key }}/add?day={{ summary.date }}">
@@ -36,9 +36,9 @@
   {% endfor %}
 </section>
 
-<section class="section-title"><h2>Monitor de agua</h2></section>
+<section class="section-title"><h2>Monitor de água</h2></section>
 <section class="card center">
-  <h3>Agua</h3>
+  <h3>Água</h3>
   <p>Objetivo: {{ (summary.settings.daily_water_ml / 1000)|round(1) }} litros</p>
   <strong class="big">{{ water_l|round(2) }} L</strong>
   <form class="quick" method="post" action="/water">
@@ -46,7 +46,7 @@
     {% for ml in [100,200,250,500] %}<button name="amount_ml" value="{{ ml }}">+{{ ml }} ml</button>{% endfor %}
   </form>
   <p class="cups">{% for _ in range(8) %}🥛{% endfor %}</p>
-  <small>+ Agua de alimentos: futuro</small>
+  <small>+ Água de alimentos: futuro</small>
 </section>
 
 <section class="section-title"><h2>Valores corporais</h2></section>

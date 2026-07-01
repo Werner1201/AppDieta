@@ -6,17 +6,17 @@
 <section class="food-metrics">
   <div><b>{{ (food.kcal_100g * food.grams_per_default_unit / 100)|round|int }} kcal</b><span>Calorias</span></div>
   <div><b>{{ (food.carbs_100g * food.grams_per_default_unit / 100)|round(1) }} g</b><span>Carboidratos</span></div>
-  <div><b>{{ (food.protein_100g * food.grams_per_default_unit / 100)|round(1) }} g</b><span>Proteina</span></div>
+  <div><b>{{ (food.protein_100g * food.grams_per_default_unit / 100)|round(1) }} g</b><span>Proteína</span></div>
   <div><b>{{ (food.fat_100g * food.grams_per_default_unit / 100)|round(1) }} g</b><span>Gordura</span></div>
 </section>
 
 <section class="food-flags">
-  <span>✓ Informacao nutricional verificada</span>
+  <span>✓ Informação nutricional verificada</span>
   <span>↺ Adicionados recentemente: {{ recent }}</span>
 </section>
 
 <section>
-  <h2>Avaliacao de alimentos</h2>
+  <h2>Avaliação de alimentos</h2>
   <div class="chips">
     {% if food.kcal_100g < 100 %}<span>💚 Poucas calorias</span>{% endif %}
     {% if food.sugar_100g < 5 %}<span>💚 Pouco acucar</span>{% endif %}
@@ -28,14 +28,14 @@
 </section>
 
 <section class="nutrition-list">
-  <h2>Informacao nutricional</h2>
+  <h2>Informação nutricional</h2>
   <p><span>Calorias</span><b>{{ food.kcal_100g|round|int }} kcal</b></p>
-  <p><span>Proteina</span><b>{{ food.protein_100g }} g</b></p>
+  <p><span>Proteína</span><b>{{ food.protein_100g }} g</b></p>
   <p><span>Carboidratos</span><b>{{ food.carbs_100g }} g</b></p>
   <p><span>Fibra alimentar</span><b>{{ food.fiber_100g }} g</b></p>
-  <p><span>Acucares</span><b>{{ food.sugar_100g }} g</b></p>
+  <p><span>Açúcares</span><b>{{ food.sugar_100g }} g</b></p>
   <p><span>Gorduras totais</span><b>{{ food.fat_100g }} g</b></p>
-  <p><span>Sodio</span><b>{{ food.sodium_mg_100g }} mg</b></p>
+  <p><span>Sódio</span><b>{{ food.sodium_mg_100g }} mg</b></p>
   <small>Por 100 g. Fonte: {{ food.source }}.</small>
 </section>
 
@@ -43,7 +43,7 @@
   <input type="hidden" name="day" value="{{ day }}">
   <input type="hidden" name="food_id" value="{{ food.id }}">
   <input name="quantity" type="number" min="0.1" step="0.1" value="1">
-  <label>Tamanho da porcao<input name="grams" type="number" min="1" step="1" value="{{ food.grams_per_default_unit }}"></label>
+  <label>Tamanho da porção<input name="grams" type="number" min="1" step="1" value="{{ food.grams_per_default_unit }}"></label>
   <button>⊕ Adicionar</button>
 </form>
 {% endblock %}

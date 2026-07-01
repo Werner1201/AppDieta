@@ -4,6 +4,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from app.db import connect, init_db
+from app.services.portuguese import accent_text, aliases_with_accents
 
 BASE = [
 ("Arroz branco cozido","Basicos","arroz",128,28.1,2.5,0.2,1.6,0.1,1,"100 g",100),
@@ -91,7 +92,21 @@ EXTRA_NAMES = ["abobora cozida","inhame cozido","ervilha","lentilha","grao de bi
 
 
 def row(name, category, aliases, kcal, carbs, protein, fat, fiber, sugar, sodium, unit, grams):
-    return (name.title(), category, aliases, kcal, carbs, protein, fat, fiber, sugar, sodium, unit, grams, "aproximado")
+    return (
+        accent_text(name.title()),
+        accent_text(category),
+        aliases_with_accents(aliases).lower(),
+        kcal,
+        carbs,
+        protein,
+        fat,
+        fiber,
+        sugar,
+        sodium,
+        accent_text(unit),
+        grams,
+        "aproximado",
+    )
 
 
 def foods():

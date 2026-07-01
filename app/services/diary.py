@@ -6,8 +6,8 @@ from sqlite3 import Connection
 from app.services.nutrition import sum_entries, totals_for_food
 
 MEALS = {
-    "breakfast": ("Cafe da manha", "☕", "meal_breakfast_kcal"),
-    "lunch": ("Almoco", "🍲", "meal_lunch_kcal"),
+    "breakfast": ("Café da manhã", "☕", "meal_breakfast_kcal"),
+    "lunch": ("Almoço", "🍲", "meal_lunch_kcal"),
     "dinner": ("Jantar", "🥗", "meal_dinner_kcal"),
     "snack": ("Lanches", "⌛", "meal_snack_kcal"),
 }

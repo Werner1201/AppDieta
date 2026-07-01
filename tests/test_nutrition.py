@@ -11,7 +11,7 @@ def db(tmp_path: Path):
     conn = connect(path)
     conn.execute(
         "INSERT INTO foods(name, category, aliases, kcal_100g, carbs_100g, protein_100g, fat_100g, fiber_100g, sugar_100g, sodium_mg_100g, default_unit, grams_per_default_unit, source) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
-        ("Frango", "Proteinas", "frango", 165, 0, 31, 3.6, 0, 0, 75, "100 g", 100, "teste"),
+        ("Frango", "Proteínas", "frango", 165, 0, 31, 3.6, 0, 0, 75, "100 g", 100, "teste"),
     )
     conn.commit()
     return conn
@@ -41,7 +41,7 @@ def test_green_day_and_streak(tmp_path):
 def test_water_and_custom_food(tmp_path):
     conn = db(tmp_path)
     conn.execute("INSERT INTO water_entries(date, amount_ml) VALUES('2026-07-01', 250)")
-    conn.execute("INSERT INTO foods(name, category, aliases, kcal_100g, carbs_100g, protein_100g, fat_100g, default_unit, grams_per_default_unit, source, is_custom) VALUES('Meu alimento','Personalizado','meu',100,10,5,3,'100 g',100,'usuario',1)")
+    conn.execute("INSERT INTO foods(name, category, aliases, kcal_100g, carbs_100g, protein_100g, fat_100g, default_unit, grams_per_default_unit, source, is_custom) VALUES('Meu alimento','Personalizado','meu',100,10,5,3,'100 g',100,'usuário',1)")
     water = conn.execute("SELECT SUM(amount_ml) AS total FROM water_entries").fetchone()["total"]
     custom = conn.execute("SELECT is_custom FROM foods WHERE name='Meu alimento'").fetchone()["is_custom"]
     assert water == 250

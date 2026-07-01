@@ -4,14 +4,14 @@
 
 <section class="add-tools">
   <a class="tool active" href="/meal/{{ meal.key }}/add?day={{ day }}">🔎<span>Pesquisar</span></a>
-  <span class="tool">📷<span>Camera</span></span>
-  <span class="tool">▥<span>Codigo</span></span>
+  <span class="tool">📷<span>Câmera</span></span>
+  <span class="tool">▥<span>Código</span></span>
   <a class="tool" href="/foods">▤<span>Digitar</span></a>
 </section>
 
 <form class="food-search" method="get">
   <input type="hidden" name="day" value="{{ day }}">
-  <input name="q" value="{{ q }}" placeholder="O que voce comeu no {{ meal.label|lower }}?">
+  <input name="q" value="{{ q }}" placeholder="O que você comeu no {{ meal.label|lower }}?">
   <div class="filters two">
     <select name="category"><option value="">Alimentos</option>{% for c in categories %}<option value="{{ c.category }}" {% if c.category == category %}selected{% endif %}>{{ c.category }}</option>{% endfor %}</select>
     <select name="sort"><option value="frequent" {% if sort == 'frequent' %}selected{% endif %}>Frequentes</option><option value="name" {% if sort == 'name' %}selected{% endif %}>Nome</option></select>
