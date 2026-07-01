@@ -30,7 +30,7 @@
   {% for meal in summary.meals %}
   <a class="meal" href="/meal/{{ meal.key }}?day={{ summary.date }}">
     <span class="bubble">{{ meal.icon }}</span>
-    <span><b>{{ meal.label }} →</b><small>{{ meal.totals.kcal|int }} / {{ meal.goal|int }} kcal</small><small>{{ meal.items or 'Nenhum alimento' }}</small></span>
+    <span><b>{{ meal.label }} →</b><small>{{ meal.totals.kcal|int }} / {{ meal.goal|int }} kcal</small><small>{{ meal["items"] or 'Nenhum alimento' }}</small></span>
     <strong>＋</strong>
   </a>
   {% endfor %}

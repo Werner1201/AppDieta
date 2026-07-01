@@ -53,7 +53,7 @@ def meal_detail(request: Request, meal_type: str, day: str | None = None):
     with connect() as conn:
         summary = day_summary(conn, day)
         meal = next(m for m in summary["meals"] if m["key"] == meal_type)
-        foods = conn.execute("SELECT * FROM foods ORDER BY name LIMIT 300").fetchall()
+        foods = conn.execute("SELECT * FROM foods GROUP BY name ORDER BY name LIMIT 300").fetchall()
         entries = [e for e in summary["entries"] if e["meal_type"] == meal_type]
         return templates.TemplateResponse("meal_detail.html", {
             "request": request,
@@ -83,7 +83,7 @@ def delete_food(entry_id: int, meal_type: str = Form(...), day: str = Form(...))
 @app.get("/foods")
 def foods(request: Request, q: str = "", category: str = ""):
     like = f"%{q}%"
-    sql = "SELECT * FROM foods WHERE (?='' OR name LIKE ? OR aliases LIKE ?) AND (?='' OR category=?) ORDER BY name LIMIT 100"
+    sql = "SELECT * FROM foods WHERE (?='' OR name LIKE ? OR aliases LIKE ?) AND (?='' OR category=?) GROUP BY name ORDER BY name LIMIT 100"
     with connect() as conn:
         rows = conn.execute(sql, (q, like, like, category, category)).fetchall()
         categories = conn.execute("SELECT DISTINCT category FROM foods ORDER BY category").fetchall()
