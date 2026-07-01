@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+<header class="bar food-head"><a href="/meal/{{ meal.key }}/add?day={{ day }}">×</a><h1>{{ meal.label }}</h1><span>☆</span></header>
+<section class="food-hero"><h2>{{ food.name }}</h2></section>
+
+<section class="food-metrics">
+  <div><b>{{ (food.kcal_100g * food.grams_per_default_unit / 100)|round|int }} kcal</b><span>Calorias</span></div>
+  <div><b>{{ (food.carbs_100g * food.grams_per_default_unit / 100)|round(1) }} g</b><span>Carboidratos</span></div>
+  <div><b>{{ (food.protein_100g * food.grams_per_default_unit / 100)|round(1) }} g</b><span>Proteina</span></div>
+  <div><b>{{ (food.fat_100g * food.grams_per_default_unit / 100)|round(1) }} g</b><span>Gordura</span></div>
+</section>
+
+<section class="food-flags">
+  <span>✓ Informacao nutricional verificada</span>
+  <span>↺ Adicionados recentemente: {{ recent }}</span>
+</section>
+
+<section>
+  <h2>Avaliacao de alimentos</h2>
+  <div class="chips">
+    {% if food.kcal_100g < 100 %}<span>💚 Poucas calorias</span>{% endif %}
+    {% if food.sugar_100g < 5 %}<span>💚 Pouco acucar</span>{% endif %}
+    {% if food.carbs_100g < 10 %}<span>💚 Poucos carboidratos</span>{% endif %}
+    {% if food.fat_100g < 5 %}<span>💚 Pouca gordura</span>{% endif %}
+    {% if food.fiber_100g >= 3 %}<span>💚 Rico em fibras</span>{% endif %}
+    <span>💚 {{ food.category }}</span>
+  </div>
+</section>
+
+<section class="nutrition-list">
+  <h2>Informacao nutricional</h2>
+  <p><span>Calorias</span><b>{{ food.kcal_100g|round|int }} kcal</b></p>
+  <p><span>Proteina</span><b>{{ food.protein_100g }} g</b></p>
+  <p><span>Carboidratos</span><b>{{ food.carbs_100g }} g</b></p>
+  <p><span>Fibra alimentar</span><b>{{ food.fiber_100g }} g</b></p>
+  <p><span>Acucares</span><b>{{ food.sugar_100g }} g</b></p>
+  <p><span>Gorduras totais</span><b>{{ food.fat_100g }} g</b></p>
+  <p><span>Sodio</span><b>{{ food.sodium_mg_100g }} mg</b></p>
+  <small>Por 100 g. Fonte: {{ food.source }}.</small>
+</section>
+
+<form class="portion-bar" method="post" action="/meal/{{ meal.key }}/add">
+  <input type="hidden" name="day" value="{{ day }}">
+  <input type="hidden" name="food_id" value="{{ food.id }}">
+  <input name="quantity" type="number" min="0.1" step="0.1" value="1">
+  <label>Tamanho da porcao<input name="grams" type="number" min="1" step="1" value="{{ food.grams_per_default_unit }}"></label>
+  <button>⊕ Adicionar</button>
+</form>
+{% endblock %}

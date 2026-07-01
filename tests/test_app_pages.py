@@ -10,3 +10,10 @@ def test_home_renders():
     assert "built-in method" not in response.text
     assert "{{" not in response.text
     assert "kcal</span><span>-</span><span>" in response.text
+
+
+def test_add_food_page_renders():
+    response = TestClient(app).get("/meal/breakfast/add")
+    assert response.status_code == 200
+    assert "Pesquisar" in response.text
+    assert "Frequentes" in response.text

@@ -16,14 +16,5 @@
   </form>
   {% else %}<p class="muted">Nenhum alimento ainda.</p>{% endfor %}
 </section>
-<section class="card">
-  <h2>Adicionar mais</h2>
-  <form method="post" action="/meal/{{ meal.key }}/add" class="stack">
-    <input type="hidden" name="day" value="{{ day }}">
-    <select name="food_id">{% for food in foods %}<option value="{{ food.id }}">{{ food.name }} · {{ food.kcal_100g|int }} kcal/100g</option>{% endfor %}</select>
-    <input name="quantity" type="number" min="0.1" step="0.1" value="1" placeholder="Quantidade">
-    <input name="grams" type="number" min="1" step="1" value="100" placeholder="Gramas totais">
-    <button>Adicionar</button>
-  </form>
-</section>
+<a class="commit" href="/meal/{{ meal.key }}/add?day={{ day }}">Adicionar mais</a>
 {% endblock %}

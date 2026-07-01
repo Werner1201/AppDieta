@@ -30,6 +30,46 @@ def redirect(path: str = "/") -> RedirectResponse:
     return RedirectResponse(path, status_code=303)
 
 
+def food_search_sql(q: str, category: str) -> tuple[str, tuple]:
+    like = f"%{q}%"
+    return (
+        """
+        SELECT * FROM foods
+        WHERE (?='' OR name LIKE ? OR aliases LIKE ?)
+        AND (?='' OR category=?)
+        GROUP BY name
+        ORDER BY name
+        LIMIT 100
+        """,
+        (q, like, like, category, category),
+    )
+
+
+def frequent_foods(conn, meal_type: str, q: str, category: str):
+    sql, params = food_search_sql(q, category)
+    rows = [dict(r) for r in conn.execute(sql, params).fetchall()]
+    counts = {
+        r["food_id"]: r["uses"]
+        for r in conn.execute(
+            "SELECT food_id, COUNT(*) AS uses FROM diary_entries WHERE meal_type=? GROUP BY food_id",
+            (meal_type,),
+        )
+    }
+    fallback = {
+        "breakfast": ("Cafe", "Pao", "Ovo", "Leite", "Banana", "Aveia"),
+        "lunch": ("Arroz", "Feijao", "Frango", "Carne", "Batata", "Salada"),
+        "dinner": ("Frango", "Ovo", "Tilapia", "Salada", "Sopa", "Legumes"),
+        "snack": ("Banana", "Iogurte", "Pao", "Chocolate", "Pao De Queijo", "Granola"),
+    }.get(meal_type, ())
+
+    def rank(food: dict) -> tuple:
+        name = food["name"].lower()
+        fallback_rank = next((i for i, item in enumerate(fallback) if item.lower() in name), 99)
+        return (-counts.get(food["id"], 0), fallback_rank, food["name"])
+
+    return sorted(rows, key=rank)
+
+
 @app.get("/")
 def home(request: Request, day: str | None = None):
     day = day or today()
@@ -53,14 +93,52 @@ def meal_detail(request: Request, meal_type: str, day: str | None = None):
     with connect() as conn:
         summary = day_summary(conn, day)
         meal = next(m for m in summary["meals"] if m["key"] == meal_type)
-        foods = conn.execute("SELECT * FROM foods GROUP BY name ORDER BY name LIMIT 300").fetchall()
         entries = [e for e in summary["entries"] if e["meal_type"] == meal_type]
         return templates.TemplateResponse("meal_detail.html", {
             "request": request,
             "day": day,
             "meal": meal,
             "entries": entries,
+        })
+
+
+@app.get("/meal/{meal_type}/add")
+def add_food_view(request: Request, meal_type: str, day: str | None = None, q: str = "", category: str = "", sort: str = "frequent"):
+    day = day or today()
+    with connect() as conn:
+        summary = day_summary(conn, day)
+        meal = next(m for m in summary["meals"] if m["key"] == meal_type)
+        categories = conn.execute("SELECT DISTINCT category FROM foods ORDER BY category").fetchall()
+        foods = frequent_foods(conn, meal_type, q, category) if sort == "frequent" else [dict(r) for r in conn.execute(*food_search_sql(q, category)).fetchall()]
+        return templates.TemplateResponse("add_food.html", {
+            "request": request,
+            "day": day,
+            "meal": meal,
             "foods": foods,
+            "q": q,
+            "category": category,
+            "sort": sort,
+            "categories": categories,
+        })
+
+
+@app.get("/meal/{meal_type}/food/{food_id}")
+def food_detail(request: Request, meal_type: str, food_id: int, day: str | None = None):
+    day = day or today()
+    with connect() as conn:
+        summary = day_summary(conn, day)
+        meal = next(m for m in summary["meals"] if m["key"] == meal_type)
+        food = conn.execute("SELECT * FROM foods WHERE id=?", (food_id,)).fetchone()
+        recent = conn.execute(
+            "SELECT COUNT(*) AS c FROM diary_entries WHERE food_id=? AND meal_type=?",
+            (food_id, meal_type),
+        ).fetchone()["c"]
+        return templates.TemplateResponse("food_detail.html", {
+            "request": request,
+            "day": day,
+            "meal": meal,
+            "food": food,
+            "recent": recent,
         })
 
 
@@ -69,7 +147,7 @@ def add_food(meal_type: str, day: str = Form(...), food_id: int = Form(...), qua
     with connect() as conn:
         add_entry(conn, day, meal_type, food_id, quantity, grams)
         conn.commit()
-    return redirect(f"/meal/{meal_type}?day={day}")
+    return redirect(f"/meal/{meal_type}/add?day={day}")
 
 
 @app.post("/entry/{entry_id}/delete")
@@ -82,10 +160,8 @@ def delete_food(entry_id: int, meal_type: str = Form(...), day: str = Form(...))
 
 @app.get("/foods")
 def foods(request: Request, q: str = "", category: str = ""):
-    like = f"%{q}%"
-    sql = "SELECT * FROM foods WHERE (?='' OR name LIKE ? OR aliases LIKE ?) AND (?='' OR category=?) GROUP BY name ORDER BY name LIMIT 100"
     with connect() as conn:
-        rows = conn.execute(sql, (q, like, like, category, category)).fetchall()
+        rows = conn.execute(*food_search_sql(q, category)).fetchall()
         categories = conn.execute("SELECT DISTINCT category FROM foods ORDER BY category").fetchall()
     return templates.TemplateResponse("foods.html", {"request": request, "foods": rows, "q": q, "category": category, "categories": categories})
 

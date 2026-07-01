@@ -6,7 +6,7 @@
   <select name="category"><option value="">Todas</option>{% for c in categories %}<option value="{{ c.category }}" {% if c.category == category %}selected{% endif %}>{{ c.category }}</option>{% endfor %}</select>
   <button>Buscar</button>
 </form>
-<section class="list">{% for food in foods %}<div class="row"><span><b>{{ food.name }}</b><small>{{ food.category }} · {{ food.default_unit }}</small></span><strong>{{ food.kcal_100g|int }} kcal</strong></div>{% endfor %}</section>
+<section class="list">{% for food in foods %}<a class="row" href="/meal/breakfast/food/{{ food.id }}"><span><b>{{ food.name }}</b><small>{{ food.category }} - {{ food.default_unit }}</small></span><strong>{{ food.kcal_100g|int }} kcal</strong></a>{% endfor %}</section>
 <section class="card">
   <h2>Personalizado</h2>
   <form class="stack" method="post" action="/foods/custom">

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<header class="bar add-head"><a href="/">×</a><h1>{{ meal.label }}</h1></header>
+
+<section class="add-tools">
+  <a class="tool active" href="/meal/{{ meal.key }}/add?day={{ day }}">🔎<span>Pesquisar</span></a>
+  <span class="tool">📷<span>Camera</span></span>
+  <span class="tool">▥<span>Codigo</span></span>
+  <a class="tool" href="/foods">▤<span>Digitar</span></a>
+</section>
+
+<form class="food-search" method="get">
+  <input type="hidden" name="day" value="{{ day }}">
+  <input name="q" value="{{ q }}" placeholder="O que voce comeu no {{ meal.label|lower }}?">
+  <div class="filters two">
+    <select name="category"><option value="">Alimentos</option>{% for c in categories %}<option value="{{ c.category }}" {% if c.category == category %}selected{% endif %}>{{ c.category }}</option>{% endfor %}</select>
+    <select name="sort"><option value="frequent" {% if sort == 'frequent' %}selected{% endif %}>Frequentes</option><option value="name" {% if sort == 'name' %}selected{% endif %}>Nome</option></select>
+  </div>
+  <button>Buscar</button>
+</form>
+
+<section class="food-results">
+  {% for food in foods %}
+  <div class="food-pick">
+    <a href="/meal/{{ meal.key }}/food/{{ food.id }}?day={{ day }}">
+      <b>{{ food.name }}</b>
+      <small>{{ food.default_unit }}{% if food.grams_per_default_unit|int != 100 %} ({{ food.grams_per_default_unit|int }} g){% endif %}</small>
+    </a>
+    <span>{{ (food.kcal_100g * food.grams_per_default_unit / 100)|round|int }} kcal</span>
+    <form method="post" action="/meal/{{ meal.key }}/add">
+      <input type="hidden" name="day" value="{{ day }}">
+      <input type="hidden" name="food_id" value="{{ food.id }}">
+      <input type="hidden" name="quantity" value="1">
+      <input type="hidden" name="grams" value="{{ food.grams_per_default_unit }}">
+      <button title="Adicionar">+</button>
+    </form>
+  </div>
+  {% else %}<p class="muted">Nenhum alimento encontrado.</p>{% endfor %}
+</section>
+
+<a class="commit" href="/meal/{{ meal.key }}?day={{ day }}">Pronto</a>
+{% endblock %}
