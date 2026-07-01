@@ -9,3 +9,4 @@ def test_home_renders():
     assert "Hoje" in response.text
     assert "built-in method" not in response.text
     assert "{{" not in response.text
+    assert "kcal</span><span>-</span><span>" in response.text
