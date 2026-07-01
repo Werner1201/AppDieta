@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<header class="bar"><a href="/">×</a><h1>{{ '%02d'|format(month) }}/{{ year }}</h1></header>
+<section class="calendar">
+  {% for w in ['D','S','T','Q','Q','S','S'] %}<b>{{ w }}</b>{% endfor %}
+  {% for day in days %}<span class="{{ 'green' if day.isoformat() in green else '' }}">{{ day.day }}</span>{% endfor %}
+</section>
+<section class="stats">
+  <div><b>{{ streak.active_days }}</b><span>Ativo</span></div>
+  <div><b>{{ green|length }} / {{ days|length }}</b><span>Dias verdes</span></div>
+  <div><b>{{ delta }} kg</b><span>Peso</span></div>
+</section>
+{% endblock %}

@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#07100d">
+  <link rel="manifest" href="/static/manifest.json">
+  <link rel="stylesheet" href="/static/app.css">
+  <title>Dieta Local</title>
+</head>
+<body>
+  <main class="app">{% block content %}{% endblock %}</main>
+  <nav class="tabs">
+    <a href="/">▣<span>Diario</span></a>
+    <a href="/calendar">✓<span>Verdes</span></a>
+    <a href="/foods">＋<span>Alimentos</span></a>
+    <a href="/streak">🔥<span>Sequencia</span></a>
+    <a href="/settings">⚙<span>Metas</span></a>
+  </nav>
+  <script src="/static/app.js"></script>
+</body>
+</html>

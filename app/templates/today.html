@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block content %}
+<header class="top">
+  <div>
+    <h1>Hoje</h1>
+    <p>Semana {{ summary.week }}</p>
+  </div>
+  <div class="score"><span>💎 0</span><span>🔥 {{ summary.remaining }}</span><a href="/calendar">📅</a></div>
+</header>
+
+<a class="tip" href="#tips">✦ Ver minhas Dicas Inteligentes <b>→</b></a>
+
+<section class="section-title"><h2>Resumo</h2><a href="/settings">Detalhes</a></section>
+<section class="card summary">
+  <div class="kcal">
+    <div><b>{{ summary.totals.kcal|int }}</b><span>Consumidas</span></div>
+    <div class="ring"><b>{{ summary.remaining }}</b><span>Restantes</span></div>
+    <div><b>0</b><span>Gastas</span></div>
+  </div>
+  <div class="macros">
+    {% for key,label,target in [('carbs','Carboidratos','daily_carbs'),('protein','Proteina','daily_protein'),('fat','Gordura','daily_fat')] %}
+    <div><span>{{ label }}</span><progress value="{{ summary.totals[key] }}" max="{{ summary.settings[target] }}"></progress><b>{{ summary.totals[key]|round(1) }} / {{ summary.settings[target]|int }} g</b></div>
+    {% endfor %}
+  </div>
+  <p class="now">🍽 Agora: Comer</p>
+</section>
+
+<section class="section-title"><h2>Alimentacao</h2><a href="/foods">Mais</a></section>
+<section class="card meals">
+  {% for meal in summary.meals %}
+  <a class="meal" href="/meal/{{ meal.key }}?day={{ summary.date }}">
+    <span class="bubble">{{ meal.icon }}</span>
+    <span><b>{{ meal.label }} →</b><small>{{ meal.totals.kcal|int }} / {{ meal.goal|int }} kcal</small><small>{{ meal.items or 'Nenhum alimento' }}</small></span>
+    <strong>＋</strong>
+  </a>
+  {% endfor %}
+</section>
+
+<section class="section-title"><h2>Monitor de agua</h2></section>
+<section class="card center">
+  <h3>Agua</h3>
+  <p>Objetivo: {{ (summary.settings.daily_water_ml / 1000)|round(1) }} litros</p>
+  <strong class="big">{{ water_l|round(2) }} L</strong>
+  <form class="quick" method="post" action="/water">
+    <input type="hidden" name="day" value="{{ summary.date }}">
+    {% for ml in [100,200,250,500] %}<button name="amount_ml" value="{{ ml }}">+{{ ml }} ml</button>{% endfor %}
+  </form>
+  <p class="cups">{% for _ in range(8) %}🥛{% endfor %}</p>
+  <small>+ Agua de alimentos: futuro</small>
+</section>
+
+<section class="section-title"><h2>Valores corporais</h2></section>
+<section class="card center">
+  <h3>Peso</h3>
+  <p>Objetivo: {{ summary.settings.weight_goal|round(1) }} kg</p>
+  <strong class="big">{{ weight }} kg</strong>
+  <form class="inline" method="post" action="/weight">
+    <input type="hidden" name="day" value="{{ summary.date }}">
+    <input name="weight_kg" type="number" step="0.1" min="1" value="{{ weight }}">
+    <button>Registrar</button>
+  </form>
+</section>
+
+<section id="tips" class="section-title"><h2>Dicas Inteligentes</h2></section>
+<section class="card">{% for tip in tips %}<p>✦ {{ tip }}</p>{% endfor %}</section>
+{% endblock %}

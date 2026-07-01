@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<header class="bar"><a href="/">←</a><h1>{{ meal.label }}</h1></header>
+<section class="hero">{{ meal.icon }}</section>
+<section class="card grid4">
+  <div><b>{{ meal.totals.kcal|int }} kcal</b><span>Calorias</span></div>
+  <div><b>{{ meal.totals.carbs }} g</b><span>Carboidratos</span></div>
+  <div><b>{{ meal.totals.protein }} g</b><span>Proteina</span></div>
+  <div><b>{{ meal.totals.fat }} g</b><span>Gordura</span></div>
+</section>
+<section class="list">
+  {% for entry in entries %}
+  <form method="post" action="/entry/{{ entry.id }}/delete" class="row">
+    <input type="hidden" name="meal_type" value="{{ meal.key }}"><input type="hidden" name="day" value="{{ day }}">
+    <span><b>{{ entry.food_name }}</b><small>{{ entry.grams_total }} g</small></span><strong>{{ entry.kcal|int }} kcal</strong><button>Remover</button>
+  </form>
+  {% else %}<p class="muted">Nenhum alimento ainda.</p>{% endfor %}
+</section>
+<section class="card">
+  <h2>Adicionar mais</h2>
+  <form method="post" action="/meal/{{ meal.key }}/add" class="stack">
+    <input type="hidden" name="day" value="{{ day }}">
+    <select name="food_id">{% for food in foods %}<option value="{{ food.id }}">{{ food.name }} · {{ food.kcal_100g|int }} kcal/100g</option>{% endfor %}</select>
+    <input name="quantity" type="number" min="0.1" step="0.1" value="1" placeholder="Quantidade">
+    <input name="grams" type="number" min="1" step="1" value="100" placeholder="Gramas totais">
+    <button>Adicionar</button>
+  </form>
+</section>
+{% endblock %}
