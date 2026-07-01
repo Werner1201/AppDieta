@@ -97,6 +97,42 @@ DEFAULT_SETTINGS = {
     "meal_lunch_kcal": "816",
     "meal_dinner_kcal": "700",
     "meal_snack_kcal": "250",
+    "chatgpt_gpt_url": "https://chatgpt.com/g/g-6a4594e4a6c88191b132ffc25a95ff0d-importador-de-refeicoes-para-app-local",
+    "chatgpt_import_prompt_template": """Vou enviar uma foto do meu prato. Analise a imagem e gere um JSON para importar no meu app local de dieta. Use exatamente o schema de importação abaixo. Estime alimentos, gramas, calorias, carboidratos, proteínas, gorduras, fibras, açúcar e sódio quando possível. Marque confidence como low, medium ou high. Não invente precisão absoluta. No final, gere também um link local de importação no formato http://127.0.0.1:8000/import/chatgpt?payload=<base64url-do-json>.
+
+Data: {{date}}
+Refeição: {{meal_type}}
+
+Schema:
+{
+  "source": "chatgpt_photo_estimate",
+  "date": "YYYY-MM-DD",
+  "meal_type": "cafe_da_manha | almoco | jantar | lanches",
+  "dish_name": "string",
+  "confidence": "low | medium | high",
+  "items": [
+    {
+      "name": "string",
+      "estimated_grams": 100,
+      "kcal": 130,
+      "carbs": 28.0,
+      "protein": 2.7,
+      "fat": 0.3,
+      "fiber": 1.0,
+      "sugar": 0.0,
+      "sodium_mg": 1,
+      "confidence": "low | medium | high",
+      "notes": "string opcional"
+    }
+  ],
+  "totals": {
+    "kcal": 0,
+    "carbs": 0,
+    "protein": 0,
+    "fat": 0
+  },
+  "notes": "Estimativa visual. O usuário deve revisar antes de salvar."
+}""",
 }
 
 

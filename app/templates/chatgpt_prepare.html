@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<header class="bar"><a href="/meal/{{ meal_type }}/add?day={{ day }}">←</a><h1>Adicionar com ChatGPT</h1></header>
+
+<section class="card stack">
+  <h2>{{ meal_label }}</h2>
+  <p>{{ day }}</p>
+  {% if needs_setup %}<p>Configure o link do seu GPT personalizado para abrir direto no importador.</p>{% endif %}
+  <p>1. Tire uma foto do prato no ChatGPT.</p>
+  <p>2. O ChatGPT vai gerar um JSON.</p>
+  <p>3. Toque no link local ou cole o JSON aqui.</p>
+  <p>4. Revise e salve.</p>
+</section>
+
+<section class="card stack">
+  <textarea id="chatgptPrompt" rows="12">{{ prompt }}</textarea>
+  <button type="button" onclick="navigator.clipboard.writeText(document.getElementById('chatgptPrompt').value)">Só copiar prompt</button>
+  <a class="commit inline-commit" target="_blank" href="{{ gpt_url }}" onclick="navigator.clipboard.writeText(document.getElementById('chatgptPrompt').value)">Copiar prompt e abrir ChatGPT</a>
+  <a class="commit inline-commit" href="/import/chatgpt">Já tenho JSON para importar</a>
+  <a href="/chatgpt/setup-guide">Configurar meu GPT</a>
+</section>
+{% endblock %}

@@ -34,6 +34,18 @@ bash scripts/run_termux.sh
 pytest
 ```
 
+## Importar refeição com ChatGPT
+
+Na tela de adicionar alimentos de uma refeição, toque em `Câmera`.
+
+Fluxo:
+
+```text
+app local -> copiar prompt -> abrir GPT -> enviar foto -> receber JSON/link -> importar -> revisar -> salvar
+```
+
+O app não usa API key, não envia o banco para fora e nunca salva a estimativa sem confirmação. O link do GPT fica em `Metas > Link do GPT`.
+
 ## Stack
 
 - Python + FastAPI

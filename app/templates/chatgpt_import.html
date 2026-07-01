@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<header class="bar"><a href="/">←</a><h1>Importar do ChatGPT</h1></header>
+
+{% if error %}<section class="card"><p>{{ error }}</p></section>{% endif %}
+
+{% if preview %}
+<section class="card stack">
+  <h2>{{ preview.dish_name }}</h2>
+  <p>{{ preview.date }} · {{ preview.meal_type }} · confiança {{ preview.confidence }}</p>
+  <p>Estimativa por imagem. Revise antes de salvar.</p>
+  {% for warning in warnings %}<p>{{ warning }}</p>{% endfor %}
+</section>
+
+<form method="post" action="/import/chatgpt/save" class="card stack">
+  <input type="hidden" name="date" value="{{ preview.date }}">
+  <input type="hidden" name="meal_type" value="{{ preview.meal_type }}">
+  {% for item in preview["items"] %}
+  <fieldset class="stack">
+    <label>Alimento<input name="item_name" value="{{ item.name }}"></label>
+    <label>Gramas<input name="grams" type="number" min="0" step="0.1" value="{{ item.estimated_grams }}"></label>
+    <label>Kcal<input name="kcal" type="number" min="0" step="0.1" value="{{ item.kcal }}"></label>
+    <label>Carboidratos<input name="carbs" type="number" min="0" step="0.1" value="{{ item.carbs }}"></label>
+    <label>Proteína<input name="protein" type="number" min="0" step="0.1" value="{{ item.protein }}"></label>
+    <label>Gordura<input name="fat" type="number" min="0" step="0.1" value="{{ item.fat }}"></label>
+    <label>Fibras<input name="fiber" type="number" min="0" step="0.1" value="{{ item.fiber }}"></label>
+    <label>Açúcar<input name="sugar" type="number" min="0" step="0.1" value="{{ item.sugar }}"></label>
+    <label>Sódio mg<input name="sodium_mg" type="number" min="0" step="0.1" value="{{ item.sodium_mg }}"></label>
+  </fieldset>
+  {% endfor %}
+  <p>Totais recalculados: {{ preview.totals.kcal }} kcal · {{ preview.totals.carbs }} g carboidratos · {{ preview.totals.protein }} g proteína · {{ preview.totals.fat }} g gordura</p>
+  <button>Salvar no diário</button>
+</form>
+{% else %}
+<section class="card stack">
+  <form method="post" action="/import/chatgpt" class="stack">
+    <textarea name="pasted" rows="14" placeholder="Cole o JSON, o link local ou apenas o payload base64url"></textarea>
+    <button>Pré-visualizar</button>
+  </form>
+</section>
+{% endif %}
+{% endblock %}

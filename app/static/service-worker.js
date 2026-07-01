@@ -1,5 +1,5 @@
-const CACHE = "dieta-v4";
-self.addEventListener("install", event => event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(["/", "/static/app.css?v=4", "/static/app.js?v=4"]))));
+const CACHE = "dieta-v5";
+self.addEventListener("install", event => event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(["/", "/static/app.css?v=5", "/static/app.js?v=5"]))));
 self.addEventListener("activate", event => event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE).map(key => caches.delete(key))))));
 self.addEventListener("fetch", event => {
   if (event.request.mode === "navigate") {

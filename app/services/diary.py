@@ -15,7 +15,13 @@ MEALS = {
 
 def settings(conn: Connection) -> dict[str, float]:
     rows = conn.execute("SELECT key, value FROM settings").fetchall()
-    return {r["key"]: float(r["value"]) for r in rows}
+    values = {}
+    for r in rows:
+        try:
+            values[r["key"]] = float(r["value"])
+        except ValueError:
+            values[r["key"]] = r["value"]
+    return values
 
 
 def entries_for_date(conn: Connection, day: str) -> list[dict]:

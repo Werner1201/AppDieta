@@ -5,6 +5,8 @@
   {% for key,label in [('daily_kcal','Calorias'),('daily_carbs','Carboidratos g'),('daily_protein','Proteína g'),('daily_fat','Gordura g'),('daily_water_ml','Água ml'),('weight_goal','Peso alvo kg')] %}
   <label>{{ label }}<input name="{{ key }}" type="number" step="0.1" value="{{ settings[key] }}"></label>
   {% endfor %}
+  <label>Link do GPT<input name="chatgpt_gpt_url" type="url" value="{{ settings.chatgpt_gpt_url }}"></label>
+  <label>Prompt de importação<textarea name="chatgpt_import_prompt_template" rows="8">{{ settings.chatgpt_import_prompt_template }}</textarea></label>
   <button>Salvar</button>
 </form>
 {% endblock %}

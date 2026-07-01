@@ -9,6 +9,14 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from app.db import connect, init_db
+from app.services.chatgpt_import import (
+    decode_chatgpt_import_payload,
+    encode_chatgpt_import_payload,
+    extract_payload,
+    find_or_create_food,
+    render_prompt,
+    validate_import,
+)
 from app.services.diary import MEALS, add_entry, day_summary, is_green_day, remove_entry, settings, streak
 from app.services.tips import tips
 
@@ -120,6 +128,113 @@ def add_food_view(request: Request, meal_type: str, day: str | None = None, q: s
             "sort": sort,
             "categories": categories,
         })
+
+
+@app.get("/chatgpt/prepare-import")
+def chatgpt_prepare_import(request: Request, meal_type: str = "breakfast", day: str | None = None):
+    day = day or today()
+    with connect() as conn:
+        cfg = settings(conn)
+        prompt = render_prompt(str(cfg["chatgpt_import_prompt_template"]), day, meal_type)
+        meal_label = MEALS.get(meal_type, MEALS["breakfast"])[0]
+        return templates.TemplateResponse("chatgpt_prepare.html", {
+            "request": request,
+            "day": day,
+            "meal_type": meal_type,
+            "meal_label": meal_label,
+            "prompt": prompt,
+            "gpt_url": cfg.get("chatgpt_gpt_url") or "https://chatgpt.com",
+            "needs_setup": not cfg.get("chatgpt_gpt_url") or cfg.get("chatgpt_gpt_url") == "https://chatgpt.com",
+        })
+
+
+@app.get("/chatgpt/setup-guide")
+def chatgpt_setup_guide(request: Request):
+    return templates.TemplateResponse("chatgpt_setup.html", {"request": request})
+
+
+@app.get("/import/chatgpt")
+def import_chatgpt(request: Request, payload: str | None = None, error: str = ""):
+    preview = None
+    warnings = []
+    if payload:
+        try:
+            preview, warnings = validate_import(decode_chatgpt_import_payload(payload))
+            payload = encode_chatgpt_import_payload(preview)
+        except ValueError as exc:
+            error = str(exc)
+    return templates.TemplateResponse("chatgpt_import.html", {
+        "request": request,
+        "payload": payload or "",
+        "preview": preview,
+        "warnings": warnings,
+        "error": error,
+    })
+
+
+@app.post("/import/chatgpt")
+def import_chatgpt_post(request: Request, pasted: str = Form("")):
+    try:
+        preview, warnings = validate_import(extract_payload(pasted))
+        payload = encode_chatgpt_import_payload(preview)
+        return templates.TemplateResponse("chatgpt_import.html", {
+            "request": request,
+            "payload": payload,
+            "preview": preview,
+            "warnings": warnings,
+            "error": "",
+        })
+    except ValueError as exc:
+        return templates.TemplateResponse("chatgpt_import.html", {
+            "request": request,
+            "payload": "",
+            "preview": None,
+            "warnings": [],
+            "error": str(exc),
+        })
+
+
+@app.post("/import/chatgpt/save")
+def import_chatgpt_save(
+    date: str = Form(...),
+    meal_type: str = Form(...),
+    item_name: list[str] = Form(...),
+    grams: list[float] = Form(...),
+    kcal: list[float] = Form(...),
+    carbs: list[float] = Form(...),
+    protein: list[float] = Form(...),
+    fat: list[float] = Form(...),
+    fiber: list[float] = Form(...),
+    sugar: list[float] = Form(...),
+    sodium_mg: list[float] = Form(...),
+):
+    items = []
+    for index, name in enumerate(item_name):
+        items.append({
+            "name": name,
+            "estimated_grams": grams[index],
+            "kcal": kcal[index],
+            "carbs": carbs[index],
+            "protein": protein[index],
+            "fat": fat[index],
+            "fiber": fiber[index],
+            "sugar": sugar[index],
+            "sodium_mg": sodium_mg[index],
+            "confidence": "medium",
+        })
+    preview, _ = validate_import({
+        "date": date,
+        "meal_type": meal_type,
+        "dish_name": "Importado do ChatGPT",
+        "confidence": "medium",
+        "items": items,
+    })
+    with connect() as conn:
+        for item in preview["items"]:
+            food_id = find_or_create_food(conn, item)
+            add_entry(conn, preview["date"] or today(), preview["meal_type"], food_id, 1, item["estimated_grams"])
+        conn.commit()
+    return redirect(f"/meal/{preview['meal_type']}?day={preview['date'] or today()}")
 
 
 @app.get("/meal/{meal_type}/food/{food_id}")
@@ -241,6 +356,8 @@ def save_settings(
     daily_fat: float = Form(...),
     daily_water_ml: float = Form(...),
     weight_goal: float = Form(...),
+    chatgpt_gpt_url: str = Form("https://chatgpt.com/g/g-6a4594e4a6c88191b132ffc25a95ff0d-importador-de-refeicoes-para-app-local"),
+    chatgpt_import_prompt_template: str = Form(""),
 ):
     values = {
         "daily_kcal": daily_kcal,
@@ -249,6 +366,8 @@ def save_settings(
         "daily_fat": daily_fat,
         "daily_water_ml": daily_water_ml,
         "weight_goal": weight_goal,
+        "chatgpt_gpt_url": chatgpt_gpt_url,
+        "chatgpt_import_prompt_template": chatgpt_import_prompt_template,
     }
     with connect() as conn:
         conn.executemany("UPDATE settings SET value=? WHERE key=?", [(str(v), k) for k, v in values.items()])
