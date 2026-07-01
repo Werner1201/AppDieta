@@ -17,3 +17,10 @@ def test_add_food_page_renders():
     assert response.status_code == 200
     assert "Pesquisar" in response.text
     assert "Frequentes" in response.text
+
+
+def test_add_food_registered_filter_renders():
+    response = TestClient(app).get("/meal/breakfast/add?sort=registered")
+    assert response.status_code == 200
+    assert "Registrados" in response.text
+    assert "Nenhum alimento registrado" in response.text or "remove-food" in response.text

@@ -10,3 +10,4 @@ textarea{width:100%;min-width:0;border:0;border-radius:14px;padding:16px;backgro
 .inline-commit{position:static;left:auto;right:auto;bottom:auto;min-height:52px}
 .commit{min-height:58px;border-radius:18px;background:#f7f7f2;color:#111;font-weight:900;box-shadow:0 6px 0 rgba(255,255,255,.18)}.portion-bar{bottom:68px}.nutrition-list{margin-bottom:240px}
 @media (max-width:430px){.food-hero{margin-left:-18px;margin-right:-18px}.portion-bar{bottom:66px}.commit{left:18px;right:18px}}
+button.remove-food{border-color:#ff8a8a;color:#ff8a8a}

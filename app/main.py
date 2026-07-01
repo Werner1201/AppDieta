@@ -117,12 +117,28 @@ def add_food_view(request: Request, meal_type: str, day: str | None = None, q: s
         summary = day_summary(conn, day)
         meal = next(m for m in summary["meals"] if m["key"] == meal_type)
         categories = conn.execute("SELECT DISTINCT category FROM foods ORDER BY category").fetchall()
-        foods = frequent_foods(conn, meal_type, q, category) if sort == "frequent" else [dict(r) for r in conn.execute(*food_search_sql(q, category)).fetchall()]
+        registered_entries = []
+        if sort == "registered":
+            q_like = f"%{q}%"
+            registered_entries = [dict(r) for r in conn.execute(
+                """
+                SELECT diary_entries.*, foods.name AS food_name
+                FROM diary_entries JOIN foods ON foods.id = diary_entries.food_id
+                WHERE diary_entries.date = ? AND diary_entries.meal_type = ?
+                AND (? = '' OR foods.name LIKE ?)
+                ORDER BY diary_entries.created_at, diary_entries.id
+                """,
+                (day, meal_type, q, q_like),
+            ).fetchall()]
+            foods = []
+        else:
+            foods = frequent_foods(conn, meal_type, q, category) if sort == "frequent" else [dict(r) for r in conn.execute(*food_search_sql(q, category)).fetchall()]
         return templates.TemplateResponse("add_food.html", {
             "request": request,
             "day": day,
             "meal": meal,
             "foods": foods,
+            "registered_entries": registered_entries,
             "q": q,
             "category": category,
             "sort": sort,
@@ -266,11 +282,12 @@ def add_food(meal_type: str, day: str = Form(...), food_id: int = Form(...), qua
 
 
 @app.post("/entry/{entry_id}/delete")
-def delete_food(entry_id: int, meal_type: str = Form(...), day: str = Form(...)):
+def delete_food(entry_id: int, meal_type: str = Form(...), day: str = Form(...), next_url: str = Form("")):
     with connect() as conn:
         remove_entry(conn, entry_id)
         conn.commit()
-    return redirect(f"/meal/{meal_type}?day={day}")
+    fallback = f"/meal/{meal_type}?day={day}"
+    return redirect(next_url if next_url.startswith("/") and not next_url.startswith("//") else fallback)
 
 
 @app.get("/foods")

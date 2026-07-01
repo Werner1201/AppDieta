@@ -14,12 +14,29 @@
   <input name="q" value="{{ q }}" placeholder="O que você comeu no {{ meal.label|lower }}?">
   <div class="filters two">
     <select name="category"><option value="">Alimentos</option>{% for c in categories %}<option value="{{ c.category }}" {% if c.category == category %}selected{% endif %}>{{ c.category }}</option>{% endfor %}</select>
-    <select name="sort"><option value="frequent" {% if sort == 'frequent' %}selected{% endif %}>Frequentes</option><option value="name" {% if sort == 'name' %}selected{% endif %}>Nome</option></select>
+    <select name="sort"><option value="frequent" {% if sort == 'frequent' %}selected{% endif %}>Frequentes</option><option value="registered" {% if sort == 'registered' %}selected{% endif %}>Registrados</option><option value="name" {% if sort == 'name' %}selected{% endif %}>Nome</option></select>
   </div>
   <button>Buscar</button>
 </form>
 
 <section class="food-results">
+  {% if sort == 'registered' %}
+  {% for entry in registered_entries %}
+  <div class="food-pick">
+    <a href="/meal/{{ meal.key }}?day={{ day }}">
+      <b>{{ entry.food_name }}</b>
+      <small>{{ entry.quantity|round|int if entry.quantity == entry.quantity|round else entry.quantity|round(2) }} {{ entry.unit_label }} - {{ entry.grams_total|round|int }} g</small>
+    </a>
+    <span>{{ entry.kcal|round|int }} kcal</span>
+    <form method="post" action="/entry/{{ entry.id }}/delete">
+      <input type="hidden" name="day" value="{{ day }}">
+      <input type="hidden" name="meal_type" value="{{ meal.key }}">
+      <input type="hidden" name="next_url" value="/meal/{{ meal.key }}/add?day={{ day }}&sort=registered">
+      <button class="remove-food" title="Remover">-</button>
+    </form>
+  </div>
+  {% else %}<p class="muted">Nenhum alimento registrado nesta refeição.</p>{% endfor %}
+  {% else %}
   {% for food in foods %}
   <div class="food-pick">
     <a href="/meal/{{ meal.key }}/food/{{ food.id }}?day={{ day }}">
@@ -36,6 +53,7 @@
     </form>
   </div>
   {% else %}<p class="muted">Nenhum alimento encontrado.</p>{% endfor %}
+  {% endif %}
 </section>
 
 <a class="commit" href="/meal/{{ meal.key }}?day={{ day }}">Pronto</a>
