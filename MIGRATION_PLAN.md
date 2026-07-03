@@ -653,3 +653,118 @@ Nome:
 
 Instrução para o próximo ciclo:
 - Criar somente `core/ui/theme` com `AppColors.kt`, `AppSpacing.kt`, `AppShapes.kt`, `AppTypography.kt` e um tema Compose que aplique as cores atuais. Não criar telas reais ainda.
+
+## Ciclo 3
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Configurar tema escuro e design tokens baseados no app atual.
+
+Motivo:
+- Garantir que todas as próximas telas Compose partam da identidade visual do web app, sem cair no Material padrão genérico.
+
+Tela ou funcionalidade original analisada:
+- Nenhuma tela real migrada.
+- Referência visual: `app/static/app.css` e seção `UI_PARITY_PLAN`.
+
+Arquivos prováveis:
+- `android-native/app/src/main/kotlin/com/romling/diettracker/core/ui/theme/AppColors.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/core/ui/theme/AppSpacing.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/core/ui/theme/AppShapes.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/core/ui/theme/AppTypography.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/core/ui/theme/DietTrackerTheme.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/DietTrackerApp.kt`.
+
+Critérios de aceite funcionais:
+- Criar tokens de cores, espaçamento, formas e tipografia.
+- Criar tema Compose escuro.
+- Aplicar o tema no root app.
+- `gradlew.bat test` passa.
+- `gradlew.bat assembleDebug` passa.
+
+Critérios de aceite visuais:
+- Cores devem bater com o CSS atual.
+- Fundo, painel, linha, texto, accent, verde, roxo de dica e remover devem existir como tokens.
+- Placeholder continua mínimo, sem migrar tela real prematuramente.
+
+Riscos:
+- Exagerar em componentes antes de telas reais. Mitigação: só tokens e tema neste ciclo.
+
+Instrução objetiva para o Dev:
+- Criar apenas arquivos em `core/ui/theme` e aplicar `DietTrackerTheme` no root. Não adicionar Room, Navigation, componentes compartilhados ou telas reais.
+
+### 2. DEV
+
+Implementação feita:
+- Criados tokens `AppColors`, `AppSpacing`, `AppShapes`, `AppTypography`.
+- Criado `DietTrackerTheme` com `darkColorScheme`.
+- `DietTrackerApp` passou a usar `DietTrackerTheme` e tokens.
+
+Arquivos alterados:
+- `MIGRATION_PLAN.md`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/DietTrackerApp.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/core/ui/theme/AppColors.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/core/ui/theme/AppSpacing.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/core/ui/theme/AppShapes.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/core/ui/theme/AppTypography.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/core/ui/theme/DietTrackerTheme.kt`.
+
+Como preservou a UI original:
+- Tokens foram copiados do CSS atual: `#07100d`, `#242826`, `#59605d`, `#f7f7f2`, `#c9cfcc`, `#18f0bd`, `#057352`, `#141a18`, roxos da dica e `#ff8a8a`.
+- Espaçamentos e raios seguem os valores já registrados no plano.
+
+Como testou:
+- Build e testes Android.
+
+Comando executado:
+- `gradlew.bat test`.
+- `gradlew.bat assembleDebug`.
+
+Resultado:
+- `gradlew.bat test`: BUILD SUCCESSFUL.
+- `gradlew.bat assembleDebug`: BUILD SUCCESSFUL.
+
+Envia para QA.
+
+### 3. QA
+
+Validação feita:
+- Subagente QA deve validar tokens, escopo e paridade com CSS/plano.
+
+Comando executado:
+- Inspeção de arquivos Android e plano.
+
+Resultado:
+- QA subagente aprovou tokens, escopo e paridade com CSS/plano.
+
+Checklist funcional:
+- [x] `AppColors.kt` criado.
+- [x] `AppSpacing.kt` criado.
+- [x] `AppShapes.kt` criado.
+- [x] `AppTypography.kt` criado.
+- [x] `DietTrackerTheme.kt` criado.
+- [x] Root app usa tema.
+- [x] `gradlew.bat test` passa.
+- [x] `gradlew.bat assembleDebug` passa.
+
+Checklist visual:
+- [x] Fundo escuro tokenizado.
+- [x] Card/painel tokenizado.
+- [x] Texto primário/secundário tokenizado.
+- [x] Accent verde água tokenizado.
+- [x] Verde de status tokenizado.
+- [x] Roxo de dica tokenizado.
+- [x] Remover tokenizado.
+- [x] Sem tela real ou redesign prematuro.
+
+Decisão:
+- APROVADO
+
+### Próxima tarefa aberta pelo Arquiteto
+
+Nome:
+- Criar componentes compartilhados de UI.
+
+Instrução para o próximo ciclo:
+- Criar somente componentes base pequenos (`AppCard`, `SectionTitle`, `MacroProgressBar`, `CircleActionButton`, `BottomPrimaryButton`) usando os tokens do Ciclo 3. Não criar telas reais ainda.
