@@ -10,11 +10,9 @@ Projeto Android nativo da migração controlada.
 
 ## Linha de comando
 
-Depois que o Android Studio gerar/sincronizar o Gradle Wrapper:
-
 ```bash
-./gradlew test
-./gradlew assembleDebug
+.\gradlew.bat test
+.\gradlew.bat assembleDebug
 ```
 
-Neste repositório ainda não há Gradle Wrapper gerado. Sem Android Studio ou uma instalação local do Gradle, o build por linha de comando fica bloqueado.
+No macOS/Linux, use `./gradlew` no lugar de `.\gradlew.bat`.

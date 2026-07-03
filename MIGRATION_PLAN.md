@@ -418,7 +418,7 @@ Checklist visual:
 - [ ] Tela Hoje com paridade visual.
 - [ ] Fluxos principais migrados.
 - [ ] Importador ChatGPT migrado.
-- [ ] Build Android passa.
+- [x] Build Android passa para o esqueleto inicial.
 - [ ] README Android finalizado.
 
 ## Ciclo 1
@@ -561,7 +561,7 @@ Critérios de aceite visuais:
 - Não criar tela genérica completa que possa conflitar com a paridade futura.
 
 Riscos:
-- Build local bloqueado por ausência de Gradle Wrapper, Gradle local ou Android SDK.
+- Gradle Wrapper e SDK dependem do Android Studio no primeiro sync.
 
 Instrução objetiva para o Dev:
 - Criar somente o esqueleto Android mínimo. Não adicionar Room, Navigation, telas reais ou componentes de UI ainda.
@@ -591,17 +591,20 @@ Como preservou a UI original:
 
 Como testou:
 - Listagem dos arquivos criados.
-- Tentativa de build por linha de comando.
+- Build por linha de comando após o Android Studio gerar o Gradle Wrapper.
 - Testes do app web para garantir que nada antigo quebrou.
 
 Comando executado:
 - `rg --files android-native`.
-- verificação de Gradle/Wrapper no diretório Android.
+- `gradlew.bat test`.
+- `gradlew.bat assembleDebug`.
 - `python -m pytest -q`.
 
 Resultado:
 - Arquivos criados.
-- Build Android bloqueado: Gradle/Gradle Wrapper não encontrado neste ambiente.
+- Gradle Wrapper gerado pelo Android Studio e versionado.
+- `gradlew.bat test`: BUILD SUCCESSFUL.
+- `gradlew.bat assembleDebug`: BUILD SUCCESSFUL.
 - Testes web: 12 passed.
 
 Envia para QA.
@@ -618,7 +621,9 @@ Comando executado:
 - Inspeção de `android-native/`.
 
 Resultado:
-- Build Android não rodado por bloqueio ambiental: sem Gradle, sem Gradle Wrapper e sem SDK configurado.
+- Build Android rodado após sync do Android Studio e correções mínimas de Gradle.
+- `gradle.properties` habilita AndroidX.
+- JVM target Java/Kotlin alinhado em 17.
 
 Checklist funcional:
 - [x] Projeto separado em `android-native/`.
@@ -629,7 +634,9 @@ Checklist funcional:
 - [x] `MainActivity` Kotlin criada.
 - [x] Root Compose mínimo criado.
 - [x] README documenta abertura no Android Studio.
-- [x] README documenta bloqueio sem wrapper/Gradle local.
+- [x] Gradle Wrapper presente.
+- [x] `gradlew.bat test` passa.
+- [x] `gradlew.bat assembleDebug` passa.
 
 Checklist visual:
 - [x] Nenhuma tela real migrada prematuramente.
