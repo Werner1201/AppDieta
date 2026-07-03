@@ -768,3 +768,108 @@ Nome:
 
 Instrução para o próximo ciclo:
 - Criar somente componentes base pequenos (`AppCard`, `SectionTitle`, `MacroProgressBar`, `CircleActionButton`, `BottomPrimaryButton`) usando os tokens do Ciclo 3. Não criar telas reais ainda.
+
+## Ciclo 4
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Criar componentes compartilhados de UI.
+
+Motivo:
+- Evitar duplicação nas próximas telas e garantir que cards, títulos, barras e botões usem a identidade visual já aprovada.
+
+Tela ou funcionalidade original analisada:
+- Componentes visuais extraídos de `app/static/app.css`: `.card`, `.section-title`, `progress`, botões circulares `+` e `.commit`.
+
+Arquivos prováveis:
+- `android-native/app/src/main/kotlin/com/romling/diettracker/core/ui/components/BaseComponents.kt`.
+
+Critérios de aceite funcionais:
+- Criar `AppCard`.
+- Criar `SectionTitle`.
+- Criar `MacroProgressBar`.
+- Criar `CircleActionButton`.
+- Criar `BottomPrimaryButton`.
+- `gradlew.bat test` passa.
+- `gradlew.bat assembleDebug` passa.
+
+Critérios de aceite visuais:
+- `AppCard` deve preservar fundo escuro, borda grossa e raio alto.
+- `SectionTitle` deve preservar título grande e ação accent.
+- `MacroProgressBar` deve usar accent e trilho escuro.
+- `CircleActionButton` deve preservar botão circular grande.
+- `BottomPrimaryButton` deve preservar botão grande claro do rodapé.
+- Não criar telas reais nem redesenhar fluxos.
+
+Riscos:
+- Componentes ficarem genéricos demais. Mitigação: usar tokens do Ciclo 3 diretamente.
+
+Instrução objetiva para o Dev:
+- Criar somente componentes base em `core/ui/components`. Não adicionar Navigation, Room, DataStore, preview ou telas reais.
+
+### 2. DEV
+
+Implementação feita:
+- Criado `BaseComponents.kt` com `AppCard`, `SectionTitle`, `MacroProgressBar`, `CircleActionButton` e `BottomPrimaryButton`.
+
+Arquivos alterados:
+- `MIGRATION_PLAN.md`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/core/ui/components/BaseComponents.kt`.
+
+Como preservou a UI original:
+- `AppCard` usa painel, borda `Line`, raio `Card` e padding do app.
+- `MacroProgressBar` usa `Accent` e trilho `Line`.
+- Botões seguem tamanhos/cores do app web.
+
+Como testou:
+- Build e testes Android.
+
+Comando executado:
+- `gradlew.bat test`.
+- `gradlew.bat assembleDebug`.
+
+Resultado:
+- `gradlew.bat test`: BUILD SUCCESSFUL.
+- `gradlew.bat assembleDebug`: BUILD SUCCESSFUL.
+
+Envia para QA.
+
+### 3. QA
+
+Validação feita:
+- Subagente QA deve validar componentes, escopo e paridade visual com tokens.
+
+Comando executado:
+- Inspeção dos componentes e plano.
+
+Resultado:
+- QA subagente aprovou componentes, escopo e paridade visual com tokens.
+
+Checklist funcional:
+- [x] `AppCard` criado.
+- [x] `SectionTitle` criado.
+- [x] `MacroProgressBar` criado.
+- [x] `CircleActionButton` criado.
+- [x] `BottomPrimaryButton` criado.
+- [x] `gradlew.bat test` passa.
+- [x] `gradlew.bat assembleDebug` passa.
+
+Checklist visual:
+- [x] Card escuro com borda grossa e raio alto.
+- [x] Título de seção com ação accent.
+- [x] Barra de macro accent.
+- [x] Botão circular grande.
+- [x] Botão primário grande e claro.
+- [x] Sem telas reais ou redesign prematuro.
+
+Decisão:
+- APROVADO
+
+### Próxima tarefa aberta pelo Arquiteto
+
+Nome:
+- Criar entidades Room e DAOs.
+
+Instrução para o próximo ciclo:
+- Adicionar dependências Room/ksp mínimas e criar somente entidades/DAOs equivalentes ao schema atual. Não ligar banco ao app e não criar telas.
