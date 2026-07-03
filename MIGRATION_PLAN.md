@@ -521,3 +521,128 @@ Nome:
 
 Instrução para o próximo ciclo:
 - Criar somente o esqueleto Gradle/Kotlin/Compose mínimo, sem implementar telas ainda. Se Android SDK/Gradle não estiver disponível, deixar os arquivos corretos e documentar o bloqueio de build.
+
+## Ciclo 2
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Criar projeto Android base.
+
+Motivo:
+- Iniciar a migração nativa em pasta separada sem destruir o app web atual.
+
+Tela ou funcionalidade original analisada:
+- Nenhuma tela deve ser migrada ainda. A referência visual permanece registrada no `UI_PARITY_PLAN`.
+
+Arquivos prováveis:
+- `android-native/settings.gradle.kts`.
+- `android-native/build.gradle.kts`.
+- `android-native/app/build.gradle.kts`.
+- `android-native/app/src/main/AndroidManifest.xml`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/MainActivity.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/DietTrackerApp.kt`.
+- `android-native/app/src/main/res/values/strings.xml`.
+- `android-native/app/src/main/res/values/themes.xml`.
+- `android-native/README.md`.
+
+Critérios de aceite funcionais:
+- Criar projeto separado em `android-native/`.
+- Usar Gradle Kotlin DSL.
+- Criar módulo Android `app`.
+- Criar Activity principal Kotlin.
+- Criar Compose root mínimo.
+- Não apagar nem alterar o app web.
+- Documentar bloqueio se Gradle/SDK não estiverem disponíveis.
+
+Critérios de aceite visuais:
+- Não migrar UI ainda.
+- Root Compose mínimo deve usar fundo escuro e nome do app apenas como placeholder.
+- Não criar tela genérica completa que possa conflitar com a paridade futura.
+
+Riscos:
+- Build local bloqueado por ausência de Gradle Wrapper, Gradle local ou Android SDK.
+
+Instrução objetiva para o Dev:
+- Criar somente o esqueleto Android mínimo. Não adicionar Room, Navigation, telas reais ou componentes de UI ainda.
+
+### 2. DEV
+
+Implementação feita:
+- Criado esqueleto Android nativo mínimo em `android-native/`.
+- Criados Gradle Kotlin DSL, manifest, `MainActivity`, `DietTrackerApp` placeholder, resources básicos e README.
+
+Arquivos alterados:
+- `MIGRATION_PLAN.md`.
+- `android-native/.gitignore`.
+- `android-native/README.md`.
+- `android-native/settings.gradle.kts`.
+- `android-native/build.gradle.kts`.
+- `android-native/app/build.gradle.kts`.
+- `android-native/app/src/main/AndroidManifest.xml`.
+- `android-native/app/src/main/res/values/strings.xml`.
+- `android-native/app/src/main/res/values/themes.xml`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/MainActivity.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/DietTrackerApp.kt`.
+
+Como preservou a UI original:
+- Não migrou tela real ainda.
+- Placeholder usa fundo `#07100d` e texto `#f7f7f2`, cores base do app atual.
+
+Como testou:
+- Listagem dos arquivos criados.
+- Tentativa de build por linha de comando.
+- Testes do app web para garantir que nada antigo quebrou.
+
+Comando executado:
+- `rg --files android-native`.
+- verificação de Gradle/Wrapper no diretório Android.
+- `python -m pytest -q`.
+
+Resultado:
+- Arquivos criados.
+- Build Android bloqueado: Gradle/Gradle Wrapper não encontrado neste ambiente.
+- Testes web: 12 passed.
+
+Envia para QA.
+
+### 3. QA
+
+Validação feita:
+- Subagente QA validou a estrutura Android criada.
+- Primeira rodada reprovou README por indicar `./gradlew` antes de existir wrapper.
+- DEV corrigiu README para declarar que os comandos dependem do wrapper gerado/sincronizado pelo Android Studio.
+- QA revalidou.
+
+Comando executado:
+- Inspeção de `android-native/`.
+
+Resultado:
+- Build Android não rodado por bloqueio ambiental: sem Gradle, sem Gradle Wrapper e sem SDK configurado.
+
+Checklist funcional:
+- [x] Projeto separado em `android-native/`.
+- [x] App web preservado.
+- [x] Gradle Kotlin DSL criado.
+- [x] Módulo `app` criado.
+- [x] Manifest criado.
+- [x] `MainActivity` Kotlin criada.
+- [x] Root Compose mínimo criado.
+- [x] README documenta abertura no Android Studio.
+- [x] README documenta bloqueio sem wrapper/Gradle local.
+
+Checklist visual:
+- [x] Nenhuma tela real migrada prematuramente.
+- [x] Placeholder usa cores base escuras do app atual.
+- [x] Sem Material genérico expandido para telas reais.
+
+Decisão:
+- APROVADO
+
+### Próxima tarefa aberta pelo Arquiteto
+
+Nome:
+- Configurar tema escuro e design tokens baseados no app atual.
+
+Instrução para o próximo ciclo:
+- Criar somente `core/ui/theme` com `AppColors.kt`, `AppSpacing.kt`, `AppShapes.kt`, `AppTypography.kt` e um tema Compose que aplique as cores atuais. Não criar telas reais ainda.
