@@ -1363,3 +1363,93 @@ Nome:
 
 Instrução para o próximo ciclo:
 - Criar apenas serviços puros para regra de dia verde e sequência usando dados já carregados em memória. Não criar telas, ViewModels nem repositories novos.
+
+## Ciclo 10
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Criar serviços de dia verde e sequência.
+
+Motivo:
+- Portar regras de negócio do web app para código Android testável sem depender de Room ou UI.
+
+Tela ou funcionalidade original analisada:
+- Calendário com dias verdes.
+- Tela de sequência.
+- `app/services/diary.py`.
+
+Arquivos prováveis:
+- `android-native/app/src/main/kotlin/com/romling/diettracker/domain/service/GreenDayService.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/domain/service/StreakService.kt`.
+- `android-native/app/src/test/kotlin/com/romling/diettracker/domain/service/GreenDayServiceTest.kt`.
+- `android-native/app/src/test/kotlin/com/romling/diettracker/domain/service/StreakServiceTest.kt`.
+
+Critérios de aceite funcionais:
+- Dia verde exige pelo menos um registro.
+- Dia verde exige kcal total <= meta diária.
+- Dia verde exige proteína total >= 80% da meta.
+- Sequência atual conta dias ativos consecutivos até a data final.
+- Maior sequência conta melhor sequência em todos os dias ativos.
+- `gradlew.bat test` passa.
+- `gradlew.bat assembleDebug` passa.
+
+Critérios de aceite visuais:
+- Nenhum, tarefa de domínio.
+- Não criar telas reais.
+
+Riscos:
+- Acoplar serviço ao banco cedo demais. Mitigação: serviços recebem listas/datas em memória.
+
+Instrução objetiva para o Dev:
+- Criar somente serviços puros e testes. Não criar DAOs, repositories, telas, ViewModels, navegação ou inicialização do banco.
+
+### 2. DEV
+
+Implementação feita:
+- Criado `GreenDayService` com a regra de dia verde do web app.
+- Criado `StreakService` com resumo de sequência atual, maior sequência e dias ativos.
+- Criados testes unitários para regras de dia verde e sequência.
+
+Arquivos alterados:
+- `MIGRATION_PLAN.md`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/domain/service/GreenDayService.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/domain/service/StreakService.kt`.
+- `android-native/app/src/test/kotlin/com/romling/diettracker/domain/service/GreenDayServiceTest.kt`.
+- `android-native/app/src/test/kotlin/com/romling/diettracker/domain/service/StreakServiceTest.kt`.
+
+Como preservou o app original:
+- As regras foram copiadas do comportamento web e isoladas em serviços puros.
+
+Como testou:
+- Testes unitários dos serviços.
+- Build Android debug.
+
+Comando executado:
+- `gradlew.bat test`.
+- `gradlew.bat assembleDebug`.
+- Busca por `Dao`, `Repository`, `ViewModel`, `NavHost`, `Screen`, `databaseBuilder`, `MainActivity`, `DietTrackerApp` no pacote de serviços.
+
+Resultado:
+- `gradlew.bat test`: BUILD SUCCESSFUL.
+- `gradlew.bat assembleDebug`: BUILD SUCCESSFUL.
+- Busca de escopo: nenhum resultado.
+
+Envia para QA.
+
+### 3. QA
+
+Validação feita:
+- Subagente QA validou escopo, serviços puros, regras de dia verde/sequência, testes e ausência de DAOs/repositories/UI/wiring.
+- Imagens de referência continuam untracked na raiz e foram mantidas fora do ciclo.
+
+Decisão:
+- APROVADO
+
+### Próxima tarefa aberta pelo Arquiteto
+
+Nome:
+- Ligar banco e seed no app.
+
+Instrução para o próximo ciclo:
+- Criar wiring mínimo para instanciar `AppDatabase`, repositories e executar `FoodSeedLoader` na inicialização. Não criar novas telas nem expandir UI além do necessário para manter o app abrindo.
