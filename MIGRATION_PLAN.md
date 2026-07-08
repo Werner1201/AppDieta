@@ -873,3 +873,119 @@ Nome:
 
 Instrução para o próximo ciclo:
 - Adicionar dependências Room/ksp mínimas e criar somente entidades/DAOs equivalentes ao schema atual. Não ligar banco ao app e não criar telas.
+
+## Ciclo 5
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Criar entidades Room e DAOs.
+
+Motivo:
+- Migrar o contrato local de dados do SQLite web para Room, sem ainda ligar o banco ao app.
+
+Tela ou funcionalidade original analisada:
+- Schema em `app/db.py`.
+- Modelo Android planejado na seção "Modelo de Dados Android".
+
+Arquivos prováveis:
+- `android-native/build.gradle.kts`.
+- `android-native/app/build.gradle.kts`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/data/local/entity/*.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/data/local/dao/*.kt`.
+
+Critérios de aceite funcionais:
+- Adicionar Room/KSP mínimo.
+- Criar entidades para alimentos, porções, diário, água, peso, compromisso diário e importação AI.
+- Criar DAOs básicos para busca, inserção, listagem e remoção onde já existe fluxo web equivalente.
+- `gradlew.bat test` passa.
+- `gradlew.bat assembleDebug` passa.
+
+Critérios de aceite visuais:
+- Nenhum, tarefa de dados.
+- Não criar telas reais.
+
+Riscos:
+- Introduzir banco completo cedo demais. Mitigação: sem `AppDatabase` e sem ligar ao app neste ciclo.
+
+Instrução objetiva para o Dev:
+- Criar somente dependências Room/KSP, entidades e DAOs. Não criar `AppDatabase`, repositories, seed loader ou telas.
+
+### 2. DEV
+
+Implementação feita:
+- Adicionado plugin KSP e dependências Room.
+- Criadas entidades Room equivalentes ao schema/plano.
+- Criados DAOs básicos para alimentos, porções, diário, água, peso, compromisso e importações AI.
+
+Arquivos alterados:
+- `MIGRATION_PLAN.md`.
+- `android-native/build.gradle.kts`.
+- `android-native/app/build.gradle.kts`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/data/local/entity/AiImportEntity.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/data/local/entity/DailyCommitmentEntity.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/data/local/entity/DiaryEntryEntity.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/data/local/entity/FoodEntity.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/data/local/entity/FoodPortionEntity.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/data/local/entity/WaterEntryEntity.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/data/local/entity/WeightEntryEntity.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/data/local/dao/Daos.kt`.
+
+Como preservou o app original:
+- Nomes de tabela e colunas seguem o SQLite atual quando aplicável.
+- `DiaryEntryEntity` inclui snapshots e `aiImportId` conforme modelo Android planejado.
+- Meal types continuam como `String` para preservar compatibilidade com `breakfast`, `lunch`, `dinner`, `snack` e importações futuras.
+
+Como testou:
+- Build e testes Android com KSP.
+
+Comando executado:
+- `gradlew.bat test`.
+- `gradlew.bat assembleDebug`.
+
+Resultado:
+- `gradlew.bat test`: BUILD SUCCESSFUL.
+- `gradlew.bat assembleDebug`: BUILD SUCCESSFUL.
+
+Envia para QA.
+
+### 3. QA
+
+Validação feita:
+- Subagente QA deve validar equivalência com schema/plano e ausência de escopo extra.
+
+Comando executado:
+- Inspeção de entidades, DAOs e Gradle.
+
+Resultado:
+- QA subagente aprovou entidades, DAOs, dependências Room/KSP e ausência de escopo extra.
+
+Checklist funcional:
+- [x] Room runtime adicionado.
+- [x] Room KTX adicionado.
+- [x] KSP/Room compiler adicionado.
+- [x] `FoodEntity` criado.
+- [x] `FoodPortionEntity` criado.
+- [x] `DiaryEntryEntity` criado.
+- [x] `WaterEntryEntity` criado.
+- [x] `WeightEntryEntity` criado.
+- [x] `DailyCommitmentEntity` criado.
+- [x] `AiImportEntity` criado.
+- [x] DAOs básicos criados.
+- [x] `gradlew.bat test` passa.
+- [x] `gradlew.bat assembleDebug` passa.
+
+Checklist visual:
+- [x] Sem telas reais.
+- [x] Sem mudança visual.
+
+Decisão:
+- APROVADO
+
+### Próxima tarefa aberta pelo Arquiteto
+
+Nome:
+- Criar `AppDatabase` Room.
+
+Instrução para o próximo ciclo:
+- Criar somente `AppDatabase` com entidades e DAOs do Ciclo 5, incluindo migrations iniciais se necessárias. Não criar repositories, seed loader ou telas.
