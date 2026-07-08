@@ -1,0 +1,56 @@
+package com.romling.diettracker.data.repository
+
+import com.romling.diettracker.data.local.dao.DiaryEntryDao
+import com.romling.diettracker.data.local.entity.DiaryEntryEntity
+import com.romling.diettracker.data.local.entity.FoodEntity
+import java.time.Instant
+import kotlin.math.round
+
+class DiaryRepository(
+    private val diaryEntryDao: DiaryEntryDao,
+    private val now: () -> String = { Instant.now().toString() },
+) {
+    fun entriesForDate(date: String) = diaryEntryDao.entriesForDate(date)
+    fun entriesForMeal(date: String, mealType: String) = diaryEntryDao.entriesForMeal(date, mealType)
+    suspend fun delete(entry: DiaryEntryEntity) = diaryEntryDao.delete(entry)
+    suspend fun deleteById(entryId: Long) = diaryEntryDao.deleteById(entryId)
+
+    suspend fun addFood(
+        date: String,
+        mealType: String,
+        food: FoodEntity,
+        quantity: Double = 1.0,
+        gramsTotal: Double = food.gramsPerDefaultUnit,
+        unitLabel: String = food.defaultUnit,
+        aiImportId: Long? = null,
+    ): Long {
+        require(quantity > 0) { "Quantity must be positive." }
+        require(gramsTotal > 0) { "Grams must be positive." }
+
+        val factor = gramsTotal / 100.0
+        val timestamp = now()
+        return diaryEntryDao.insert(
+            DiaryEntryEntity(
+                date = date,
+                mealType = mealType,
+                foodId = food.id,
+                foodNameSnapshot = food.name,
+                quantity = quantity,
+                unitLabel = unitLabel,
+                gramsTotal = gramsTotal,
+                kcal = round(food.kcal100g * factor),
+                carbs = round1(food.carbs100g * factor),
+                protein = round1(food.protein100g * factor),
+                fat = round1(food.fat100g * factor),
+                fiber = round1(food.fiber100g * factor),
+                sugar = round1(food.sugar100g * factor),
+                sodiumMg = round1(food.sodiumMg100g * factor),
+                aiImportId = aiImportId,
+                createdAt = timestamp,
+                updatedAt = timestamp,
+            ),
+        )
+    }
+}
+
+private fun round1(value: Double) = round(value * 10.0) / 10.0

@@ -1274,3 +1274,92 @@ Nome:
 
 Instrução para o próximo ciclo:
 - Criar apenas repositories básicos para alimentos e diário usando os DAOs existentes. Não criar telas, ViewModels nem wiring de inicialização ainda.
+
+## Ciclo 9
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Criar repositories básicos.
+
+Motivo:
+- Isolar acesso a alimentos e diário antes de criar ViewModels/telas, mantendo o Room fora das futuras features.
+
+Tela ou funcionalidade original analisada:
+- Busca/lista de alimentos.
+- Registro e remoção de alimentos por refeição.
+- Regras de cálculo nutricional do diário.
+
+Arquivos prováveis:
+- `android-native/app/src/main/kotlin/com/romling/diettracker/data/repository/FoodRepository.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/data/repository/DiaryRepository.kt`.
+- `android-native/app/src/test/kotlin/com/romling/diettracker/data/repository/DiaryRepositoryTest.kt`.
+
+Critérios de aceite funcionais:
+- Criar `FoodRepository` usando `FoodDao` e `FoodPortionDao`.
+- Criar `DiaryRepository` usando `DiaryEntryDao`.
+- Permitir listar registros por dia/refeição, adicionar alimento e remover registro.
+- Calcular snapshot nutricional ao adicionar alimento.
+- Validar quantidade e gramas positivas.
+- `gradlew.bat test` passa.
+- `gradlew.bat assembleDebug` passa.
+
+Critérios de aceite visuais:
+- Nenhum, tarefa de dados.
+- Não criar telas reais.
+
+Riscos:
+- Criar abstrações prematuras. Mitigação: repositories concretos, sem interfaces/factories/injeção.
+
+Instrução objetiva para o Dev:
+- Criar somente repositories concretos e teste mínimo de cálculo. Não criar telas, ViewModels, navegação, injeção ou inicialização do banco.
+
+### 2. DEV
+
+Implementação feita:
+- Criado `FoodRepository` como delegação direta para `FoodDao` e `FoodPortionDao`.
+- Criado `DiaryRepository` para listar, remover e adicionar alimentos no diário.
+- `DiaryRepository.addFood` calcula kcal arredondada e macros com 1 casa, salva snapshot do alimento e valida valores positivos.
+- Criado teste unitário para cálculo de snapshot e rejeição de gramas inválidas.
+
+Arquivos alterados:
+- `MIGRATION_PLAN.md`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/data/repository/FoodRepository.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/data/repository/DiaryRepository.kt`.
+- `android-native/app/src/test/kotlin/com/romling/diettracker/data/repository/DiaryRepositoryTest.kt`.
+
+Como preservou o app original:
+- A regra segue o cálculo web planejado e não altera o app web.
+
+Como testou:
+- Teste unitário dos repositories.
+- Build Android debug.
+
+Comando executado:
+- `gradlew.bat test`.
+- `gradlew.bat assembleDebug`.
+- Busca por `NavHost`, `ViewModel`, `Screen`, `databaseBuilder`, `MainActivity`, `DietTrackerApp` no pacote de repositories.
+
+Resultado:
+- `gradlew.bat test`: BUILD SUCCESSFUL.
+- `gradlew.bat assembleDebug`: BUILD SUCCESSFUL.
+- Busca de escopo: nenhum resultado.
+
+Envia para QA.
+
+### 3. QA
+
+Validação feita:
+- Subagente QA validou escopo, repositories, cálculo nutricional, teste unitário e ausência de UI/wiring.
+- Imagens de referência continuam untracked na raiz e foram mantidas fora do ciclo.
+
+Decisão:
+- APROVADO
+
+### Próxima tarefa aberta pelo Arquiteto
+
+Nome:
+- Criar serviços de dia verde e sequência.
+
+Instrução para o próximo ciclo:
+- Criar apenas serviços puros para regra de dia verde e sequência usando dados já carregados em memória. Não criar telas, ViewModels nem repositories novos.
