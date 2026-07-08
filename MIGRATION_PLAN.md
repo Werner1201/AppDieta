@@ -1453,3 +1453,89 @@ Nome:
 
 Instrução para o próximo ciclo:
 - Criar wiring mínimo para instanciar `AppDatabase`, repositories e executar `FoodSeedLoader` na inicialização. Não criar novas telas nem expandir UI além do necessário para manter o app abrindo.
+
+## Ciclo 11
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Ligar banco e seed no app.
+
+Motivo:
+- Permitir que o app Android abra com Room configurado e catálogo de alimentos carregado uma vez.
+
+Tela ou funcionalidade original analisada:
+- Inicialização do app Android.
+- Seed offline de alimentos.
+
+Arquivos prováveis:
+- `android-native/app/src/main/AndroidManifest.xml`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/DietTrackerApplication.kt`.
+
+Critérios de aceite funcionais:
+- Criar `Application` Android.
+- Instanciar `AppDatabase` com `Room.databaseBuilder`.
+- Expor repositories básicos já criados.
+- Executar `FoodSeedLoader` em `Dispatchers.IO` na inicialização.
+- Não duplicar alimentos, usando o comportamento do loader.
+- `gradlew.bat test` passa.
+- `gradlew.bat assembleDebug` passa.
+
+Critérios de aceite visuais:
+- Não criar telas novas.
+- Não alterar a UI existente além de manter o app abrindo.
+
+Riscos:
+- Introduzir framework de DI cedo demais. Mitigação: container manual mínimo.
+
+Instrução objetiva para o Dev:
+- Criar apenas `Application`/container manual e atualizar o manifest. Não criar telas, ViewModels, navegação ou features.
+
+### 2. DEV
+
+Implementação feita:
+- Criado `DietTrackerApplication`.
+- Criado `AppContainer` manual com `AppDatabase`, `FoodRepository` e `DiaryRepository`.
+- Seed de alimentos roda em coroutine `Dispatchers.IO` abrindo `assets/foods_seed.json`.
+- Manifest aponta para `.DietTrackerApplication`.
+
+Arquivos alterados:
+- `MIGRATION_PLAN.md`.
+- `android-native/app/src/main/AndroidManifest.xml`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/DietTrackerApplication.kt`.
+
+Como preservou o app original:
+- Wiring Android usa o asset e loader já migrados, sem alterar o app web.
+
+Como testou:
+- Testes unitários Android.
+- Build Android debug.
+
+Comando executado:
+- `gradlew.bat test`.
+- `gradlew.bat assembleDebug`.
+- Busca por `Composable`, `NavHost`, `ViewModel`, `Screen`, `setContent`, `Text(` no arquivo de wiring e manifest.
+
+Resultado:
+- `gradlew.bat test`: BUILD SUCCESSFUL.
+- `gradlew.bat assembleDebug`: BUILD SUCCESSFUL.
+- Busca de escopo: nenhum resultado.
+
+Envia para QA.
+
+### 3. QA
+
+Validação feita:
+- Subagente QA validou `Application`, manifest, `Room.databaseBuilder`, repositories expostos, seed em `Dispatchers.IO` e ausência de UI nova.
+- Imagens de referência continuam untracked na raiz e foram mantidas fora do ciclo.
+
+Decisão:
+- APROVADO
+
+### Próxima tarefa aberta pelo Arquiteto
+
+Nome:
+- Criar primeira ViewModel da tela Hoje.
+
+Instrução para o próximo ciclo:
+- Criar somente estado/ViewModel inicial da tela Hoje usando repositories e serviços já existentes. Não redesenhar a tela completa ainda.
