@@ -1084,3 +1084,103 @@ Nome:
 
 Instrução para o próximo ciclo:
 - Gerar `android-native/app/src/main/assets/foods_seed.json` a partir do seed web atual, preservando nomes, aliases, categorias e macros. Não criar seed loader ainda.
+
+## Ciclo 7
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Migrar seed de alimentos para assets.
+
+Motivo:
+- Levar o catálogo brasileiro offline para o app Android, sem ainda criar carregamento automático.
+
+Tela ou funcionalidade original analisada:
+- `scripts/seed_foods.py`.
+
+Arquivos prováveis:
+- `android-native/app/src/main/assets/foods_seed.json`.
+
+Critérios de aceite funcionais:
+- Criar asset JSON válido.
+- Ter pelo menos 150 alimentos.
+- Preservar campos necessários para `FoodEntity`.
+- Preservar nomes, aliases, categorias e macros.
+- `gradlew.bat test` passa.
+- `gradlew.bat assembleDebug` passa.
+
+Critérios de aceite visuais:
+- Nenhum, tarefa de dados.
+- Não criar telas reais.
+
+Riscos:
+- O seed web tem correções de acento antigas com mojibake no terminal. Mitigação: validar o asset em UTF-8 com alimentos acentuados conhecidos.
+
+Instrução objetiva para o Dev:
+- Gerar somente `foods_seed.json`. Não criar loader, repositories, banco populado ou telas.
+
+### 2. DEV
+
+Implementação feita:
+- Criado `android-native/app/src/main/assets/foods_seed.json` com 218 alimentos.
+- Campos exportados em camelCase compatíveis com `FoodEntity`.
+- Acentos validados em UTF-8 para exemplos brasileiros.
+
+Arquivos alterados:
+- `MIGRATION_PLAN.md`.
+- `android-native/app/src/main/assets/foods_seed.json`.
+
+Como preservou o app original:
+- O asset foi gerado a partir da lista base e extras do seed web.
+- Mantém variantes caseiras determinísticas já existentes no seed web.
+
+Como testou:
+- Validação JSON por Python.
+- Build e testes Android.
+
+Comando executado:
+- validação Python do JSON.
+- `gradlew.bat test`.
+- `gradlew.bat assembleDebug`.
+
+Resultado:
+- JSON válido: 218 alimentos OK.
+- `gradlew.bat test`: BUILD SUCCESSFUL.
+- `gradlew.bat assembleDebug`: BUILD SUCCESSFUL.
+
+Envia para QA.
+
+### 3. QA
+
+Validação feita:
+- Subagente QA deve validar asset, campos, acentos e ausência de escopo extra.
+
+Comando executado:
+- Inspeção/validação do JSON e plano.
+
+Resultado:
+- QA subagente aprovou JSON, campos, acentos, contagem e ausência de escopo extra.
+
+Checklist funcional:
+- [x] Asset criado.
+- [x] JSON válido.
+- [x] 218 alimentos.
+- [x] Campos compatíveis com `FoodEntity`.
+- [x] Nomes/categorias/aliases/macros preservados.
+- [x] `gradlew.bat test` passa.
+- [x] `gradlew.bat assembleDebug` passa.
+
+Checklist visual:
+- [x] Sem telas reais.
+- [x] Sem mudança visual.
+
+Decisão:
+- APROVADO
+
+### Próxima tarefa aberta pelo Arquiteto
+
+Nome:
+- Criar seed loader inicial.
+
+Instrução para o próximo ciclo:
+- Criar apenas o loader que lê `foods_seed.json` e insere no Room sem duplicar alimentos. Não ligar ao app ainda se exigir wiring maior.
