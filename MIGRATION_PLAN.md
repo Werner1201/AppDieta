@@ -989,3 +989,98 @@ Nome:
 
 Instrução para o próximo ciclo:
 - Criar somente `AppDatabase` com entidades e DAOs do Ciclo 5, incluindo migrations iniciais se necessárias. Não criar repositories, seed loader ou telas.
+
+## Ciclo 6
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Criar `AppDatabase` Room.
+
+Motivo:
+- Fechar o contrato Room inicial com entidades e DAOs já aprovados, mantendo o banco ainda desconectado do app.
+
+Tela ou funcionalidade original analisada:
+- Nenhuma tela.
+- Entidades e DAOs do Ciclo 5.
+
+Arquivos prováveis:
+- `android-native/app/src/main/kotlin/com/romling/diettracker/data/local/AppDatabase.kt`.
+
+Critérios de aceite funcionais:
+- Criar `AppDatabase`.
+- Incluir todas as entidades do Ciclo 5.
+- Expor todos os DAOs do Ciclo 5.
+- Usar version 1.
+- `gradlew.bat test` passa.
+- `gradlew.bat assembleDebug` passa.
+
+Critérios de aceite visuais:
+- Nenhum, tarefa de dados.
+- Não criar telas reais.
+
+Riscos:
+- Ligar banco ao app antes de seed/repositories. Mitigação: não criar builder nem injeção neste ciclo.
+
+Instrução objetiva para o Dev:
+- Criar somente `AppDatabase.kt`. Não criar repositories, seed loader, migrations desnecessárias, `databaseBuilder` ou telas.
+
+### 2. DEV
+
+Implementação feita:
+- Criado `AppDatabase` Room version 1 com entidades e DAOs aprovados.
+- `exportSchema=false` por enquanto, pois ainda não há política de migrations/schema export no projeto.
+
+Arquivos alterados:
+- `MIGRATION_PLAN.md`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/data/local/AppDatabase.kt`.
+
+Como preservou o app original:
+- Banco reúne as tabelas equivalentes ao SQLite local atual e ao modelo Android planejado.
+
+Como testou:
+- Build e testes Android com KSP/Room gerando código.
+
+Comando executado:
+- `gradlew.bat test`.
+- `gradlew.bat assembleDebug`.
+
+Resultado:
+- `gradlew.bat test`: BUILD SUCCESSFUL.
+- `gradlew.bat assembleDebug`: BUILD SUCCESSFUL.
+
+Envia para QA.
+
+### 3. QA
+
+Validação feita:
+- Subagente QA deve validar escopo e composição do banco.
+
+Comando executado:
+- Inspeção de `AppDatabase.kt` e plano.
+
+Resultado:
+- QA subagente aprovou `AppDatabase`, entidades, DAOs e ausência de escopo extra.
+
+Checklist funcional:
+- [x] `AppDatabase` criado.
+- [x] Version 1.
+- [x] Todas as entidades do Ciclo 5 incluídas.
+- [x] Todos os DAOs do Ciclo 5 expostos.
+- [x] `gradlew.bat test` passa.
+- [x] `gradlew.bat assembleDebug` passa.
+
+Checklist visual:
+- [x] Sem telas reais.
+- [x] Sem mudança visual.
+
+Decisão:
+- APROVADO
+
+### Próxima tarefa aberta pelo Arquiteto
+
+Nome:
+- Migrar seed de alimentos para assets.
+
+Instrução para o próximo ciclo:
+- Gerar `android-native/app/src/main/assets/foods_seed.json` a partir do seed web atual, preservando nomes, aliases, categorias e macros. Não criar seed loader ainda.
