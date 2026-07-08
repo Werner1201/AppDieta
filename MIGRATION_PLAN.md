@@ -1184,3 +1184,93 @@ Nome:
 
 Instrução para o próximo ciclo:
 - Criar apenas o loader que lê `foods_seed.json` e insere no Room sem duplicar alimentos. Não ligar ao app ainda se exigir wiring maior.
+
+## Ciclo 8
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Criar seed loader inicial.
+
+Motivo:
+- Preparar o carregamento offline do catálogo brasileiro no Room sem ainda acoplar isso ao ciclo de vida do app.
+
+Tela ou funcionalidade original analisada:
+- `scripts/seed_foods.py`.
+- `android-native/app/src/main/assets/foods_seed.json`.
+
+Arquivos prováveis:
+- `android-native/build.gradle.kts`.
+- `android-native/app/build.gradle.kts`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/data/local/dao/Daos.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/data/local/seed/FoodSeedLoader.kt`.
+- `android-native/app/src/test/kotlin/com/romling/diettracker/data/local/seed/FoodSeedLoaderTest.kt`.
+
+Critérios de aceite funcionais:
+- Criar loader que recebe `InputStream`.
+- Ler o JSON do asset com `kotlinx.serialization`.
+- Inserir alimentos via `FoodDao`.
+- Não duplicar alimentos quando a tabela já tiver dados.
+- Ter teste unitário do comportamento idempotente.
+- `gradlew.bat test` passa.
+- `gradlew.bat assembleDebug` passa.
+
+Critérios de aceite visuais:
+- Nenhum, tarefa de dados.
+- Não criar telas reais.
+
+Riscos:
+- Ligar o seed ao app antes de repositories/injeção. Mitigação: manter somente loader isolado neste ciclo.
+
+Instrução objetiva para o Dev:
+- Criar somente loader, métodos mínimos no DAO e teste. Não criar repositories, telas, navegação ou `databaseBuilder`.
+
+### 2. DEV
+
+Implementação feita:
+- Adicionado `FoodSeedLoader` para ler `foods_seed.json` via `InputStream`, converter para `FoodEntity` e inserir no Room.
+- Adicionados métodos mínimos em `FoodDao` para contar alimentos e inserir lista com `IGNORE`.
+- Adicionadas dependências de `kotlinx.serialization` e teste de coroutines/kotlin test.
+- Criado teste unitário garantindo que o seed insere uma vez e não duplica quando já existem alimentos.
+
+Arquivos alterados:
+- `MIGRATION_PLAN.md`.
+- `android-native/build.gradle.kts`.
+- `android-native/app/build.gradle.kts`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/data/local/dao/Daos.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/data/local/seed/FoodSeedLoader.kt`.
+- `android-native/app/src/test/kotlin/com/romling/diettracker/data/local/seed/FoodSeedLoaderTest.kt`.
+
+Como preservou o app original:
+- O loader usa o asset gerado do seed web, sem alterar o app web e sem introduzir telas ou fluxo visual no Android.
+
+Como testou:
+- Teste unitário do loader.
+- Build Android debug.
+
+Comando executado:
+- `gradlew.bat test`.
+- `gradlew.bat assembleDebug`.
+
+Resultado:
+- `gradlew.bat test`: BUILD SUCCESSFUL.
+- `gradlew.bat assembleDebug`: BUILD SUCCESSFUL.
+
+Envia para QA.
+
+### 3. QA
+
+Validação feita:
+- Subagente QA validou escopo, loader, DAO, testes e ausência de app wiring/repositories/telas.
+- Imagens de referência continuam untracked na raiz e foram mantidas fora do ciclo.
+
+Decisão:
+- APROVADO
+
+### Próxima tarefa aberta pelo Arquiteto
+
+Nome:
+- Criar repositories básicos.
+
+Instrução para o próximo ciclo:
+- Criar apenas repositories básicos para alimentos e diário usando os DAOs existentes. Não criar telas, ViewModels nem wiring de inicialização ainda.

@@ -31,8 +31,14 @@ interface FoodDao {
     @Query("SELECT * FROM foods WHERE id = :id LIMIT 1")
     suspend fun getById(id: Long): FoodEntity?
 
+    @Query("SELECT COUNT(*) FROM foods")
+    suspend fun count(): Int
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(food: FoodEntity): Long
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertAll(foods: List<FoodEntity>): List<Long>
 
     @Update
     suspend fun update(food: FoodEntity)
