@@ -4570,3 +4570,71 @@ Checklist funcional:
 Decisão:
 - APROVADO
 
+
+## Ciclo 48
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Ingredientes em receitas com busca de alimentos e totais de macros.
+
+Motivo:
+- Ciclo 47 criou lista de receitas sem ingredientes. Ciclo mínimo para adicionar/remover ingredientes buscando do catálogo e exibindo macros totais.
+
+Arquivos prováveis:
+- `data/local/entity/RecipeIngredientEntity.kt` (NOVO)
+- `data/local/dao/Daos.kt` (RecipeIngredientDao)
+- `data/local/AppDatabase.kt` (versão 3 + MIGRATION_2_3)
+- `DietTrackerApplication.kt` (recipeIngredientDao no builder)
+- `data/repository/RecipeRepository.kt` (ingredientsForRecipe, addIngredient, removeIngredient)
+- `feature/recipes/RecipesViewModel.kt` (reescrito com FoodRepository + flows de ingredientes)
+- `feature/recipes/RecipeDetailScreen.kt` (NOVO — picker 2 passos)
+- `feature/recipes/RecipesScreen.kt` (cards clicáveis)
+- `DietTrackerApp.kt` (detailRecipe state + RecipeDetailScreen branch)
+- `MainActivity.kt` (foodRepository no factory)
+
+Critérios de aceite:
+- RecipeIngredientEntity com recipe_id FK CASCADE para recipes.
+- RecipeIngredientDao: ingredientsForRecipe(), insert(), deleteById().
+- AppDatabase versão 3, MIGRATION_2_3 cria tabela recipe_ingredients com index.
+- RecipeRepository.addIngredient() escala nutrição por grams/100.
+- RecipesViewModel: selectedIngredients via flatMapLatest, foodResults via flatMapLatest.
+- RecipeDetailScreen: picker busca → gramas, lista ingredientes, totais macro, botão "+ Ingrediente".
+- gradlew.bat test passa. gradlew.bat assembleDebug passa.
+
+### 2. DEV
+
+Arquivos criados/alterados:
+- `data/local/entity/RecipeIngredientEntity.kt` (NOVO)
+- `data/local/dao/Daos.kt` (RecipeIngredientDao adicionado)
+- `data/local/AppDatabase.kt` (versão 3 + MIGRATION_2_3 + recipeIngredientDao())
+- `DietTrackerApplication.kt` (addMigrations(MIGRATION_1_2, MIGRATION_2_3) + recipeIngredientDao)
+- `data/repository/RecipeRepository.kt` (ingredientsForRecipe, addIngredient, removeIngredient)
+- `feature/recipes/RecipesViewModel.kt` (reescrito com FoodRepository dep)
+- `feature/recipes/RecipeDetailScreen.kt` (NOVO)
+- `feature/recipes/RecipesScreen.kt` (clickable cards)
+- `DietTrackerApp.kt` (detailRecipe state + RecipeDetailScreen)
+- `MainActivity.kt` (container.foodRepository para factory)
+
+Como testou:
+- `gradlew.bat test` — BUILD SUCCESSFUL.
+- `gradlew.bat assembleDebug` — BUILD SUCCESSFUL.
+
+### 3. QA
+
+Checklist funcional:
+- [x] RecipeIngredientEntity campos corretos, FK CASCADE, index em recipe_id.
+- [x] RecipeIngredientDao: ingredientsForRecipe(), insert(), deleteById().
+- [x] AppDatabase versão 3, MIGRATION_2_3 DDL correto.
+- [x] DietTrackerApplication com ambas migrations e recipeIngredientDao.
+- [x] RecipeRepository.addIngredient() escala por factor = grams / 100.0.
+- [x] RecipesViewModel: flatMapLatest para ingredientes e food search, FoodRepository dep.
+- [x] RecipeDetailScreen: header ←, lista ingredientes com grams/kcal, totais macro, dialog 2 passos, "+ Ingrediente".
+- [x] RecipesScreen cards clicáveis via .clickable(onClick = onClick).
+- [x] DietTrackerApp: detailRecipe state, RecipeDetailScreen branch prioritário.
+- [x] MainActivity passa container.foodRepository ao factory.
+- [x] `gradlew.bat test` passa.
+- [x] `gradlew.bat assembleDebug` passa.
+
+Decisão:
+- APROVADO

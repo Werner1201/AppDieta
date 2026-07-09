@@ -33,6 +33,8 @@ import com.romling.diettracker.feature.meal.AddFoodViewModel
 import com.romling.diettracker.feature.chatgpt.ChatGptImportScreen
 import com.romling.diettracker.feature.chatgpt.ChatGptImportViewModel
 import com.romling.diettracker.feature.meal.CustomFoodsScreen
+import com.romling.diettracker.data.local.entity.RecipeEntity
+import com.romling.diettracker.feature.recipes.RecipeDetailScreen
 import com.romling.diettracker.feature.recipes.RecipesScreen
 import com.romling.diettracker.feature.recipes.RecipesViewModel
 import com.romling.diettracker.feature.meal.MealDetailScreen
@@ -66,6 +68,9 @@ fun DietTrackerApp(
     val customFoods by addFoodViewModel.customFoods.collectAsState()
     val importState by chatGptImportViewModel.state.collectAsState()
     val recipes by recipesViewModel.recipes.collectAsState()
+    val selectedIngredients by recipesViewModel.selectedIngredients.collectAsState()
+    val recipeFoodResults by recipesViewModel.foodResults.collectAsState()
+    var detailRecipe by remember { mutableStateOf<RecipeEntity?>(null) }
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var addMeal by remember { mutableStateOf<TodayMealSummary?>(null) }
@@ -78,7 +83,18 @@ fun DietTrackerApp(
     var selectedTab by remember { mutableStateOf(AppTab.DIARY) }
 
     DietTrackerTheme {
-        if (showImport) {
+        if (detailRecipe != null) {
+            RecipeDetailScreen(
+                recipe = detailRecipe!!,
+                ingredients = selectedIngredients,
+                foodResults = recipeFoodResults,
+                onSearchFoods = recipesViewModel::searchFoods,
+                onClearFoodSearch = recipesViewModel::clearFoodSearch,
+                onAddIngredient = { food, grams -> recipesViewModel.addIngredientFromFood(detailRecipe!!.id, food, grams) },
+                onRemoveIngredient = recipesViewModel::removeIngredient,
+                onClose = { detailRecipe = null; recipesViewModel.clearRecipe() },
+            )
+        } else if (showImport) {
             ChatGptImportScreen(
                 state = importState,
                 onJsonChange = chatGptImportViewModel::updateJson,
@@ -174,6 +190,10 @@ fun DietTrackerApp(
                             recipes = recipes,
                             onCreate = recipesViewModel::create,
                             onDelete = recipesViewModel::delete,
+                            onRecipeClick = { recipe ->
+                                recipesViewModel.selectRecipe(recipe.id)
+                                detailRecipe = recipe
+                            },
                         )
                         else -> TabPlaceholder(selectedTab)
                     }

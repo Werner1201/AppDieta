@@ -36,7 +36,7 @@ class MainActivity : ComponentActivity() {
         )[ChatGptImportViewModel::class.java]
         val recipesViewModel = ViewModelProvider(
             this,
-            RecipesViewModelFactory(container.recipeRepository),
+            RecipesViewModelFactory(container.recipeRepository, container.foodRepository),
         )[RecipesViewModel::class.java]
         setContent { DietTrackerApp(todayViewModel, addFoodViewModel, chatGptImportViewModel, recipesViewModel) }
     }

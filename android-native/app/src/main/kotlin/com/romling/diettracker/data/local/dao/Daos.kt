@@ -12,6 +12,7 @@ import com.romling.diettracker.data.local.entity.DiaryEntryEntity
 import com.romling.diettracker.data.local.entity.FoodEntity
 import com.romling.diettracker.data.local.entity.FoodPortionEntity
 import com.romling.diettracker.data.local.entity.RecipeEntity
+import com.romling.diettracker.data.local.entity.RecipeIngredientEntity
 import com.romling.diettracker.data.local.entity.WaterEntryEntity
 import com.romling.diettracker.data.local.entity.WeightEntryEntity
 import kotlinx.coroutines.flow.Flow
@@ -132,6 +133,18 @@ interface RecipeDao {
     suspend fun insert(recipe: RecipeEntity): Long
 
     @Query("DELETE FROM recipes WHERE id = :id")
+    suspend fun deleteById(id: Long)
+}
+
+@Dao
+interface RecipeIngredientDao {
+    @Query("SELECT * FROM recipe_ingredients WHERE recipe_id = :recipeId ORDER BY created_at, id")
+    fun ingredientsForRecipe(recipeId: Long): Flow<List<RecipeIngredientEntity>>
+
+    @Insert
+    suspend fun insert(ingredient: RecipeIngredientEntity): Long
+
+    @Query("DELETE FROM recipe_ingredients WHERE id = :id")
     suspend fun deleteById(id: Long)
 }
 

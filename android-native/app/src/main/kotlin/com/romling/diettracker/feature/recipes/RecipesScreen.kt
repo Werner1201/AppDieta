@@ -1,6 +1,7 @@
 package com.romling.diettracker.feature.recipes
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,6 +39,7 @@ fun RecipesScreen(
     recipes: List<RecipeEntity>,
     onCreate: (name: String, description: String) -> Unit,
     onDelete: (Long) -> Unit,
+    onRecipeClick: (RecipeEntity) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     var showCreate by remember { mutableStateOf(false) }
@@ -130,7 +132,11 @@ fun RecipesScreen(
                 verticalArrangement = Arrangement.spacedBy(AppSpacing.SectionGap),
             ) {
                 recipes.forEach { recipe ->
-                    RecipeCard(recipe = recipe, onDelete = { onDelete(recipe.id) })
+                    RecipeCard(
+                        recipe = recipe,
+                        onDelete = { onDelete(recipe.id) },
+                        onClick = { onRecipeClick(recipe) },
+                    )
                 }
             }
         }
@@ -138,13 +144,19 @@ fun RecipesScreen(
 }
 
 @Composable
-private fun RecipeCard(recipe: RecipeEntity, onDelete: () -> Unit) {
+private fun RecipeCard(recipe: RecipeEntity, onDelete: () -> Unit, onClick: () -> Unit = {}) {
     AppCard {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable(onClick = onClick)
+                    .padding(end = 4.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
                 Text(
                     text = recipe.name,
                     style = MaterialTheme.typography.bodyLarge,

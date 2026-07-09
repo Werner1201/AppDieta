@@ -10,6 +10,7 @@ import com.romling.diettracker.data.local.dao.DiaryEntryDao
 import com.romling.diettracker.data.local.dao.FoodDao
 import com.romling.diettracker.data.local.dao.FoodPortionDao
 import com.romling.diettracker.data.local.dao.RecipeDao
+import com.romling.diettracker.data.local.dao.RecipeIngredientDao
 import com.romling.diettracker.data.local.dao.WaterEntryDao
 import com.romling.diettracker.data.local.dao.WeightEntryDao
 import com.romling.diettracker.data.local.entity.AiImportEntity
@@ -18,8 +19,29 @@ import com.romling.diettracker.data.local.entity.DiaryEntryEntity
 import com.romling.diettracker.data.local.entity.FoodEntity
 import com.romling.diettracker.data.local.entity.FoodPortionEntity
 import com.romling.diettracker.data.local.entity.RecipeEntity
+import com.romling.diettracker.data.local.entity.RecipeIngredientEntity
 import com.romling.diettracker.data.local.entity.WaterEntryEntity
 import com.romling.diettracker.data.local.entity.WeightEntryEntity
+
+val MIGRATION_2_3 = object : Migration(2, 3) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL(
+            """CREATE TABLE IF NOT EXISTS `recipe_ingredients` (
+                `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                `recipe_id` INTEGER NOT NULL,
+                `food_name_snapshot` TEXT NOT NULL,
+                `grams` REAL NOT NULL,
+                `kcal` REAL NOT NULL,
+                `carbs` REAL NOT NULL,
+                `protein` REAL NOT NULL,
+                `fat` REAL NOT NULL,
+                `created_at` TEXT NOT NULL DEFAULT '',
+                FOREIGN KEY(`recipe_id`) REFERENCES `recipes`(`id`) ON DELETE CASCADE
+            )"""
+        )
+        database.execSQL("CREATE INDEX IF NOT EXISTS `index_recipe_ingredients_recipe_id` ON `recipe_ingredients` (`recipe_id`)")
+    }
+}
 
 val MIGRATION_1_2 = object : Migration(1, 2) {
     override fun migrate(database: SupportSQLiteDatabase) {
@@ -44,8 +66,9 @@ val MIGRATION_1_2 = object : Migration(1, 2) {
         DailyCommitmentEntity::class,
         AiImportEntity::class,
         RecipeEntity::class,
+        RecipeIngredientEntity::class,
     ],
-    version = 2,
+    version = 3,
     exportSchema = false,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -57,4 +80,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun dailyCommitmentDao(): DailyCommitmentDao
     abstract fun aiImportDao(): AiImportDao
     abstract fun recipeDao(): RecipeDao
+    abstract fun recipeIngredientDao(): RecipeIngredientDao
 }

@@ -65,10 +65,11 @@ Ignore imagens untracked na raiz. Responda com APROVADO ou REPROVADO e achados o
 - Ciclo 45: JSON escaping seguro em `exportJson` via `org.json.JSONObject`/`JSONArray` + teste unitário de round-trip.
 - Ciclo 46: edição de gramas de entrada no diário via `AlertDialog` em `MealDetailScreen`; nutrição recalculada proporcionalmente.
 - Ciclo 47: tela Receitas funcional (tab RECIPES); `RecipeEntity`, `RecipeDao`, `MIGRATION_1_2` (v1→v2), `RecipeRepository`, `RecipesViewModel`, `RecipesScreen` com lista e AlertDialog de criação.
+- Ciclo 48: ingredientes em receitas; `RecipeIngredientEntity`, `RecipeIngredientDao`, `MIGRATION_2_3` (v2→v3); `RecipeDetailScreen` com busca 2 passos, lista de ingredientes e totais macro.
 
 Ciclo em andamento:
-- Nenhum ciclo aberto após o Ciclo 47.
-- Próximo ciclo sugerido: ingredientes em receitas (vincular alimentos do DB a uma receita) ou tela Perfil.
+- Nenhum ciclo aberto após o Ciclo 48.
+- Próximo ciclo sugerido: adicionar receita ao diário (botão "Adicionar ao diário" em RecipeDetailScreen) ou tela Perfil.
 
 ## Estilo de implementação
 

@@ -5,6 +5,7 @@ import android.content.Context
 import androidx.room.Room
 import com.romling.diettracker.data.local.AppDatabase
 import com.romling.diettracker.data.local.MIGRATION_1_2
+import com.romling.diettracker.data.local.MIGRATION_2_3
 import com.romling.diettracker.data.local.seed.FoodSeedLoader
 import com.romling.diettracker.data.repository.DiaryRepository
 import com.romling.diettracker.data.repository.FoodRepository
@@ -40,7 +41,7 @@ class AppContainer(private val context: Context) {
 
     val database: AppDatabase
         get() = databaseInstance ?: Room.databaseBuilder(context, AppDatabase::class.java, "diet_tracker.db")
-            .addMigrations(MIGRATION_1_2)
+            .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
             .build()
             .also { databaseInstance = it }
     val foodRepository: FoodRepository by lazy {
@@ -59,7 +60,7 @@ class AppContainer(private val context: Context) {
         SettingsRepository(context.getSharedPreferences("diet_tracker_settings", Context.MODE_PRIVATE))
     }
     val recipeRepository: RecipeRepository by lazy {
-        RecipeRepository(database.recipeDao())
+        RecipeRepository(database.recipeDao(), database.recipeIngredientDao())
     }
 
     fun seedFoods() {
