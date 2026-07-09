@@ -1539,3 +1539,94 @@ Nome:
 
 Instrução para o próximo ciclo:
 - Criar somente estado/ViewModel inicial da tela Hoje usando repositories e serviços já existentes. Não redesenhar a tela completa ainda.
+
+## Ciclo 12
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Criar primeira ViewModel da tela Hoje.
+
+Motivo:
+- Preparar estado observável da tela Hoje antes de migrar a UI completa.
+
+Tela ou funcionalidade original analisada:
+- Tela Hoje.
+- Resumo calórico.
+- Regra de dia verde.
+
+Arquivos prováveis:
+- `android-native/app/build.gradle.kts`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayViewModel.kt`.
+- `android-native/app/src/test/kotlin/com/romling/diettracker/feature/today/TodayViewModelTest.kt`.
+
+Critérios de aceite funcionais:
+- Criar `TodayViewModel`.
+- Expor `StateFlow<TodayUiState>`.
+- Carregar registros do dia via `DiaryRepository`.
+- Calcular totais de kcal, carboidratos, proteína e gordura.
+- Calcular kcal restantes com meta padrão.
+- Calcular dia verde usando `GreenDayService`.
+- Ter teste unitário mínimo.
+- `gradlew.bat test` passa.
+- `gradlew.bat assembleDebug` passa.
+
+Critérios de aceite visuais:
+- Não criar tela Compose nova.
+- Não alterar navegação ou `MainActivity`.
+
+Riscos:
+- Antecipar DataStore/settings. Mitigação: usar metas padrão no construtor até o ciclo de settings.
+
+Instrução objetiva para o Dev:
+- Criar somente ViewModel/estado/teste e dependência ViewModel necessária. Não criar tela, navegação, factory, DI framework ou layout.
+
+### 2. DEV
+
+Implementação feita:
+- Adicionada dependência `androidx.lifecycle:lifecycle-viewmodel-ktx`.
+- Criado `TodayViewModel` com `StateFlow<TodayUiState>`.
+- Estado inicial calcula data, semana ISO, totais, kcal restantes e dia verde.
+- Criado teste unitário cobrindo resumo de entradas do dia.
+
+Arquivos alterados:
+- `MIGRATION_PLAN.md`.
+- `android-native/app/build.gradle.kts`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayViewModel.kt`.
+- `android-native/app/src/test/kotlin/com/romling/diettracker/feature/today/TodayViewModelTest.kt`.
+
+Como preservou o app original:
+- A ViewModel replica os cálculos principais da tela Hoje sem alterar UI web ou Android.
+
+Como testou:
+- Teste unitário da ViewModel.
+- Build Android debug.
+
+Comando executado:
+- `gradlew.bat test`.
+- `gradlew.bat assembleDebug`.
+- Busca por `@Composable`, `NavHost`, `setContent`, `Modifier`, `Text(`, `Button(` e `Screen` no pacote `feature/today`.
+
+Resultado:
+- `gradlew.bat test`: BUILD SUCCESSFUL.
+- `gradlew.bat assembleDebug`: BUILD SUCCESSFUL.
+- Busca de escopo: nenhum resultado.
+
+Envia para QA.
+
+### 3. QA
+
+Validação feita:
+- Subagente QA validou escopo, `TodayViewModel`, dependência de ViewModel, teste unitário e ausência de UI/navegação/DI.
+- Imagens de referência continuam untracked na raiz e foram mantidas fora do ciclo.
+
+Decisão:
+- APROVADO
+
+### Próxima tarefa aberta pelo Arquiteto
+
+Nome:
+- Criar primeira tela Hoje Compose.
+
+Instrução para o próximo ciclo:
+- Criar uma primeira tela Hoje Compose ligada à `TodayUiState`, com cabeçalho e card de resumo apenas. Não migrar alimentação, água, peso ou navegação ainda.
