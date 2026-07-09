@@ -115,14 +115,26 @@ class TodayViewModel(
 
     suspend fun exportJson(): String {
         val entries = diaryRepository.allEntries()
-        val items = entries.joinToString(",\n    ") { e ->
-            """{"date":"${e.date}","meal":"${e.mealType}","name":"${e.foodNameSnapshot}","grams":${e.gramsTotal.toInt()},"kcal":${e.kcal.toInt()},"carbs":${e.carbs},"protein":${e.protein},"fat":${e.fat}}"""
+        val array = org.json.JSONArray()
+        for (e in entries) {
+            array.put(
+                org.json.JSONObject()
+                    .put("date", e.date)
+                    .put("meal", e.mealType)
+                    .put("name", e.foodNameSnapshot)
+                    .put("grams", e.gramsTotal.toInt())
+                    .put("kcal", e.kcal.toInt())
+                    .put("carbs", e.carbs)
+                    .put("protein", e.protein)
+                    .put("fat", e.fat)
+            )
         }
-        return buildString {
-            append("{\n  \"app\": \"AppDieta\",\n  \"exported_at\": \"${java.time.LocalDate.now()}\",\n  \"count\": ${entries.size},\n  \"entries\": [\n    ")
-            append(items)
-            append("\n  ]\n}")
-        }
+        return org.json.JSONObject()
+            .put("app", "AppDieta")
+            .put("exported_at", java.time.LocalDate.now().toString())
+            .put("count", entries.size)
+            .put("entries", array)
+            .toString(2)
     }
 
     private fun List<DiaryEntryEntity>.toTodayState(

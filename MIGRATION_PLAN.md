@@ -4379,3 +4379,47 @@ Checklist funcional:
 
 Decisão:
 - APROVADO com ressalvas (JSON escaping latente; sem teste de exportJson)
+
+## Ciclo 45
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- JSON escaping seguro em exportJson + teste unitário.
+
+Motivo:
+- Ciclo 44 QA flagrou risco: nomes customizados com `"` ou `\` quebravam JSON exportado. Sem teste cobrindo exportJson.
+
+Arquivos prováveis:
+- `feature/today/TodayViewModel.kt` — substituir template string por `org.json.JSONObject`/`JSONArray`
+- `TodayViewModelTest.kt` — novo teste `exportJsonEscapesSpecialChars`
+- `app/build.gradle.kts` — `testImplementation("org.json:json:20240303")`
+
+Critérios de aceite:
+- `exportJson` usa `JSONObject`/`JSONArray` (sem template string).
+- Nome com `"` e `\` sobrevive round-trip JSON.
+- `gradlew.bat test` passa.
+- `gradlew.bat assembleDebug` passa.
+
+### 2. DEV
+
+Arquivos alterados:
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayViewModel.kt`
+- `android-native/app/src/test/kotlin/com/romling/diettracker/feature/today/TodayViewModelTest.kt`
+- `android-native/app/build.gradle.kts`
+
+Como testou:
+- `gradlew.bat test` — BUILD SUCCESSFUL, teste `exportJsonEscapesSpecialChars` passou.
+- `gradlew.bat assembleDebug` — BUILD SUCCESSFUL.
+
+### 3. QA
+
+Checklist funcional:
+- [x] `exportJson` usa `org.json.JSONObject`/`JSONArray` sem template string.
+- [x] Teste `exportJsonEscapesSpecialChars` verifica round-trip com aspas e barra invertida.
+- [x] `testImplementation("org.json:json:20240303")` em `build.gradle.kts`.
+- [x] `gradlew.bat test` passa.
+- [x] `gradlew.bat assembleDebug` passa.
+
+Decisão:
+- APROVADO

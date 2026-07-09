@@ -49,6 +49,7 @@ dependencies {
 
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
     testImplementation(kotlin("test"))
+    testImplementation("org.json:json:20240303")
 
     ksp("androidx.room:room-compiler:2.6.1")
 }

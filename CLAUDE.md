@@ -62,10 +62,11 @@ Ignore imagens untracked na raiz. Responda com APROVADO ou REPROVADO e achados o
 - Ciclo 42: importador ChatGPT (`ChatGptImportScreen`) — cola JSON → prévia → salva no diário.
 - Ciclo 43: prompt copiável para o ChatGPT com formato JSON esperado (card + botão "Copiar" com feedback).
 - Ciclo 44: exportação de diário completo via share sheet JSON (`TodayViewModel.exportJson` + `Intent.ACTION_SEND`).
+- Ciclo 45: JSON escaping seguro em `exportJson` via `org.json.JSONObject`/`JSONArray` + teste unitário de round-trip.
 
 Ciclo em andamento:
-- Nenhum ciclo aberto após o Ciclo 44.
-- Próximo ciclo sugerido: JSON escaping seguro em exportJson, teste de exportJson, ou tela Receitas.
+- Nenhum ciclo aberto após o Ciclo 45.
+- Próximo ciclo sugerido: tela Receitas ou edição de entrada no diário.
 
 ## Estilo de implementação
 

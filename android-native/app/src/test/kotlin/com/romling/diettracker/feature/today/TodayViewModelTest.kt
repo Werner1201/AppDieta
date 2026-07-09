@@ -10,6 +10,7 @@ import com.romling.diettracker.data.repository.DiaryRepository
 import com.romling.diettracker.data.repository.WaterRepository
 import com.romling.diettracker.data.repository.WeightRepository
 import java.time.LocalDate
+import org.json.JSONObject
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -234,6 +235,23 @@ class TodayViewModelTest {
         assertEquals(632, meals.single { it.key == "lunch" }.goalKcal)
         assertEquals(542, meals.single { it.key == "dinner" }.goalKcal)
         assertEquals(194, meals.single { it.key == "snack" }.goalKcal)
+    }
+
+    @Test
+    fun exportJsonEscapesSpecialChars() = runTest(dispatcher) {
+        val nameWithQuotes = """Café "duplo" \ test"""
+        val dao = FakeDiaryEntryDao(listOf(entry(kcal = 200.0, protein = 10.0).copy(foodNameSnapshot = nameWithQuotes)))
+        val viewModel = TodayViewModel(
+            diaryRepository = DiaryRepository(dao),
+            waterRepository = WaterRepository(FakeWaterEntryDao()),
+            weightRepository = WeightRepository(FakeWeightEntryDao()),
+            dateProvider = { LocalDate.parse("2026-07-01") },
+        )
+
+        val json = viewModel.exportJson()
+        val parsed = JSONObject(json)
+        val firstName = parsed.getJSONArray("entries").getJSONObject(0).getString("name")
+        assertEquals(nameWithQuotes, firstName)
     }
 
     @Test
