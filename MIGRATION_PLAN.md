@@ -4159,3 +4159,94 @@ Checklist visual:
 
 Decisão:
 - APROVADO
+
+## Ciclo 42
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Importador ChatGPT: cola JSON → prévia → salva no diário.
+
+Motivo:
+- Web app tinha importador ChatGPT. Android ainda não tinha. Usuário perde funcionalidade central ao migrar.
+
+Arquivos prováveis:
+- `data/repository/DiaryRepository.kt` — `addImportedFood()` sem `FoodEntity`
+- `feature/chatgpt/ChatGptImportViewModel.kt` — novo
+- `feature/chatgpt/ChatGptImportScreen.kt` — novo
+- `feature/today/TodayScreen.kt` — botão "Importar via ChatGPT" + `onOpenImport`
+- `DietTrackerApp.kt` — branch `showImport` + wiring
+- `MainActivity.kt` — instanciar `ChatGptImportViewModel`
+
+Critérios de aceite funcionais:
+- Botão "📥 Importar via ChatGPT" visível na tela Hoje.
+- Abre tela com campo de texto para colar JSON.
+- "Analisar JSON" parseia e mostra prévia com nome, refeição, gramas, kcal por item.
+- "Salvar tudo (N)" insere todos os itens no diário da data atual.
+- Importação usa chaves PT/EN: `nome`/`name`, `porcao_g`/`grams`, `refeicao`/`meal`, `kcal`, `proteina`/`protein`, `carbs`/`carboidratos`, `gordura`/`fat`.
+- Mapeamento de refeição: almoco→lunch, cafe→breakfast, jantar→dinner, lanche→snack.
+- JSON inválido mostra mensagem de erro clara.
+- `gradlew.bat test` passa.
+- `gradlew.bat assembleDebug` passa.
+
+Critérios de aceite visuais:
+- Header ← consistente.
+- Prévia lista cada item antes de salvar.
+- Mensagem de sucesso após salvar.
+
+Riscos:
+- `foodId = 0L` FK constraint → não enforced neste app (sem callback no AppDatabase). Seguro.
+- JSON sem chave `nome`/`name` → item filtrado (mapNotNull), sem crash.
+
+Instrução objetiva:
+- `addImportedFood()` direto em `DiaryEntryEntity`, parse com `org.json.JSONArray`, prévia antes de salvar.
+
+### 2. DEV
+
+Implementação feita:
+- `DiaryRepository.addImportedFood()`: insere `DiaryEntryEntity` com `foodId=0L`, sem `FoodEntity`.
+- `ChatGptImportViewModel.kt` criado: `updateJson`, `parse` (org.json, chaves PT+EN, mapNotNull filtra itens sem nome), `saveAll(date, onDone)`, `reset`.
+- `ChatGptImportScreen.kt` criado: header ←, `OutlinedTextField` multiline, botão "Analisar JSON", erro inline, prévia com `PreviewRow`, `BottomPrimaryButton` "Salvar tudo (N)".
+- `TodayScreen.kt`: `onOpenImport` param + `ImportButton` composable (Surface, "📥 Importar via ChatGPT").
+- `DietTrackerApp.kt`: `importState` coletado, `showImport` estado, branch `ChatGptImportScreen`, `onOpenImport` em TodayScreen; `chatGptImportViewModel` param adicionado.
+- `MainActivity.kt`: instancia `ChatGptImportViewModel` via factory e passa para `DietTrackerApp`.
+
+Arquivos alterados:
+- `MIGRATION_PLAN.md`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/data/repository/DiaryRepository.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/chatgpt/ChatGptImportViewModel.kt` (novo)
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/chatgpt/ChatGptImportScreen.kt` (novo)
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayScreen.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/DietTrackerApp.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/MainActivity.kt`
+
+Como testou:
+- `gradlew.bat test` — BUILD SUCCESSFUL (51 tasks).
+- `gradlew.bat assembleDebug` — BUILD SUCCESSFUL (37 tasks).
+
+### 3. QA
+
+Validação feita:
+- `addImportedFood()` insere `DiaryEntryEntity` diretamente sem necessidade de `FoodEntity`. ✅
+- `parse()` aceita chaves PT e EN; filtra itens sem nome via `mapNotNull`. ✅
+- JSON inválido → `parseError` com mensagem. ✅
+- `saveAll()` chama `onDone` e fecha tela. ✅
+- Botão "Importar" visível na TodayScreen entre SmartTips e Resumo. ✅
+- `ChatGptImportViewModel` e Factory independentes — sem acoplamento extra. ✅
+- Testes passam sem regressão. ✅
+
+Checklist funcional:
+- [x] `addImportedFood()` no DiaryRepository.
+- [x] `ChatGptImportViewModel` + `ChatGptImportScreen` criados.
+- [x] Botão na TodayScreen.
+- [x] Branch em DietTrackerApp.
+- [x] `gradlew.bat test` passa.
+- [x] `gradlew.bat assembleDebug` passa.
+
+Checklist visual:
+- [x] Header ← consistente.
+- [x] Prévia por item antes de salvar.
+- [x] Mensagem sucesso após salvar.
+
+Decisão:
+- APROVADO

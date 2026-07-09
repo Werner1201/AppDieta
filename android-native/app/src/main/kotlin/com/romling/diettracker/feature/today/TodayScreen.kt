@@ -61,6 +61,7 @@ fun TodayScreen(
     onRemoveLastWater: () -> Unit = {},
     onAddWeight: (Double) -> Unit = {},
     onOpenWeight: () -> Unit = {},
+    onOpenImport: () -> Unit = {},
     onPreviousDay: () -> Unit = {},
     onNextDay: () -> Unit = {},
     onOpenCalendar: () -> Unit = {},
@@ -96,6 +97,7 @@ fun TodayScreen(
     ) {
         TodayHeader(state = state, onOpenCalendar = onOpenCalendar, onOpenStreak = onOpenStreak)
         SmartTipsButton()
+        ImportButton(onClick = onOpenImport)
         SectionTitle(title = "Resumo", actionLabel = "Detalhes")
         SummaryCard(state)
         SectionTitle(title = "Alimentação", actionLabel = "Mais")
@@ -517,6 +519,32 @@ private fun EntryRow(entry: TodayEntrySummary, onRemoveEntry: (Long) -> Unit) {
             Box(modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp), contentAlignment = Alignment.Center) {
                 Text(text = "−", color = AppColors.Remove, style = MaterialTheme.typography.titleLarge)
             }
+        }
+    }
+}
+
+@Composable
+private fun ImportButton(onClick: () -> Unit) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(52.dp)
+            .clickable(onClick = onClick),
+        shape = AppShapes.Button,
+        color = AppColors.Panel,
+        border = BorderStroke(1.dp, AppColors.Line),
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 22.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Text(
+                text = "📥 Importar via ChatGPT",
+                style = MaterialTheme.typography.labelLarge,
+                color = AppColors.TextPrimary,
+            )
+            Text(text = "→", style = MaterialTheme.typography.labelLarge, color = AppColors.TextSecondary)
         }
     }
 }

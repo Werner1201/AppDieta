@@ -26,6 +26,8 @@ import com.romling.diettracker.core.ui.theme.AppColors
 import com.romling.diettracker.core.ui.theme.DietTrackerTheme
 import com.romling.diettracker.feature.meal.AddFoodScreen
 import com.romling.diettracker.feature.meal.AddFoodViewModel
+import com.romling.diettracker.feature.chatgpt.ChatGptImportScreen
+import com.romling.diettracker.feature.chatgpt.ChatGptImportViewModel
 import com.romling.diettracker.feature.meal.CustomFoodsScreen
 import com.romling.diettracker.feature.meal.MealDetailScreen
 import com.romling.diettracker.feature.settings.SettingsScreen
@@ -45,22 +47,32 @@ private enum class AppTab(val label: String, val icon: String) {
 }
 
 @Composable
-fun DietTrackerApp(todayViewModel: TodayViewModel, addFoodViewModel: AddFoodViewModel) {
+fun DietTrackerApp(todayViewModel: TodayViewModel, addFoodViewModel: AddFoodViewModel, chatGptImportViewModel: ChatGptImportViewModel) {
     val state by todayViewModel.state.collectAsState()
     val currentDate by todayViewModel.currentDate.collectAsState()
     val calendarGreenDays by todayViewModel.calendarGreenDays.collectAsState()
     val addFoodState by addFoodViewModel.state.collectAsState()
     val customFoods by addFoodViewModel.customFoods.collectAsState()
+    val importState by chatGptImportViewModel.state.collectAsState()
     var addMeal by remember { mutableStateOf<TodayMealSummary?>(null) }
     var detailMeal by remember { mutableStateOf<TodayMealSummary?>(null) }
     var showCalendar by remember { mutableStateOf(false) }
     var showStreak by remember { mutableStateOf(false) }
     var showWeight by remember { mutableStateOf(false) }
     var showCustomFoods by remember { mutableStateOf(false) }
+    var showImport by remember { mutableStateOf(false) }
     var selectedTab by remember { mutableStateOf(AppTab.DIARY) }
 
     DietTrackerTheme {
-        if (showCustomFoods) {
+        if (showImport) {
+            ChatGptImportScreen(
+                state = importState,
+                onJsonChange = chatGptImportViewModel::updateJson,
+                onParse = chatGptImportViewModel::parse,
+                onSaveAll = { chatGptImportViewModel.saveAll(state.date) { showImport = false } },
+                onClose = { chatGptImportViewModel.reset(); showImport = false },
+            )
+        } else if (showCustomFoods) {
             CustomFoodsScreen(
                 foods = customFoods,
                 onDelete = addFoodViewModel::deleteCustomFood,
@@ -121,6 +133,7 @@ fun DietTrackerApp(todayViewModel: TodayViewModel, addFoodViewModel: AddFoodView
                             onRemoveLastWater = todayViewModel::removeLastWater,
                             onAddWeight = todayViewModel::addWeight,
                             onOpenWeight = { showWeight = true },
+                            onOpenImport = { chatGptImportViewModel.reset(); showImport = true },
                             onPreviousDay = todayViewModel::previousDay,
                             onNextDay = todayViewModel::nextDay,
                             onOpenCalendar = { showCalendar = true },

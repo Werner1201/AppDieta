@@ -59,10 +59,11 @@ Ignore imagens untracked na raiz. Responda com APROVADO ou REPROVADO e achados o
 - Ciclo 39: cadastro de alimento customizado (`CreateFoodScreen`) acessível via botão "+ Criar" no AddFoodScreen.
 - Ciclo 40: tela dedicada de peso com histórico (`WeightScreen`) acessível por "Ver histórico" na seção Valores corporais.
 - Ciclo 41: lista e exclusão de alimentos customizados (`CustomFoodsScreen`) acessível via "Meus alimentos" em Configurações.
+- Ciclo 42: importador ChatGPT (`ChatGptImportScreen`) — cola JSON → prévia → salva no diário.
 
 Ciclo em andamento:
-- Nenhum ciclo aberto após o Ciclo 41.
-- Próximo ciclo sugerido: importador ChatGPT (JSON/base64url com prévia antes de salvar).
+- Nenhum ciclo aberto após o Ciclo 42.
+- Próximo ciclo sugerido: exportação/backup JSON ou prompt de importação para o ChatGPT.
 
 ## Estilo de implementação
 

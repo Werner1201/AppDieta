@@ -17,6 +17,36 @@ class DiaryRepository(
     suspend fun delete(entry: DiaryEntryEntity) = diaryEntryDao.delete(entry)
     suspend fun deleteById(entryId: Long) = diaryEntryDao.deleteById(entryId)
 
+    suspend fun addImportedFood(
+        date: String,
+        mealType: String,
+        name: String,
+        kcal: Double,
+        carbs: Double = 0.0,
+        protein: Double = 0.0,
+        fat: Double = 0.0,
+        gramsTotal: Double = 100.0,
+    ): Long {
+        val timestamp = now()
+        return diaryEntryDao.insert(
+            DiaryEntryEntity(
+                date = date,
+                mealType = mealType,
+                foodId = 0L,
+                foodNameSnapshot = name,
+                quantity = 1.0,
+                unitLabel = "${gramsTotal.toInt()} g",
+                gramsTotal = gramsTotal,
+                kcal = kotlin.math.round(kcal),
+                carbs = round1(carbs),
+                protein = round1(protein),
+                fat = round1(fat),
+                createdAt = timestamp,
+                updatedAt = timestamp,
+            ),
+        )
+    }
+
     suspend fun addFood(
         date: String,
         mealType: String,

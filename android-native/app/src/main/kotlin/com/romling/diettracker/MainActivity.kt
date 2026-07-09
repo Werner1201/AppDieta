@@ -4,6 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.lifecycle.ViewModelProvider
+import com.romling.diettracker.feature.chatgpt.ChatGptImportViewModel
+import com.romling.diettracker.feature.chatgpt.ChatGptImportViewModelFactory
 import com.romling.diettracker.feature.meal.AddFoodViewModel
 import com.romling.diettracker.feature.meal.AddFoodViewModelFactory
 import com.romling.diettracker.feature.today.TodayViewModel
@@ -26,6 +28,10 @@ class MainActivity : ComponentActivity() {
             this,
             AddFoodViewModelFactory(container.foodRepository, container.diaryRepository),
         )[AddFoodViewModel::class.java]
-        setContent { DietTrackerApp(todayViewModel, addFoodViewModel) }
+        val chatGptImportViewModel = ViewModelProvider(
+            this,
+            ChatGptImportViewModelFactory(container.diaryRepository),
+        )[ChatGptImportViewModel::class.java]
+        setContent { DietTrackerApp(todayViewModel, addFoodViewModel, chatGptImportViewModel) }
     }
 }
