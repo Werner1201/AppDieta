@@ -3002,3 +3002,86 @@ Nome:
 
 Instrução para o próximo ciclo:
 - Ler o plano e escolher a próxima menor fatia útil: candidatos são calendário, streak, configurações de meta ou tela de detalhe de refeição separada. Escolher a mais simples que agregue valor.
+
+---
+
+## Ciclo 28
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Corrigir bugs de layout na TodayScreen para tela estreita (Galaxy Z Fold 6, 322 dp).
+
+Motivo:
+- Inspeção visual no emulador revelou múltiplos textos truncando ou quebrando linha de forma incorreta na tela principal.
+
+Arquivos prováveis:
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayScreen.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/core/ui/theme/AppSpacing.kt`
+
+Critérios de aceite funcionais:
+- `gradlew test` passa sem regressão.
+- `gradlew assembleDebug` passa.
+
+Critérios de aceite visuais:
+- "Consumidas" e "Gastas" em uma linha, sem truncar.
+- Anel central legível.
+- "Carbs", "Proteína", "Gordura" cada um em uma linha.
+- Valores de macros ("0/284g" etc.) em uma linha.
+- Nomes das refeições ("Café da manhã", "Almoço", "Jantar", "Lanches") completos sem elipses.
+
+Riscos:
+- Redução dos ícones de refeição pode parecer visualmente menor; aceitável para o display estreito.
+
+Instrução objetiva para o Dev:
+- Corrigir apenas os componentes visuais afetados. Não alterar lógica de negócio.
+
+### 2. DEV
+
+Implementação feita:
+- `SummarySideMetric`: label trocado de `labelMedium` → `labelSmall`, adicionado `overflow=Ellipsis`, `textAlign=Center`, `fillMaxWidth()`.
+- `RemainingRing`: reduzido de `Box(100.dp)/Canvas(84.dp)/stroke=10dp` → `Box(80.dp)/Canvas(64.dp)/stroke=8dp`.
+- `MacroMetric`: label `bodyLarge` → `labelMedium`, valor `labelLarge` → `labelSmall`, formato `"v / g g"` → `"v/gg"`, espaçamento `8.dp` → `6.dp`.
+- Macro label "Carboidratos" → "Carbs".
+- `MealsCard`: padding horizontal `28.dp` → `14.dp`.
+- `MealRow`: altura `112.dp` → `80.dp`, espaçamento `18.dp` → `12.dp`, fonte do label `titleLarge` → `bodyLarge`, removido " →" do label, ícone do emoji `titleLarge` → `titleMedium`.
+- `AppSpacing.MealIconSize`: `70.dp` → `44.dp`.
+- `AppSpacing.MealActionSize`: `58.dp` → `40.dp`.
+
+Arquivos alterados:
+- `MIGRATION_PLAN.md`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayScreen.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/core/ui/theme/AppSpacing.kt`
+
+Como testou:
+- `./gradlew test` — BUILD SUCCESSFUL, todos os testes passaram.
+- `./gradlew assembleDebug` — BUILD SUCCESSFUL.
+- APK instalado no emulador Galaxy Z Fold 6; inspeção visual confirmou todos os critérios de aceite.
+
+### 3. QA
+
+Validação feita:
+- Verificado via screenshots no emulador (968×2376 px, 480 dpi = 322 dp de largura).
+- "Consumidas" e "Gastas" visíveis completos em uma linha.
+- Anel "2333 / Restantes" legível dentro do `Box(80.dp)`.
+- "Carbs", "Proteína", "Gordura" — cada um em uma linha.
+- "0/284g", "0/114g", "0/75g" — cada valor em uma linha.
+- "Café da manhã", "Almoço", "Jantar", "Lanches" — todos completos sem elipses.
+- Seções Água e Valores Corporais sem regressão visual.
+- Testes unitários passaram sem regressão.
+- Imagens de referência mantidas fora do commit.
+
+Checklist funcional:
+- [x] `gradlew test` passa.
+- [x] `gradlew assembleDebug` passa.
+
+Checklist visual:
+- [x] "Consumidas" em uma linha.
+- [x] "Gastas" em uma linha.
+- [x] Anel legível.
+- [x] Macros em uma linha cada.
+- [x] Valores de macros em uma linha cada.
+- [x] Nomes das refeições completos.
+
+Decisão:
+- APROVADO

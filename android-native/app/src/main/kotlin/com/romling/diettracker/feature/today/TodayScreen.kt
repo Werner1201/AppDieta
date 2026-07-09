@@ -175,9 +175,13 @@ private fun SummaryCard(state: TodayUiState) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                SummarySideMetric(value = state.totals.kcal.toInt().toString(), label = "Consumidas")
+                Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                    SummarySideMetric(value = state.totals.kcal.toInt().toString(), label = "Consumidas")
+                }
                 RemainingRing(state)
-                SummarySideMetric(value = "0", label = "Gastas")
+                Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                    SummarySideMetric(value = "0", label = "Gastas")
+                }
             }
             Row(
                 modifier = Modifier
@@ -185,7 +189,7 @@ private fun SummaryCard(state: TodayUiState) {
                     .padding(horizontal = 22.dp, vertical = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(22.dp),
             ) {
-                MacroMetric("Carboidratos", state.totals.carbs, 284.0, Modifier.weight(1f))
+                MacroMetric("Carbs", state.totals.carbs, 284.0, Modifier.weight(1f))
                 MacroMetric("Proteína", state.totals.protein, 114.0, Modifier.weight(1f))
                 MacroMetric("Gordura", state.totals.fat, 75.0, Modifier.weight(1f))
             }
@@ -204,18 +208,28 @@ private fun SummaryCard(state: TodayUiState) {
 
 @Composable
 private fun SummarySideMetric(value: String, label: String) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(text = value, style = MaterialTheme.typography.headlineMedium)
-        Text(text = label, style = MaterialTheme.typography.bodyMedium)
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(text = value, style = MaterialTheme.typography.titleLarge, maxLines = 1)
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth(),
+        )
     }
 }
 
 @Composable
 private fun RemainingRing(state: TodayUiState) {
     val progress = if (state.dailyKcal <= 0.0) 0f else (state.totals.kcal / state.dailyKcal).toFloat()
-    Box(modifier = Modifier.size(132.dp), contentAlignment = Alignment.Center) {
-        Canvas(modifier = Modifier.size(116.dp)) {
-            val stroke = Stroke(width = 14.dp.toPx(), cap = StrokeCap.Round)
+    Box(modifier = Modifier.size(80.dp), contentAlignment = Alignment.Center) {
+        Canvas(modifier = Modifier.size(64.dp)) {
+            val stroke = Stroke(width = 8.dp.toPx(), cap = StrokeCap.Round)
             val inset = stroke.width / 2
             val arcSize = Size(size.width - stroke.width, size.height - stroke.width)
             drawArc(
@@ -238,34 +252,36 @@ private fun RemainingRing(state: TodayUiState) {
             )
         }
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(text = state.remainingKcal.toString(), style = MaterialTheme.typography.headlineMedium)
-            Text(text = "Restantes", style = MaterialTheme.typography.bodyMedium)
+            Text(text = state.remainingKcal.toString(), style = MaterialTheme.typography.titleLarge)
+            Text(text = "Restantes", style = MaterialTheme.typography.labelSmall)
         }
     }
 }
 
 @Composable
 private fun MacroMetric(label: String, value: Double, goal: Double, modifier: Modifier = Modifier) {
-    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Text(
             text = label,
             modifier = Modifier.fillMaxWidth(),
-            style = MaterialTheme.typography.bodyLarge,
+            style = MaterialTheme.typography.labelMedium,
             textAlign = TextAlign.Center,
+            maxLines = 1,
         )
         MacroProgressBar(progress = (value / goal).toFloat())
         Text(
-            text = "${value.toInt()} / ${goal.toInt()} g",
+            text = "${value.toInt()}/${goal.toInt()}g",
             modifier = Modifier.fillMaxWidth(),
-            style = MaterialTheme.typography.labelLarge,
+            style = MaterialTheme.typography.labelSmall,
             textAlign = TextAlign.Center,
+            maxLines = 1,
         )
     }
 }
 
 @Composable
 private fun MealsCard(meals: List<TodayMealSummary>, onAddMeal: (TodayMealSummary) -> Unit) {
-    AppCard(contentPadding = PaddingValues(horizontal = 28.dp, vertical = 0.dp)) {
+    AppCard(contentPadding = PaddingValues(horizontal = 14.dp, vertical = 0.dp)) {
         Column {
             meals.forEachIndexed { index, meal ->
                 MealRow(meal = meal, onAddMeal = onAddMeal)
@@ -282,9 +298,9 @@ private fun MealRow(meal: TodayMealSummary, onAddMeal: (TodayMealSummary) -> Uni
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(112.dp),
+            .height(80.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(18.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         Surface(
             modifier = Modifier.size(AppSpacing.MealIconSize),
@@ -292,14 +308,14 @@ private fun MealRow(meal: TodayMealSummary, onAddMeal: (TodayMealSummary) -> Uni
             color = AppColors.Line.copy(alpha = 0.55f),
         ) {
             Box(contentAlignment = Alignment.Center) {
-                Text(text = meal.icon, style = MaterialTheme.typography.titleLarge)
+                Text(text = meal.icon, style = MaterialTheme.typography.titleMedium)
             }
         }
         Column(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
-            Text(text = "${meal.label} →", style = MaterialTheme.typography.titleLarge)
+            Text(text = meal.label, style = MaterialTheme.typography.bodyLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
             Text(
                 text = "${meal.kcal.toInt()} / ${meal.goalKcal} kcal" + meal.items.takeIf { it.isNotBlank() }?.let { " - $it" }.orEmpty(),
                 style = MaterialTheme.typography.bodyMedium,

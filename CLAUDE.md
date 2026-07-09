@@ -49,10 +49,11 @@ Ignore imagens untracked na raiz. Responda com APROVADO ou REPROVADO e achados o
 - Ciclo 25: monitor de água na tela Hoje.
 - Ciclo 26: card de valores corporais (peso) na tela Hoje.
 - Ciclo 27: navegação inferior visual com cinco abas (Diário funcional, demais placeholders).
+- Ciclo 28: correção de bugs de layout na TodayScreen (tela estreita 322 dp).
 
 Ciclo em andamento:
-- Nenhum ciclo de código aberto após o Ciclo 27.
-- Próximo ciclo sugerido no `MIGRATION_PLAN.md`: escolher entre calendário, streak, configurações de meta ou tela de detalhe de refeição separada.
+- Nenhum ciclo de código aberto após o Ciclo 28.
+- Próximo ciclo sugerido no `MIGRATION_PLAN.md`: calendário, streak, configurações de meta ou tela de detalhe de refeição.
 
 ## Estilo de implementação
 
