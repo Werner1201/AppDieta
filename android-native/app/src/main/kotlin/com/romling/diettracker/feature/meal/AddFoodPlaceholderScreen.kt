@@ -32,6 +32,7 @@ fun AddFoodScreen(
     meal: TodayMealSummary,
     state: AddFoodUiState,
     onQueryChange: (String) -> Unit,
+    onAddFood: (FoodSearchItem) -> Unit,
     onClose: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -70,16 +71,16 @@ fun AddFoodScreen(
                 placeholder = { Text("O que você comeu?") },
                 textStyle = MaterialTheme.typography.bodyLarge,
             )
-            FoodsCard(state.foods)
+            FoodsCard(foods = state.foods, onAddFood = onAddFood)
         }
     }
 }
 
 @Composable
-private fun FoodsCard(foods: List<FoodSearchItem>) {
+private fun FoodsCard(foods: List<FoodSearchItem>, onAddFood: (FoodSearchItem) -> Unit) {
     Column {
         foods.take(20).forEachIndexed { index, food ->
-            FoodRow(food)
+            FoodRow(food = food, onAddFood = onAddFood)
             if (index < foods.take(20).lastIndex) {
                 HorizontalDivider(color = AppColors.Line, thickness = 1.dp)
             }
@@ -88,7 +89,7 @@ private fun FoodsCard(foods: List<FoodSearchItem>) {
 }
 
 @Composable
-private fun FoodRow(food: FoodSearchItem) {
+private fun FoodRow(food: FoodSearchItem, onAddFood: (FoodSearchItem) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -102,6 +103,7 @@ private fun FoodRow(food: FoodSearchItem) {
         }
         Text(text = "${food.kcal.toInt()} kcal", style = MaterialTheme.typography.bodyLarge)
         Surface(
+            modifier = Modifier.clickable { onAddFood(food) },
             shape = androidx.compose.foundation.shape.CircleShape,
             color = AppColors.Background,
             border = androidx.compose.foundation.BorderStroke(2.dp, AppColors.Accent),

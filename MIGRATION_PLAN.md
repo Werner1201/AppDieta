@@ -2078,3 +2078,98 @@ Nome:
 
 Instrução para o próximo ciclo:
 - Permitir tocar no `+` de um alimento para registrar a porção padrão no diário usando `DiaryRepository.addFood`. Não implementar seleção de porção customizada ainda.
+
+## Ciclo 18
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Adicionar alimento ao diário.
+
+Motivo:
+- Fechar o primeiro fluxo útil de registro: escolher alimento na busca e salvar porção padrão no diário.
+
+Tela ou funcionalidade original analisada:
+- Botão `+` na lista de alimentos.
+- Registro de alimento por refeição.
+
+Arquivos prováveis:
+- `android-native/app/src/main/kotlin/com/romling/diettracker/MainActivity.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/DietTrackerApp.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/meal/AddFoodViewModel.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/meal/AddFoodPlaceholderScreen.kt`.
+- `android-native/app/src/test/kotlin/com/romling/diettracker/feature/meal/AddFoodViewModelTest.kt`.
+
+Critérios de aceite funcionais:
+- `AddFoodViewModel` recebe `DiaryRepository`.
+- Tocar no `+` de um alimento salva a porção padrão com `DiaryRepository.addFood`.
+- Salvar usa a refeição selecionada.
+- Salvar usa a data atual.
+- Após salvar, volta para a tela Hoje.
+- Não implementar porção customizada.
+- `gradlew.bat test` passa.
+- `gradlew.bat assembleDebug` passa.
+
+Critérios de aceite visuais:
+- Manter lista e campo de busca existentes.
+- Não adicionar tela de porção, câmera, código de barras ou cadastro manual.
+
+Riscos:
+- Misturar registro simples com edição de porções. Mitigação: sempre usar a porção padrão do alimento neste ciclo.
+
+Instrução objetiva para o Dev:
+- Implementar apenas ação de salvar porção padrão e voltar para Hoje. Não criar seletor de porção, detalhes, edição ou remoção.
+
+### 2. DEV
+
+Implementação feita:
+- `AddFoodViewModel` agora recebe `DiaryRepository` e `dateProvider`.
+- `addFood` busca alimento por id e chama `DiaryRepository.addFood` com refeição e data atual.
+- `MainActivity` injeta `DiaryRepository` no `AddFoodViewModelFactory`.
+- `DietTrackerApp` chama `addFood` ao tocar no `+` e volta para Hoje após salvar.
+- Teste unitário valida salvamento da porção padrão no diário.
+
+Arquivos alterados:
+- `MIGRATION_PLAN.md`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/MainActivity.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/DietTrackerApp.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/meal/AddFoodViewModel.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/meal/AddFoodPlaceholderScreen.kt`.
+- `android-native/app/src/test/kotlin/com/romling/diettracker/feature/meal/AddFoodViewModelTest.kt`.
+
+Como preservou o app original:
+- Usa a mesma regra de cálculo já portada para `DiaryRepository.addFood`.
+
+Como testou:
+- Testes Android.
+- Build Android debug.
+- Revisão estática de escopo.
+
+Comando executado:
+- `gradlew.bat test`.
+- `gradlew.bat assembleDebug`.
+- Busca por `portion`, `Porção`, `OutlinedTextField`, `Slider`, `Camera`, `Barcode`, `NavHost`, `rememberNavController`, `navigation-compose`.
+
+Resultado:
+- `gradlew.bat test`: BUILD SUCCESSFUL.
+- `gradlew.bat assembleDebug`: BUILD SUCCESSFUL.
+- Busca de escopo: `OutlinedTextField` esperado e `portion` apenas no fake DAO de teste.
+
+Envia para QA.
+
+### 3. QA
+
+Validação feita:
+- Subagente QA validou salvamento com porção padrão, teste direto de `unitLabel`/`gramsTotal` e ausência de porção customizada/detalhes/remoção/câmera/código/navegação.
+- Imagens de referência continuam untracked na raiz e foram mantidas fora do ciclo.
+
+Decisão:
+- APROVADO
+
+### Próxima tarefa aberta pelo Arquiteto
+
+Nome:
+- Atualizar Today após adicionar alimento.
+
+Instrução para o próximo ciclo:
+- Garantir que a tela Hoje reflita imediatamente o alimento salvo ao voltar, ajustando apenas o necessário em estado/flows. Não criar remoção ou edição ainda.

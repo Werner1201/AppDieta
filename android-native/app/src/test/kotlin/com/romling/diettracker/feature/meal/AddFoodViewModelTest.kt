@@ -2,9 +2,13 @@ package com.romling.diettracker.feature.meal
 
 import com.romling.diettracker.data.local.dao.FoodDao
 import com.romling.diettracker.data.local.dao.FoodPortionDao
+import com.romling.diettracker.data.local.dao.DiaryEntryDao
+import com.romling.diettracker.data.local.entity.DiaryEntryEntity
 import com.romling.diettracker.data.local.entity.FoodEntity
 import com.romling.diettracker.data.local.entity.FoodPortionEntity
+import com.romling.diettracker.data.repository.DiaryRepository
 import com.romling.diettracker.data.repository.FoodRepository
+import java.time.LocalDate
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -35,7 +39,10 @@ class AddFoodViewModelTest {
 
     @Test
     fun updateQueryFiltersFoods() = runTest(dispatcher) {
-        val viewModel = AddFoodViewModel(FoodRepository(FakeFoodDao(), FakeFoodPortionDao()))
+        val viewModel = AddFoodViewModel(
+            foodRepository = FoodRepository(FakeFoodDao(), FakeFoodPortionDao()),
+            diaryRepository = DiaryRepository(FakeDiaryEntryDao()),
+        )
 
         advanceUntilIdle()
         assertEquals(2, viewModel.state.value.foods.size)
@@ -44,6 +51,25 @@ class AddFoodViewModelTest {
         advanceUntilIdle()
 
         assertEquals("Café", viewModel.state.value.foods.single().name)
+    }
+
+    @Test
+    fun addFoodSavesDefaultPortion() = runTest(dispatcher) {
+        val diaryDao = FakeDiaryEntryDao()
+        val viewModel = AddFoodViewModel(
+            foodRepository = FoodRepository(FakeFoodDao(), FakeFoodPortionDao()),
+            diaryRepository = DiaryRepository(diaryDao),
+            dateProvider = { LocalDate.parse("2026-07-01") },
+        )
+
+        viewModel.addFood(mealType = "breakfast", foodId = 1)
+        advanceUntilIdle()
+
+        assertEquals("2026-07-01", diaryDao.entries.single().date)
+        assertEquals("breakfast", diaryDao.entries.single().mealType)
+        assertEquals("Café", diaryDao.entries.single().foodNameSnapshot)
+        assertEquals("100 g", diaryDao.entries.single().unitLabel)
+        assertEquals(100.0, diaryDao.entries.single().gramsTotal)
     }
 }
 
@@ -68,4 +94,25 @@ private class FakeFoodDao : FoodDao {
 private class FakeFoodPortionDao : FoodPortionDao {
     override fun portionsForFood(foodId: Long): Flow<List<FoodPortionEntity>> = flowOf(emptyList())
     override suspend fun insert(portion: FoodPortionEntity): Long = portion.id
+}
+
+private class FakeDiaryEntryDao : DiaryEntryDao {
+    val entries = mutableListOf<DiaryEntryEntity>()
+
+    override fun entriesForDate(date: String): Flow<List<DiaryEntryEntity>> = flowOf(entries.filter { it.date == date })
+    override fun entriesForMeal(date: String, mealType: String): Flow<List<DiaryEntryEntity>> =
+        flowOf(entries.filter { it.date == date && it.mealType == mealType })
+
+    override suspend fun insert(entry: DiaryEntryEntity): Long {
+        entries += entry.copy(id = entries.size + 1L)
+        return entries.size.toLong()
+    }
+
+    override suspend fun delete(entry: DiaryEntryEntity) {
+        entries.removeAll { it.id == entry.id }
+    }
+
+    override suspend fun deleteById(entryId: Long) {
+        entries.removeAll { it.id == entryId }
+    }
 }
