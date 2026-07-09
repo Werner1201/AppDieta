@@ -37,6 +37,13 @@ class TodayViewModel(
         )
         return emptyState().copy(
             totals = totals,
+            meals = defaultMeals().map { meal ->
+                val mealEntries = filter { it.mealType == meal.key }
+                meal.copy(
+                    kcal = mealEntries.sumOf { it.kcal },
+                    items = mealEntries.take(3).joinToString(", ") { it.foodNameSnapshot },
+                )
+            },
             remainingKcal = maxOf(0, (dailyKcal - totals.kcal).roundToInt()),
             isGreenDay = greenDayService.isGreenDay(this, dailyKcal, dailyProtein),
         )
@@ -66,6 +73,7 @@ data class TodayUiState(
     val dailyKcal: Double,
     val dailyProtein: Double,
     val totals: TodayNutritionTotals = TodayNutritionTotals(),
+    val meals: List<TodayMealSummary> = defaultMeals(),
     val remainingKcal: Int,
     val isGreenDay: Boolean = false,
 )
@@ -75,4 +83,20 @@ data class TodayNutritionTotals(
     val carbs: Double = 0.0,
     val protein: Double = 0.0,
     val fat: Double = 0.0,
+)
+
+data class TodayMealSummary(
+    val key: String,
+    val label: String,
+    val icon: String,
+    val goalKcal: Int,
+    val kcal: Double = 0.0,
+    val items: String = "",
+)
+
+fun defaultMeals() = listOf(
+    TodayMealSummary(key = "breakfast", label = "Café da manhã", icon = "☕", goalKcal = 816),
+    TodayMealSummary(key = "lunch", label = "Almoço", icon = "🍲", goalKcal = 816),
+    TodayMealSummary(key = "dinner", label = "Jantar", icon = "🥗", goalKcal = 700),
+    TodayMealSummary(key = "snack", label = "Lanches", icon = "⌛", goalKcal = 250),
 )

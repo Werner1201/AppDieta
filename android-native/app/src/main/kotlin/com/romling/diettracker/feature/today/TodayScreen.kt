@@ -12,7 +12,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -25,6 +27,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.BorderStroke
@@ -54,6 +57,8 @@ fun TodayScreen(
         SmartTipsButton()
         SectionTitle(title = "Resumo", actionLabel = "Detalhes")
         SummaryCard(state)
+        SectionTitle(title = "Alimentação", actionLabel = "Mais")
+        MealsCard(state.meals)
     }
 }
 
@@ -200,6 +205,62 @@ private fun MacroMetric(label: String, value: Double, goal: Double, modifier: Mo
             style = MaterialTheme.typography.labelLarge,
             textAlign = TextAlign.Center,
         )
+    }
+}
+
+@Composable
+private fun MealsCard(meals: List<TodayMealSummary>) {
+    AppCard(contentPadding = PaddingValues(horizontal = 28.dp, vertical = 0.dp)) {
+        Column {
+            meals.forEachIndexed { index, meal ->
+                MealRow(meal)
+                if (index < meals.lastIndex) {
+                    HorizontalDivider(color = AppColors.Line, thickness = 1.dp)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun MealRow(meal: TodayMealSummary) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(112.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(18.dp),
+    ) {
+        Surface(
+            modifier = Modifier.size(AppSpacing.MealIconSize),
+            shape = CircleShape,
+            color = AppColors.Line.copy(alpha = 0.55f),
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Text(text = meal.icon, style = MaterialTheme.typography.titleLarge)
+            }
+        }
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            Text(text = "${meal.label} →", style = MaterialTheme.typography.titleLarge)
+            Text(
+                text = "${meal.kcal.toInt()} / ${meal.goalKcal} kcal" + meal.items.takeIf { it.isNotBlank() }?.let { " - $it" }.orEmpty(),
+                style = MaterialTheme.typography.bodyMedium,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+        Surface(
+            modifier = Modifier.size(AppSpacing.MealActionSize),
+            shape = CircleShape,
+            color = AppColors.TextPrimary,
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Text(text = "+", color = AppColors.Background, style = MaterialTheme.typography.headlineMedium)
+            }
+        }
     }
 }
 

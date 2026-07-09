@@ -47,6 +47,8 @@ class TodayViewModelTest {
         assertEquals(1800.0, viewModel.state.value.totals.kcal)
         assertEquals(533, viewModel.state.value.remainingKcal)
         assertTrue(viewModel.state.value.isGreenDay)
+        assertEquals(4, viewModel.state.value.meals.size)
+        assertEquals(1800.0, viewModel.state.value.meals.single { it.key == "lunch" }.kcal)
     }
 }
 

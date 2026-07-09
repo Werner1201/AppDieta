@@ -1807,3 +1807,92 @@ Nome:
 
 Instrução para o próximo ciclo:
 - Adicionar somente a seção Alimentação com os quatro cards de refeição usando dados já disponíveis no estado, se necessário expandindo `TodayUiState` de forma mínima. Não criar navegação de detalhe ainda.
+
+## Ciclo 15
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Adicionar seção Alimentação inicial.
+
+Motivo:
+- Trazer a próxima parte visível da tela Hoje mantendo o fluxo sem navegação e sem detalhes de refeição.
+
+Tela ou funcionalidade original analisada:
+- Seção Alimentação da tela Hoje.
+- Cards de Café da manhã, Almoço, Jantar e Lanches.
+
+Arquivos prováveis:
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayViewModel.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayScreen.kt`.
+- `android-native/app/src/test/kotlin/com/romling/diettracker/feature/today/TodayViewModelTest.kt`.
+
+Critérios de aceite funcionais:
+- Expandir `TodayUiState` com quatro resumos de refeição.
+- Agrupar entradas por `mealType`.
+- Exibir kcal consumidas por refeição e meta de kcal.
+- Exibir até três nomes de alimentos por refeição.
+- `gradlew.bat test` passa.
+- `gradlew.bat assembleDebug` passa.
+
+Critérios de aceite visuais:
+- Renderizar seção "Alimentação" com ação "Mais".
+- Renderizar quatro linhas/cards de refeição com ícone circular, texto e botão `+` visual.
+- Não criar navegação, clique de detalhe, água, peso ou bottom bar.
+
+Riscos:
+- Começar fluxo de detalhe antes do estado estar pronto. Mitigação: botão `+` visual sem ação neste ciclo.
+
+Instrução objetiva para o Dev:
+- Adicionar apenas os quatro cards de alimentação e o estado mínimo. Não criar rotas, navegação, telas de detalhe ou handlers de clique.
+
+### 2. DEV
+
+Implementação feita:
+- Adicionado `TodayMealSummary` e lista padrão de refeições.
+- `TodayViewModel` agora agrupa entradas por refeição, soma kcal e lista até três itens.
+- `TodayScreen` renderiza seção "Alimentação" e quatro linhas de refeição.
+- Teste da ViewModel valida geração dos resumos de refeição.
+
+Arquivos alterados:
+- `MIGRATION_PLAN.md`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayViewModel.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayScreen.kt`.
+- `android-native/app/src/test/kotlin/com/romling/diettracker/feature/today/TodayViewModelTest.kt`.
+
+Como preservou o app original:
+- A seção segue a estrutura visual da tela Hoje original sem ativar fluxos ainda não migrados.
+
+Como testou:
+- Testes Android.
+- Build Android debug.
+- Revisão estática de escopo.
+
+Comando executado:
+- `gradlew.bat test`.
+- `gradlew.bat assembleDebug`.
+- Busca por `NavHost`, `navigate`, `onClick`, `entriesForMeal`, `Water`, `Weight`, `databaseBuilder`, `FoodRepository` no pacote `feature/today`.
+
+Resultado:
+- `gradlew.bat test`: BUILD SUCCESSFUL.
+- `gradlew.bat assembleDebug`: BUILD SUCCESSFUL.
+- Busca de escopo: apenas `entriesForMeal` no fake DAO de teste e `FontWeight`.
+
+Envia para QA.
+
+### 3. QA
+
+Validação feita:
+- Subagente QA validou resumos de refeição, renderização da seção Alimentação e ausência de navegação/detalhe/água/peso/bottom bar.
+- Imagens de referência continuam untracked na raiz e foram mantidas fora do ciclo.
+
+Decisão:
+- APROVADO
+
+### Próxima tarefa aberta pelo Arquiteto
+
+Nome:
+- Criar navegação mínima para adicionar alimento.
+
+Instrução para o próximo ciclo:
+- Criar navegação mínima somente do botão `+` da refeição para uma tela placeholder de adicionar alimento, sem implementar busca/lista ainda.
