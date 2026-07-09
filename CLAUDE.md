@@ -57,10 +57,11 @@ Ignore imagens untracked na raiz. Responda com APROVADO ou REPROVADO e achados o
 - Ciclo 37: tela de detalhe de refeição (`MealDetailScreen`) com macros, lista de itens e Adicionar mais.
 - Ciclo 38: tela de detalhe de alimento (`FoodDetailScreen`) com macros por 100g, porções e botão Adicionar.
 - Ciclo 39: cadastro de alimento customizado (`CreateFoodScreen`) acessível via botão "+ Criar" no AddFoodScreen.
+- Ciclo 40: tela dedicada de peso com histórico (`WeightScreen`) acessível por "Ver histórico" na seção Valores corporais.
 
 Ciclo em andamento:
-- Nenhum ciclo aberto após o Ciclo 39.
-- Próximo ciclo sugerido: histórico de peso e tela dedicada de peso.
+- Nenhum ciclo aberto após o Ciclo 40.
+- Próximo ciclo sugerido: lista/edição de alimentos customizados ou importador ChatGPT.
 
 ## Estilo de implementação
 

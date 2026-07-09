@@ -1,6 +1,7 @@
 package com.romling.diettracker.core.ui.components
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -55,6 +56,7 @@ fun SectionTitle(
     title: String,
     modifier: Modifier = Modifier,
     actionLabel: String? = null,
+    onAction: (() -> Unit)? = null,
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -65,6 +67,7 @@ fun SectionTitle(
         if (actionLabel != null) {
             Text(
                 text = actionLabel,
+                modifier = if (onAction != null) Modifier.clickable(onClick = onAction) else Modifier,
                 color = AppColors.Accent,
                 style = MaterialTheme.typography.labelLarge,
             )

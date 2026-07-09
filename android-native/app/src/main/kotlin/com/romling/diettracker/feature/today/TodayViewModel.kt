@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.romling.diettracker.data.local.entity.DiaryEntryEntity
+import com.romling.diettracker.data.local.entity.WeightEntryEntity
 import com.romling.diettracker.data.repository.DiaryRepository
 import com.romling.diettracker.data.repository.GoalSettings
 import com.romling.diettracker.data.repository.SettingsRepository
@@ -72,6 +73,7 @@ class TodayViewModel(
                 date = date,
                 waterMl = waterEntries.sumOf { it.amountMl },
                 weightKg = weightEntries.firstOrNull()?.weightKg ?: settings.defaultWeightKg,
+                weightHistory = weightEntries,
                 streak = streakService.summary(activeDates, date),
                 settings = settings,
             )
@@ -115,6 +117,7 @@ class TodayViewModel(
         date: LocalDate,
         waterMl: Int,
         weightKg: Double,
+        weightHistory: List<WeightEntryEntity>,
         streak: StreakSummary,
         settings: GoalSettings,
     ): TodayUiState {
@@ -149,6 +152,7 @@ class TodayViewModel(
             isGreenDay = greenDayService.isGreenDay(this, settings.dailyKcal, settings.dailyProtein),
             water = TodayWaterSummary(consumedMl = waterMl, goalMl = settings.dailyWaterMl),
             weight = TodayWeightSummary(currentKg = weightKg, goalKg = settings.weightGoalKg),
+            weightHistory = weightHistory.map { TodayWeightEntry(date = it.date, kg = it.weightKg) },
             streak = TodayStreakSummary(current = streak.current, best = streak.best, activeDays = streak.activeDays),
         )
     }
@@ -192,6 +196,7 @@ data class TodayUiState(
     val meals: List<TodayMealSummary> = defaultMeals(),
     val water: TodayWaterSummary = TodayWaterSummary(),
     val weight: TodayWeightSummary = TodayWeightSummary(),
+    val weightHistory: List<TodayWeightEntry> = emptyList(),
     val streak: TodayStreakSummary = TodayStreakSummary(),
     val remainingKcal: Int,
     val isGreenDay: Boolean = false,
@@ -208,6 +213,11 @@ data class TodayWaterSummary(
 data class TodayWeightSummary(
     val currentKg: Double = 108.0,
     val goalKg: Double = 80.0,
+)
+
+data class TodayWeightEntry(
+    val date: String,
+    val kg: Double,
 )
 
 data class TodayStreakSummary(

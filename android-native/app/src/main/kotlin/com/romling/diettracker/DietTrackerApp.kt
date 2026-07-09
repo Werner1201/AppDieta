@@ -33,6 +33,7 @@ import com.romling.diettracker.feature.today.StreakScreen
 import com.romling.diettracker.feature.today.TodayMealSummary
 import com.romling.diettracker.feature.today.TodayScreen
 import com.romling.diettracker.feature.today.TodayViewModel
+import com.romling.diettracker.feature.weight.WeightScreen
 
 private enum class AppTab(val label: String, val icon: String) {
     DIARY("Diário", "📋"),
@@ -52,10 +53,18 @@ fun DietTrackerApp(todayViewModel: TodayViewModel, addFoodViewModel: AddFoodView
     var detailMeal by remember { mutableStateOf<TodayMealSummary?>(null) }
     var showCalendar by remember { mutableStateOf(false) }
     var showStreak by remember { mutableStateOf(false) }
+    var showWeight by remember { mutableStateOf(false) }
     var selectedTab by remember { mutableStateOf(AppTab.DIARY) }
 
     DietTrackerTheme {
-        if (showStreak) {
+        if (showWeight) {
+            WeightScreen(
+                weight = state.weight,
+                history = state.weightHistory,
+                onAddWeight = { kg -> todayViewModel.addWeight(kg); showWeight = false },
+                onClose = { showWeight = false },
+            )
+        } else if (showStreak) {
             StreakScreen(streak = state.streak, onClose = { showStreak = false })
         } else if (showCalendar) {
             CalendarScreen(
@@ -102,6 +111,7 @@ fun DietTrackerApp(todayViewModel: TodayViewModel, addFoodViewModel: AddFoodView
                             onAddWater = todayViewModel::addWater,
                             onRemoveLastWater = todayViewModel::removeLastWater,
                             onAddWeight = todayViewModel::addWeight,
+                            onOpenWeight = { showWeight = true },
                             onPreviousDay = todayViewModel::previousDay,
                             onNextDay = todayViewModel::nextDay,
                             onOpenCalendar = { showCalendar = true },

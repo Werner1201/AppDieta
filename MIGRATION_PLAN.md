@@ -3988,10 +3988,83 @@ Checklist visual:
 Decisão:
 - APROVADO
 
-### Próxima tarefa aberta pelo Arquiteto
+## Ciclo 40
 
-Nome:
-- Histórico de peso e tela dedicada de peso.
+### 1. ARQUITETO
 
-Instrução para o próximo ciclo:
-- Criar tela dedicada de peso acessível pelo card de Valores Corporais na tela Hoje. Mostrar peso atual, peso alvo e histórico simples de registros. Reaproveitar `WeightRepository` e `TodayViewModel` já existentes.
+Nome da tarefa:
+- Tela dedicada de peso com histórico.
+
+Motivo:
+- `WeightCard` na tela Hoje só permitia registrar peso do dia atual. Sem visão histórica de evolução do peso ao longo do tempo.
+
+Arquivos prováveis:
+- `feature/today/TodayViewModel.kt` — expor `weightHistory: List<TodayWeightEntry>` via `TodayUiState`
+- `feature/weight/WeightScreen.kt` — novo, tela completa
+- `feature/today/TodayScreen.kt` — "Ver histórico" na `SectionTitle` de Valores corporais
+- `core/ui/components/BaseComponents.kt` — `SectionTitle` ganhou `onAction`
+- `DietTrackerApp.kt` — branch `showWeight`
+
+Critérios de aceite funcionais:
+- "Ver histórico" abre `WeightScreen` com peso atual, objetivo e lista de registros anteriores.
+- Botões +/− ajustam peso em 0.1 kg; botão "Registrar X kg" persiste e fecha tela.
+- Histórico lista data + kg de todos os registros do repositório.
+- `gradlew.bat test` passa.
+- `gradlew.bat assembleDebug` passa.
+
+Critérios de aceite visuais:
+- Usa `AppCard`, `BottomPrimaryButton`, `AppColors`, `AppSpacing` existentes.
+- Header ← consistente com outras telas.
+
+Riscos:
+- `weightEntries` (nome da variável no combine) vs `weightHistory` (nome do param em `toTodayState`) → bug de compilação. Mitigação: renomear param ou variável para não conflitar.
+
+Instrução objetiva:
+- `TodayUiState.weightHistory`, `WeightScreen.kt` novo, `SectionTitle` com `onAction`, branch em `DietTrackerApp`.
+
+### 2. DEV
+
+Implementação feita:
+- `TodayViewModel.kt`: adicionado `TodayWeightEntry(date, kg)` data class; `TodayUiState.weightHistory: List<TodayWeightEntry> = emptyList()`; `toTodayState()` recebe `weightHistory: List<WeightEntryEntity>` e mapeia para `TodayWeightEntry`; bug `weightEntries` → `weightHistory` corrigido.
+- `WeightScreen.kt` criado: header ←, card com peso atual em displaySmall + objetivo + botões +/−, card histórico (data/kg por linha), `BottomPrimaryButton` "Registrar X kg".
+- `BaseComponents.kt`: `SectionTitle` ganhou `onAction: (() -> Unit)? = null`; `clickable` adicionado ao label quando `onAction != null`; import `clickable` adicionado.
+- `TodayScreen.kt`: `onOpenWeight: () -> Unit = {}` adicionado; `SectionTitle("Valores corporais")` chama com `onAction = onOpenWeight, actionLabel = "Ver histórico"`.
+- `DietTrackerApp.kt`: import `WeightScreen`; `showWeight` estado; branch `if (showWeight)` com `WeightScreen`; `onOpenWeight = { showWeight = true }` em `TodayScreen`.
+
+Arquivos alterados:
+- `MIGRATION_PLAN.md`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayViewModel.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/weight/WeightScreen.kt` (novo)
+- `android-native/app/src/main/kotlin/com/romling/diettracker/core/ui/components/BaseComponents.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayScreen.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/DietTrackerApp.kt`
+
+Como testou:
+- `gradlew.bat test` — BUILD SUCCESSFUL (51 tasks).
+- `gradlew.bat assembleDebug` — BUILD SUCCESSFUL (37 tasks).
+
+### 3. QA
+
+Validação feita:
+- `TodayWeightEntry` mapeado de `WeightEntryEntity` via param `weightHistory`. ✅
+- Bug `weightEntries` (fora de escopo) → `weightHistory` (param) corrigido. ✅
+- `WeightScreen` usa apenas componentes existentes, sem nova dependência. ✅
+- `SectionTitle` backward-compatible (onAction nullable, default null). ✅
+- Histórico vazio: card histórico não renderiza (guard `if (history.isNotEmpty())`). ✅
+- Testes passam sem regressão. ✅
+
+Checklist funcional:
+- [x] `weightHistory` em `TodayUiState`.
+- [x] `WeightScreen` criado.
+- [x] "Ver histórico" na seção Valores corporais.
+- [x] Branch `showWeight` em `DietTrackerApp`.
+- [x] `gradlew.bat test` passa.
+- [x] `gradlew.bat assembleDebug` passa.
+
+Checklist visual:
+- [x] Header ← consistente.
+- [x] Peso grande em displaySmall.
+- [x] Botão fixo no rodapé.
+
+Decisão:
+- APROVADO

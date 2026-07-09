@@ -60,6 +60,7 @@ fun TodayScreen(
     onAddWater: (Int) -> Unit = {},
     onRemoveLastWater: () -> Unit = {},
     onAddWeight: (Double) -> Unit = {},
+    onOpenWeight: () -> Unit = {},
     onPreviousDay: () -> Unit = {},
     onNextDay: () -> Unit = {},
     onOpenCalendar: () -> Unit = {},
@@ -115,7 +116,7 @@ fun TodayScreen(
         if (!showRegisteredOnly) {
             SectionTitle(title = "Monitor de água")
             WaterCard(water = state.water, onAddWater = onAddWater, onRemoveLastWater = onRemoveLastWater)
-            SectionTitle(title = "Valores corporais")
+            SectionTitle(title = "Valores corporais", onAction = onOpenWeight, actionLabel = "Ver histórico")
             WeightCard(weight = state.weight, onAddWeight = onAddWeight)
         }
     }
