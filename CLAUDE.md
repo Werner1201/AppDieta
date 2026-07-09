@@ -45,14 +45,14 @@ Ignore imagens untracked na raiz. Responda com APROVADO ou REPROVADO e achados o
 ## Estado atual
 
 Últimos ciclos concluídos e enviados:
-- Ciclo 20: remoção simples de alimento.
-- Ciclo 21: seleção de porção simples.
-- Ciclo 22: detalhe simples do alimento.
-- Ciclo 23: filtro de alimentos registrados.
+- Ciclo 24: revisão de acentos (nenhum mojibake encontrado).
+- Ciclo 25: monitor de água na tela Hoje.
+- Ciclo 26: card de valores corporais (peso) na tela Hoje.
+- Ciclo 27: navegação inferior visual com cinco abas (Diário funcional, demais placeholders).
 
 Ciclo em andamento:
-- Nenhum ciclo de código aberto após o Ciclo 23.
-- Próximo ciclo sugerido no `MIGRATION_PLAN.md`: revisar acentos no Android nativo.
+- Nenhum ciclo de código aberto após o Ciclo 27.
+- Próximo ciclo sugerido no `MIGRATION_PLAN.md`: escolher entre calendário, streak, configurações de meta ou tela de detalhe de refeição separada.
 
 ## Estilo de implementação
 

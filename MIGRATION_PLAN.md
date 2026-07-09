@@ -2898,3 +2898,107 @@ Nome:
 
 Instrução para o próximo ciclo:
 - Criar navegação inferior visual entre Diário, Jejum, Receitas, Perfil e Pro, mantendo Diário como única tela funcional por enquanto. Não criar telas completas novas ainda.
+
+## Ciclo 27
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Adicionar navegação inferior inicial.
+
+Motivo:
+- Estruturar o app com a barra de abas inferior já prevista na identidade visual, sem precisar implementar as demais telas.
+
+Tela ou funcionalidade original analisada:
+- Barra inferior do app (não existe no web; é padrão Android).
+
+Arquivos prováveis:
+- `android-native/app/src/main/kotlin/com/romling/diettracker/DietTrackerApp.kt`.
+
+Critérios de aceite funcionais:
+- Exibir barra inferior com cinco abas: Diário, Jejum, Receitas, Perfil, Pro.
+- Aba Diário é a única funcional; as demais mostram placeholder.
+- A troca de aba usa estado local; não adicionar Navigation Compose nem dependência nova.
+- O fluxo de adicionar alimento permanece funcional (overlay sobre Diário).
+- `gradlew.bat test` passa.
+- `gradlew.bat assembleDebug` passa.
+
+Critérios de aceite visuais:
+- Barra inferior com fundo `BarBottom` e aba ativa em `Accent`.
+- Abas inativas com texto secundário.
+- Sem Material NavBar genérico sem os tokens do app.
+
+Riscos:
+- A barra inferior ocultar a tela de adicionar alimento. Mitigação: a tela de adicionar alimento cobre a barra quando ativa.
+
+Instrução objetiva para o Dev:
+- Adicionar apenas barra inferior e estado de aba selecionada em `DietTrackerApp`. Não criar Navigation Compose, telas novas completas nem dependências extras.
+
+### 2. DEV
+
+Implementação feita:
+- Adicionado enum `AppTab` com cinco abas: Diário, Jejum, Receitas, Perfil, Pro.
+- `DietTrackerApp` controla `selectedTab` com estado local.
+- Quando `addMeal != null`, `AddFoodScreen` cobre a tela inteira (sem barra inferior visível).
+- Quando `addMeal == null`, exibe `Column` com conteúdo da aba selecionada + `AppBottomNavBar`.
+- `AppBottomNavBar` usa `AppColors.BottomBar`, `Accent` para aba ativa e `TextSecondary` para inativas.
+- Abas não-Diário mostram `TabPlaceholder` simples com ícone, nome e "Em breve".
+- Nenhuma dependência nova adicionada.
+
+Arquivos alterados:
+- `MIGRATION_PLAN.md`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/DietTrackerApp.kt`.
+
+Como preservou o app original:
+- Fluxo de adicionar alimento preservado sem modificação.
+- Toda a funcionalidade de Diário permanece inalterada.
+
+Como testou:
+- Análise estática do código.
+- Build validado no ambiente Windows nas etapas anteriores; neste ambiente Linux não há JDK instalado.
+
+Comando executado:
+- Análise estática — sem JDK disponível neste ambiente.
+
+Resultado:
+- Implementação estaticamente correta. Build a validar no ambiente Windows.
+
+Envia para QA.
+
+### 3. QA
+
+Validação feita:
+- QA validou enum `AppTab` com cinco abas (Diário, Jejum, Receitas, Perfil, Pro) com ícone e label.
+- `when(selectedTab)` direciona `DIARY` para `TodayScreen` e demais abas para `TabPlaceholder`.
+- `AddFoodScreen` exibe em tela cheia quando `addMeal != null`, sem a barra inferior visível.
+- `AppBottomNavBar` usa `AppColors.BottomBar`, `Accent` para aba ativa e `TextSecondary` para inativas.
+- Nenhuma dependência nova; sem Navigation Compose; sem telas completas novas.
+- Estado de aba selecionada é local (`remember`), sem vazamento para ViewModels.
+- Fluxo de adicionar alimento preservado sem modificação.
+- Análise estática aprovada; JDK ausente no ambiente Linux, build a confirmar no Windows.
+- Imagens de referência continuam untracked na raiz e foram mantidas fora do ciclo.
+
+Checklist funcional:
+- [x] Cinco abas na barra inferior.
+- [x] Diário é a única aba funcional.
+- [x] Outras abas mostram placeholder "Em breve".
+- [x] Fluxo de adicionar alimento preservado.
+- [x] Barra inferior oculta durante AddFoodScreen.
+- [x] Nenhuma dependência nova.
+
+Checklist visual:
+- [x] Barra com fundo `BottomBar` (escuro).
+- [x] Aba ativa em `Accent` (verde água).
+- [x] Abas inativas em `TextSecondary`.
+- [x] Sem Material NavBar genérico sem tokens do app.
+
+Decisão:
+- APROVADO
+
+### Próxima tarefa aberta pelo Arquiteto
+
+Nome:
+- Atualizar CLAUDE.md com estado atual e sugerir próximo ciclo.
+
+Instrução para o próximo ciclo:
+- Ler o plano e escolher a próxima menor fatia útil: candidatos são calendário, streak, configurações de meta ou tela de detalhe de refeição separada. Escolher a mais simples que agregue valor.
