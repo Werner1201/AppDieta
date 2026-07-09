@@ -50,6 +50,8 @@ fun TodayScreen(
     state: TodayUiState,
     onAddMeal: (TodayMealSummary) -> Unit = {},
     onRemoveEntry: (Long) -> Unit = {},
+    onAddWater: (Int) -> Unit = {},
+    onRemoveLastWater: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     var showRegisteredOnly by remember { mutableStateOf(false) }
@@ -80,6 +82,10 @@ fun TodayScreen(
             EntriesCard(entries = state.entries, onRemoveEntry = onRemoveEntry)
         } else if (showRegisteredOnly) {
             EmptyEntriesCard()
+        }
+        if (!showRegisteredOnly) {
+            SectionTitle(title = "Monitor de água")
+            WaterCard(water = state.water, onAddWater = onAddWater, onRemoveLastWater = onRemoveLastWater)
         }
     }
 }
@@ -330,6 +336,45 @@ private fun EntriesCard(entries: List<TodayEntrySummary>, onRemoveEntry: (Long) 
 private fun EmptyEntriesCard() {
     AppCard {
         Text(text = "Nenhum alimento registrado hoje.", style = MaterialTheme.typography.bodyLarge)
+    }
+}
+
+@Composable
+private fun WaterCard(water: TodayWaterSummary, onAddWater: (Int) -> Unit, onRemoveLastWater: () -> Unit) {
+    AppCard {
+        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text(text = "Água", style = MaterialTheme.typography.titleLarge)
+            Text(text = "Objetivo: ${"%.1f".format(water.goalLiters)} litros", style = MaterialTheme.typography.bodyMedium)
+            Text(text = "%.2f L".format(water.consumedLiters), style = MaterialTheme.typography.headlineLarge)
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                listOf(100, 200, 250, 500).forEach { amount ->
+                    WaterButton(text = "+${amount}", onClick = { onAddWater(amount) }, modifier = Modifier.weight(1f))
+                }
+            }
+            if (water.consumedMl > 0) {
+                Text(
+                    text = "Desfazer último copo",
+                    modifier = Modifier.clickable(onClick = onRemoveLastWater),
+                    color = AppColors.Accent,
+                    style = MaterialTheme.typography.bodyLarge,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun WaterButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    Surface(
+        modifier = modifier
+            .height(46.dp)
+            .clickable(onClick = onClick),
+        shape = AppShapes.Button,
+        color = AppColors.Green,
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            Text(text = text, style = MaterialTheme.typography.labelLarge)
+        }
     }
 }
 

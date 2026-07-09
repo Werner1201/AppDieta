@@ -1,8 +1,11 @@
 package com.romling.diettracker.feature.today
 
 import com.romling.diettracker.data.local.dao.DiaryEntryDao
+import com.romling.diettracker.data.local.dao.WaterEntryDao
 import com.romling.diettracker.data.local.entity.DiaryEntryEntity
+import com.romling.diettracker.data.local.entity.WaterEntryEntity
 import com.romling.diettracker.data.repository.DiaryRepository
+import com.romling.diettracker.data.repository.WaterRepository
 import java.time.LocalDate
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -38,6 +41,7 @@ class TodayViewModelTest {
     fun stateSummarizesTodayEntries() = runTest(dispatcher) {
         val viewModel = TodayViewModel(
             diaryRepository = DiaryRepository(FakeDiaryEntryDao(listOf(entry(kcal = 1800.0, protein = 92.0)))),
+            waterRepository = WaterRepository(FakeWaterEntryDao()),
             dateProvider = { LocalDate.parse("2026-07-01") },
         )
 
@@ -58,6 +62,7 @@ class TodayViewModelTest {
         val dao = FakeDiaryEntryDao(emptyList())
         val viewModel = TodayViewModel(
             diaryRepository = DiaryRepository(dao),
+            waterRepository = WaterRepository(FakeWaterEntryDao()),
             dateProvider = { LocalDate.parse("2026-07-01") },
         )
 
@@ -76,6 +81,7 @@ class TodayViewModelTest {
         val dao = FakeDiaryEntryDao(listOf(entry(id = 10, kcal = 237.0, protein = 12.4)))
         val viewModel = TodayViewModel(
             diaryRepository = DiaryRepository(dao),
+            waterRepository = WaterRepository(FakeWaterEntryDao()),
             dateProvider = { LocalDate.parse("2026-07-01") },
         )
 
@@ -83,6 +89,37 @@ class TodayViewModelTest {
         advanceUntilIdle()
 
         assertEquals(emptyList(), dao.entries.value)
+    }
+
+    @Test
+    fun stateSummarizesWaterEntries() = runTest(dispatcher) {
+        val waterDao = FakeWaterEntryDao(listOf(water(amountMl = 250), water(amountMl = 500)))
+        val viewModel = TodayViewModel(
+            diaryRepository = DiaryRepository(FakeDiaryEntryDao(emptyList())),
+            waterRepository = WaterRepository(waterDao),
+            dateProvider = { LocalDate.parse("2026-07-01") },
+        )
+
+        advanceUntilIdle()
+
+        assertEquals(750, viewModel.state.value.water.consumedMl)
+        assertEquals(2000, viewModel.state.value.water.goalMl)
+    }
+
+    @Test
+    fun addWaterInsertsAmountForToday() = runTest(dispatcher) {
+        val waterDao = FakeWaterEntryDao()
+        val viewModel = TodayViewModel(
+            diaryRepository = DiaryRepository(FakeDiaryEntryDao(emptyList())),
+            waterRepository = WaterRepository(waterDao),
+            dateProvider = { LocalDate.parse("2026-07-01") },
+        )
+
+        viewModel.addWater(250)
+        advanceUntilIdle()
+
+        assertEquals(250, waterDao.entries.value.single().amountMl)
+        assertEquals("2026-07-01", waterDao.entries.value.single().date)
     }
 }
 
@@ -101,6 +138,12 @@ private fun entry(id: Long = 0, kcal: Double, protein: Double) = DiaryEntryEntit
     fat = 5.0,
 )
 
+private fun water(id: Long = 0, amountMl: Int) = WaterEntryEntity(
+    id = id,
+    date = "2026-07-01",
+    amountMl = amountMl,
+)
+
 private class FakeDiaryEntryDao(initialEntries: List<DiaryEntryEntity>) : DiaryEntryDao {
     val entries = MutableStateFlow(initialEntries)
 
@@ -112,5 +155,22 @@ private class FakeDiaryEntryDao(initialEntries: List<DiaryEntryEntity>) : DiaryE
     override suspend fun delete(entry: DiaryEntryEntity) = Unit
     override suspend fun deleteById(entryId: Long) {
         entries.value = entries.value.filterNot { it.id == entryId }
+    }
+}
+
+private class FakeWaterEntryDao(initialEntries: List<WaterEntryEntity> = emptyList()) : WaterEntryDao {
+    val entries = MutableStateFlow(initialEntries)
+
+    override fun entriesForDate(date: String): Flow<List<WaterEntryEntity>> =
+        entries.map { items -> items.filter { it.date == date } }
+
+    override suspend fun insert(entry: WaterEntryEntity): Long {
+        entries.value = entries.value + entry.copy(id = entries.value.size + 1L)
+        return entries.value.size.toLong()
+    }
+
+    override suspend fun deleteLastForDate(date: String) {
+        val last = entries.value.filter { it.date == date }.maxByOrNull { it.id } ?: return
+        entries.value = entries.value.filterNot { it.id == last.id }
     }
 }

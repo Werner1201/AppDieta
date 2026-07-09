@@ -2682,3 +2682,103 @@ Nome:
 
 Instrução para o próximo ciclo:
 - Ler o topo do `MIGRATION_PLAN.md` e escolher a próxima menor funcionalidade ainda pendente, sem mexer em importação, câmera ou código de barras sem critério explícito do ciclo.
+
+## Ciclo 25
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Adicionar monitor de água inicial.
+
+Motivo:
+- Portar o card de água da tela Hoje original para o Android nativo.
+
+Tela ou funcionalidade original analisada:
+- `today.html`, seção `Monitor de água`.
+- `water_entries` no banco local.
+
+Arquivos prováveis:
+- `android-native/app/src/main/kotlin/com/romling/diettracker/data/repository/WaterRepository.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/DietTrackerApplication.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/MainActivity.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/DietTrackerApp.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayViewModel.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayScreen.kt`.
+- `android-native/app/src/test/kotlin/com/romling/diettracker/feature/today/TodayViewModelTest.kt`.
+
+Critérios de aceite funcionais:
+- Somar água registrada no dia a partir de `WaterEntryDao`.
+- Mostrar meta padrão de 2000 ml.
+- Mostrar consumo em litros na tela Hoje.
+- Permitir adicionar água por botões rápidos.
+- Permitir desfazer o último registro de água do dia.
+- `gradlew.bat test` passa.
+- `gradlew.bat assembleDebug` passa.
+
+Critérios de aceite visuais:
+- Card simples e consistente com os cards escuros existentes.
+- Não criar tela separada.
+- Não alterar importação, câmera, código de barras, peso ou calendário.
+
+Riscos:
+- Aumentar o escopo para configurações de meta. Mitigação: manter meta fixa de 2000 ml neste ciclo, como default atual.
+
+Instrução objetiva para o Dev:
+- Reaproveitar `WaterEntryDao` e exibir/adicionar água na tela Hoje. Não criar configurações ou tela nova.
+
+### 2. DEV
+
+Implementação feita:
+- Adicionado `WaterRepository` com listagem por data, inserção positiva e remoção do último registro do dia.
+- `AppContainer`, `MainActivity` e `DietTrackerApp` passaram a injetar/conectar água na tela Hoje.
+- `TodayViewModel` combina diário e água, expondo `TodayWaterSummary`.
+- `TodayScreen` renderiza `Monitor de água` com consumo, meta, botões rápidos e desfazer último copo.
+- Testes cobrem soma da água do dia e inserção do registro para hoje.
+
+Arquivos alterados:
+- `MIGRATION_PLAN.md`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/data/repository/WaterRepository.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/DietTrackerApplication.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/MainActivity.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/DietTrackerApp.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayViewModel.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayScreen.kt`.
+- `android-native/app/src/test/kotlin/com/romling/diettracker/feature/today/TodayViewModelTest.kt`.
+
+Como preservou o app original:
+- Usa `water_entries` já modelado no Room.
+- Replica os atalhos rápidos do web app.
+- Mantém a tela Hoje como entrada principal.
+
+Como testou:
+- Testes Android.
+- Build Android debug.
+
+Comando executado:
+- `gradlew.bat test assembleDebug`.
+
+Resultado:
+- `gradlew.bat test`: BUILD SUCCESSFUL.
+- `gradlew.bat assembleDebug`: BUILD SUCCESSFUL.
+
+Envia para QA.
+
+### 3. QA
+
+Validação feita:
+- Subagente QA validou `WaterRepository`, wiring por `AppContainer`/`MainActivity`/`DietTrackerApp`, combinação de diário e água na `TodayViewModel`, card de água na `TodayScreen` e testes de soma/inserção.
+- Subagente QA confirmou ausência de mudanças fora de escopo em peso, calendário, importação, câmera, código de barras ou configurações.
+- Subagente QA executou `testDebugUnitTest --tests com.romling.diettracker.feature.today.TodayViewModelTest` com BUILD SUCCESSFUL.
+- Validação local executou `gradlew.bat test assembleDebug` com BUILD SUCCESSFUL.
+- Imagens de referência continuam untracked na raiz e foram mantidas fora do ciclo.
+
+Decisão:
+- APROVADO
+
+### Próxima tarefa aberta pelo Arquiteto
+
+Nome:
+- Adicionar valores corporais iniciais.
+
+Instrução para o próximo ciclo:
+- Portar o card de peso da tela Hoje usando `WeightEntryDao`, mostrando peso atual/alvo e registro simples. Não criar calendário, configurações ou gráficos ainda.
