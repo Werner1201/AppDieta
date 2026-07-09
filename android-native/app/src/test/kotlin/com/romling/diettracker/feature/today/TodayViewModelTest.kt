@@ -161,6 +161,59 @@ class TodayViewModelTest {
         assertEquals(107.8, weightDao.entries.value.single().weightKg)
         assertEquals("2026-07-01", weightDao.entries.value.single().date)
     }
+
+    @Test
+    fun previousDayDecrementsDate() = runTest(dispatcher) {
+        val viewModel = TodayViewModel(
+            diaryRepository = DiaryRepository(FakeDiaryEntryDao(emptyList())),
+            waterRepository = WaterRepository(FakeWaterEntryDao()),
+            weightRepository = WeightRepository(FakeWeightEntryDao()),
+            dateProvider = { LocalDate.parse("2026-07-09") },
+        )
+
+        viewModel.previousDay()
+        advanceUntilIdle()
+
+        assertEquals("2026-07-08", viewModel.state.value.date)
+        assertEquals(false, viewModel.state.value.isToday)
+    }
+
+    @Test
+    fun nextDayIncrementsDate() = runTest(dispatcher) {
+        val viewModel = TodayViewModel(
+            diaryRepository = DiaryRepository(FakeDiaryEntryDao(emptyList())),
+            waterRepository = WaterRepository(FakeWaterEntryDao()),
+            weightRepository = WeightRepository(FakeWeightEntryDao()),
+            dateProvider = { LocalDate.parse("2026-07-01") },
+        )
+
+        viewModel.nextDay()
+        advanceUntilIdle()
+
+        assertEquals("2026-07-02", viewModel.state.value.date)
+        assertEquals(false, viewModel.state.value.isToday)
+    }
+
+    @Test
+    fun goToDateChangesDateAndRestoresIsToday() = runTest(dispatcher) {
+        val today = LocalDate.parse("2026-07-09")
+        val viewModel = TodayViewModel(
+            diaryRepository = DiaryRepository(FakeDiaryEntryDao(emptyList())),
+            waterRepository = WaterRepository(FakeWaterEntryDao()),
+            weightRepository = WeightRepository(FakeWeightEntryDao()),
+            dateProvider = { today },
+        )
+
+        viewModel.goToDate(LocalDate.parse("2026-07-01"))
+        advanceUntilIdle()
+        assertEquals("2026-07-01", viewModel.state.value.date)
+        assertEquals(false, viewModel.state.value.isToday)
+
+        viewModel.goToDate(today)
+        advanceUntilIdle()
+        assertEquals(today.toString(), viewModel.state.value.date)
+        assertEquals(true, viewModel.state.value.isToday)
+    }
 }
 
 private fun entry(id: Long = 0, kcal: Double, protein: Double) = DiaryEntryEntity(
@@ -196,6 +249,8 @@ private class FakeDiaryEntryDao(initialEntries: List<DiaryEntryEntity>) : DiaryE
     override fun entriesForDate(date: String): Flow<List<DiaryEntryEntity>> = entries.map { items -> items.filter { it.date == date } }
     override fun entriesForMeal(date: String, mealType: String): Flow<List<DiaryEntryEntity>> =
         entries.map { items -> items.filter { it.date == date && it.mealType == mealType } }
+    override fun entriesForMonth(yearMonth: String): Flow<List<DiaryEntryEntity>> =
+        entries.map { items -> items.filter { it.date.startsWith(yearMonth) } }
 
     override suspend fun insert(entry: DiaryEntryEntity): Long = error("Not used")
     override suspend fun delete(entry: DiaryEntryEntity) = Unit

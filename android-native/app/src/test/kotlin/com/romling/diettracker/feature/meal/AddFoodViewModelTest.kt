@@ -159,6 +159,8 @@ private class FakeDiaryEntryDao : DiaryEntryDao {
     override fun entriesForDate(date: String): Flow<List<DiaryEntryEntity>> = flowOf(entries.filter { it.date == date })
     override fun entriesForMeal(date: String, mealType: String): Flow<List<DiaryEntryEntity>> =
         flowOf(entries.filter { it.date == date && it.mealType == mealType })
+    override fun entriesForMonth(yearMonth: String): Flow<List<DiaryEntryEntity>> =
+        flowOf(entries.filter { it.date.startsWith(yearMonth) })
 
     override suspend fun insert(entry: DiaryEntryEntity): Long {
         entries += entry.copy(id = entries.size + 1L)

@@ -26,6 +26,7 @@ import com.romling.diettracker.core.ui.theme.AppColors
 import com.romling.diettracker.core.ui.theme.DietTrackerTheme
 import com.romling.diettracker.feature.meal.AddFoodScreen
 import com.romling.diettracker.feature.meal.AddFoodViewModel
+import com.romling.diettracker.feature.today.CalendarScreen
 import com.romling.diettracker.feature.today.TodayMealSummary
 import com.romling.diettracker.feature.today.TodayScreen
 import com.romling.diettracker.feature.today.TodayViewModel
@@ -41,12 +42,26 @@ private enum class AppTab(val label: String, val icon: String) {
 @Composable
 fun DietTrackerApp(todayViewModel: TodayViewModel, addFoodViewModel: AddFoodViewModel) {
     val state by todayViewModel.state.collectAsState()
+    val currentDate by todayViewModel.currentDate.collectAsState()
+    val calendarGreenDays by todayViewModel.calendarGreenDays.collectAsState()
     val addFoodState by addFoodViewModel.state.collectAsState()
     var addMeal by remember { mutableStateOf<TodayMealSummary?>(null) }
+    var showCalendar by remember { mutableStateOf(false) }
     var selectedTab by remember { mutableStateOf(AppTab.DIARY) }
 
     DietTrackerTheme {
-        if (addMeal != null) {
+        if (showCalendar) {
+            CalendarScreen(
+                greenDays = calendarGreenDays,
+                selectedDate = currentDate,
+                onDayClick = { date ->
+                    todayViewModel.goToDate(date)
+                    showCalendar = false
+                },
+                onMonthChanged = todayViewModel::setCalendarMonth,
+                onClose = { showCalendar = false },
+            )
+        } else if (addMeal != null) {
             AddFoodScreen(
                 meal = addMeal!!,
                 state = addFoodState,
@@ -68,6 +83,9 @@ fun DietTrackerApp(todayViewModel: TodayViewModel, addFoodViewModel: AddFoodView
                             onAddWater = todayViewModel::addWater,
                             onRemoveLastWater = todayViewModel::removeLastWater,
                             onAddWeight = todayViewModel::addWeight,
+                            onPreviousDay = todayViewModel::previousDay,
+                            onNextDay = todayViewModel::nextDay,
+                            onOpenCalendar = { showCalendar = true },
                         )
                         else -> TabPlaceholder(selectedTab)
                     }

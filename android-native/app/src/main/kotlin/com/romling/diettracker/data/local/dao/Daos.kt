@@ -61,6 +61,9 @@ interface DiaryEntryDao {
     @Query("SELECT * FROM diary_entries WHERE date = :date AND meal_type = :mealType ORDER BY created_at, id")
     fun entriesForMeal(date: String, mealType: String): Flow<List<DiaryEntryEntity>>
 
+    @Query("SELECT * FROM diary_entries WHERE date LIKE :yearMonth || '-%' ORDER BY date, created_at")
+    fun entriesForMonth(yearMonth: String): Flow<List<DiaryEntryEntity>>
+
     @Insert
     suspend fun insert(entry: DiaryEntryEntity): Long
 

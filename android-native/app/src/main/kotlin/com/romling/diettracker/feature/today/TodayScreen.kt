@@ -3,6 +3,7 @@ package com.romling.diettracker.feature.today
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +22,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -30,6 +32,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -37,6 +41,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.PaddingValues
+import java.time.LocalDate
 import com.romling.diettracker.core.ui.components.AppCard
 import com.romling.diettracker.core.ui.components.MacroProgressBar
 import com.romling.diettracker.core.ui.components.SectionTitle
@@ -54,19 +59,39 @@ fun TodayScreen(
     onAddWater: (Int) -> Unit = {},
     onRemoveLastWater: () -> Unit = {},
     onAddWeight: (Double) -> Unit = {},
+    onPreviousDay: () -> Unit = {},
+    onNextDay: () -> Unit = {},
+    onOpenCalendar: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     var showRegisteredOnly by remember { mutableStateOf(false) }
+    var dragOffset by remember { mutableFloatStateOf(0f) }
+    val density = LocalDensity.current
+    val swipeThresholdPx = with(density) { 60.dp.toPx() }
 
-    Column(
+    Box(
         modifier = modifier
+            .fillMaxSize()
+            .pointerInput(Unit) {
+                detectHorizontalDragGestures(
+                    onDragEnd = {
+                        if (dragOffset > swipeThresholdPx) onPreviousDay()
+                        else if (dragOffset < -swipeThresholdPx) onNextDay()
+                        dragOffset = 0f
+                    },
+                    onDragCancel = { dragOffset = 0f },
+                ) { _, dragAmount -> dragOffset += dragAmount }
+            },
+    ) {
+    Column(
+        modifier = Modifier
             .fillMaxSize()
             .background(AppColors.Background)
             .verticalScroll(rememberScrollState())
             .padding(horizontal = AppSpacing.ScreenHorizontal, vertical = 28.dp),
         verticalArrangement = Arrangement.spacedBy(28.dp),
     ) {
-        TodayHeader(state)
+        TodayHeader(state = state, onOpenCalendar = onOpenCalendar)
         SmartTipsButton()
         SectionTitle(title = "Resumo", actionLabel = "Detalhes")
         SummaryCard(state)
@@ -92,6 +117,7 @@ fun TodayScreen(
             WeightCard(weight = state.weight, onAddWeight = onAddWeight)
         }
     }
+    } // Box
 }
 
 @Composable
@@ -119,18 +145,26 @@ private fun FilterTab(text: String, selected: Boolean, onClick: () -> Unit, modi
 }
 
 @Composable
-private fun TodayHeader(state: TodayUiState) {
+private fun TodayHeader(state: TodayUiState, onOpenCalendar: () -> Unit = {}) {
+    val titleText = if (state.isToday) "Hoje" else {
+        val d = LocalDate.parse(state.date)
+        "${d.dayOfMonth}/${d.monthValue}"
+    }
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(text = "Hoje", style = MaterialTheme.typography.headlineLarge)
+            Text(text = titleText, style = MaterialTheme.typography.headlineLarge)
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 Text(text = "💎 0", style = MaterialTheme.typography.labelLarge)
                 Text(text = "🔥 0", style = MaterialTheme.typography.labelLarge)
-                Text(text = "🗓️", style = MaterialTheme.typography.labelLarge)
+                Text(
+                    text = "🗓️",
+                    modifier = Modifier.clickable(onClick = onOpenCalendar),
+                    style = MaterialTheme.typography.labelLarge,
+                )
             }
         }
         Text(

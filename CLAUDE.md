@@ -52,10 +52,11 @@ Ignore imagens untracked na raiz. Responda com APROVADO ou REPROVADO e achados o
 - Ciclo 28: correção de bugs de layout na TodayScreen (tela estreita 322 dp).
 - Ciclo 29: sistema de dimensões responsivas `AppDimensions` via `CompositionLocal`.
 - Ciclo 30: correção de bugs visuais críticos na tela AddFood (título e nomes de alimentos).
+- Ciclo 31: calendário de dias verdes com navegação por swipe e tap em dias.
 
 Ciclo em andamento:
-- Nenhum ciclo de código aberto após o Ciclo 30.
-- Próximo ciclo sugerido: calendário com dias verdes, streak ou configurações de meta.
+- Nenhum ciclo de código aberto após o Ciclo 31.
+- Próximo ciclo sugerido: streak, configurações de meta ou tela de detalhe de refeição.
 
 ## Estilo de implementação
 

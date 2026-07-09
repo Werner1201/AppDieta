@@ -3256,3 +3256,72 @@ Checklist visual:
 
 Decisão:
 - APROVADO
+
+---
+
+## Ciclo 31
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Calendário de dias verdes com navegação por swipe entre dias.
+
+Motivo:
+- O app web já tem calendário com dias verdes. O Android ainda não. Além disso, swipe horizontal para navegar entre dias é UX essencial para um diário alimentar.
+
+Arquivos prováveis:
+- `data/local/dao/Daos.kt` — query `entriesForMonth`
+- `data/repository/DiaryRepository.kt` — método `entriesForMonth`
+- `feature/today/TodayViewModel.kt` — data mutável, navegação, `calendarGreenDays`
+- `feature/today/TodayScreen.kt` — swipe horizontal, callback `onOpenCalendar`
+- `feature/today/CalendarScreen.kt` — novo arquivo
+- `DietTrackerApp.kt` — estado de calendário
+
+Critérios de aceite funcionais:
+- Swipe direita → dia anterior; swipe esquerda → próximo dia.
+- Calendário mostra grade mensal com dias verdes marcados.
+- Tocar num dia no calendário navega para aquele dia.
+- `gradlew test` passa, incluindo testes de `previousDay`, `nextDay`, `goToDate`.
+
+Critérios de aceite visuais:
+- Header mostra "Hoje" quando no dia atual e "DD/MM" nos outros.
+- Dias verdes com fundo Accent; dias sem registro em cinza.
+- Dia selecionado destacado.
+
+Riscos:
+- Conflito entre swipe horizontal e scroll vertical. Mitigação: `detectHorizontalDragGestures` é independente do scroll vertical no Compose.
+
+Instrução objetiva para o Dev:
+1. `DiaryEntryDao`: `entriesForMonth(yearMonth: String)` com `date LIKE :yearMonth || '-%'`.
+2. `DiaryRepository`: expor `entriesForMonth`.
+3. `TodayViewModel`: `_date = MutableStateFlow`; `flatMapLatest` no state; `previousDay`, `nextDay`, `goToDate`; `calendarGreenDays` reativo ao `_calendarMonth`.
+4. `TodayScreen`: swipe com threshold 60dp; callbacks; data no header.
+5. `CalendarScreen.kt`: grade mensal, prev/next month, cores, tap de navegação.
+6. `DietTrackerApp`: estado `showCalendar`, conectar callbacks.
+7. Testes unitários de navegação de data.
+
+### 2. DEV
+
+Arquivos alterados:
+- `data/local/dao/Daos.kt` — `entriesForMonth` adicionado ao `DiaryEntryDao`
+- `data/repository/DiaryRepository.kt` — `entriesForMonth` exposto
+- `feature/today/TodayViewModel.kt` — reescrito com `_date = MutableStateFlow`, `flatMapLatest`, `calendarGreenDays`, `previousDay`/`nextDay`/`goToDate`/`setCalendarMonth`; `isToday` em `TodayUiState`
+- `feature/today/TodayScreen.kt` — parâmetros `onPreviousDay`/`onNextDay`/`onOpenCalendar`; Box com `detectHorizontalDragGestures` (threshold 60dp); `TodayHeader` mostra "Hoje" ou "DD/MM"; 🗓️ clicável
+- `feature/today/CalendarScreen.kt` — novo arquivo: grade mensal, cabeçalho ‹/›, dias Dom–Sáb, `DayCell` com cores (Accent selecionado, Accent 25% verde, transparente vazio)
+- `DietTrackerApp.kt` — `showCalendar`, `currentDate`, `calendarGreenDays` conectados; branch `CalendarScreen` antes de `AddFoodScreen`
+- `TodayViewModelTest.kt` — `entriesForMonth` em `FakeDiaryEntryDao`; testes `previousDayDecrementsDate`, `nextDayIncrementsDate`, `goToDateChangesDateAndRestoresIsToday`
+- `DiaryRepositoryTest.kt` e `AddFoodViewModelTest.kt` — `entriesForMonth` adicionado às fake DAOs
+
+Build: `gradlew test` → BUILD SUCCESSFUL; `gradlew assembleDebug` → BUILD SUCCESSFUL.
+
+### 3. QA
+
+Validado no emulador Galaxy Z Fold 6 (322 dp):
+- [x] Header mostra "Hoje" no dia atual
+- [x] 🗓️ abre CalendarScreen com "Julho 2026", grade correta (1 começa na Qua), dia 9 destacado em Accent
+- [x] Tap no dia 1 → fecha calendário, header muda para "1/7", Semana 27
+- [x] Swipe direita de "1/7" → "30/6" (dia anterior)
+- [x] Swipe esquerda de "30/6" → "1/7" (próximo dia)
+- [x] `gradlew test` BUILD SUCCESSFUL (10 testes incluindo 3 novos de navegação)
+
+**APROVADO**
