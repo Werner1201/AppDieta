@@ -19,6 +19,10 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -38,9 +42,23 @@ fun AddFoodScreen(
     onOpenFoodDetails: (Long) -> Unit,
     onCloseFoodDetails: () -> Unit,
     onAddFood: (FoodSearchItem, FoodPortionItem?) -> Unit,
+    onCreateFood: (String, Double, Double, Double, Double) -> Unit,
     onClose: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    var showCreateFood by remember { mutableStateOf(false) }
+
+    if (showCreateFood) {
+        CreateFoodScreen(
+            onClose = { showCreateFood = false },
+            onSave = { name, kcal, carbs, protein, fat ->
+                onCreateFood(name, kcal, carbs, protein, fat)
+                showCreateFood = false
+            },
+        )
+        return
+    }
+
     if (state.detailFood != null) {
         FoodDetailScreen(
             food = state.detailFood,
@@ -79,6 +97,12 @@ fun AddFoodScreen(
                 style = MaterialTheme.typography.headlineSmall,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
+            )
+            Text(
+                text = "+ Criar",
+                modifier = Modifier.clickable { showCreateFood = true },
+                style = MaterialTheme.typography.labelLarge,
+                color = AppColors.Accent,
             )
         }
         AppCard {

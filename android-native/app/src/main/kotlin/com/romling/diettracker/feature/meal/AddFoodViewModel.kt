@@ -3,6 +3,7 @@ package com.romling.diettracker.feature.meal
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.romling.diettracker.data.local.entity.FoodEntity
 import com.romling.diettracker.data.repository.DiaryRepository
 import com.romling.diettracker.data.repository.FoodRepository
 import java.time.LocalDate
@@ -69,6 +70,31 @@ class AddFoodViewModel(
 
     fun closeFoodDetails() {
         detailFoodId.value = null
+    }
+
+    fun createCustomFood(
+        name: String,
+        kcal100g: Double,
+        carbs100g: Double,
+        protein100g: Double,
+        fat100g: Double,
+        onCreated: () -> Unit = {},
+    ) {
+        viewModelScope.launch {
+            foodRepository.add(
+                FoodEntity(
+                    name = name.trim(),
+                    category = "customizado",
+                    kcal100g = kcal100g,
+                    carbs100g = carbs100g,
+                    protein100g = protein100g,
+                    fat100g = fat100g,
+                    isCustom = true,
+                ),
+            )
+            query.value = name.trim()
+            onCreated()
+        }
     }
 
     fun addFood(mealType: String, foodId: Long, portion: FoodPortionItem? = null, onAdded: () -> Unit = {}) {

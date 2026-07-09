@@ -3906,3 +3906,92 @@ Nome:
 
 Instrução para o próximo ciclo:
 - Criar tela simples para cadastrar alimento personalizado com nome, kcal/100g, carbs, proteína e gordura. Usar `FoodRepository.add` já existente. Acessível de dentro do AddFoodScreen (botão "Criar alimento").
+
+---
+
+## Ciclo 39
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Cadastro de alimento customizado.
+
+Motivo:
+- `AddFoodScreen` só buscava o catálogo existente. Usuário sem alimento no catálogo não conseguia registrar refeição.
+
+Arquivos prováveis:
+- `feature/meal/AddFoodViewModel.kt` — `createCustomFood`
+- `feature/meal/CreateFoodScreen.kt` — novo
+- `feature/meal/AddFoodPlaceholderScreen.kt` — botão "+ Criar", estado local
+- `DietTrackerApp.kt` — passar `onCreateFood`
+
+Critérios de aceite funcionais:
+- Botão "+ Criar" no header do AddFoodScreen abre `CreateFoodScreen`.
+- Form com nome (obrigatório), kcal/100g (obrigatório), carbs, proteína, gordura.
+- Salvar cria `FoodEntity(isCustom=true)` via `FoodRepository.add`.
+- Após salvar, query da busca atualiza para nome criado (alimento aparece na lista imediatamente).
+- Volta ao `AddFoodScreen` normal.
+- `gradlew.bat test` passa.
+- `gradlew.bat assembleDebug` passa.
+
+Critérios de aceite visuais:
+- Usa `AppCard`, `BottomPrimaryButton`, `AppColors`, `OutlinedTextField` existentes.
+- Header × consistente com outras telas.
+
+Riscos:
+- Alimento salvo mas query não atualiza → usuário pensa que falhou. Mitigação: `createCustomFood` seta `query.value = name` após insert.
+
+Instrução objetiva para o Dev:
+- `createCustomFood` na ViewModel, `CreateFoodScreen` novo, estado local em `AddFoodScreen`, sem nova navigation no `DietTrackerApp` além de `onCreateFood` callback.
+
+### 2. DEV
+
+Implementação feita:
+- `AddFoodViewModel.createCustomFood(name, kcal100g, carbs100g, protein100g, fat100g, onCreated)`: insere via `FoodRepository.add` com `isCustom=true`, `category="customizado"`, depois seta `query.value = name.trim()`.
+- `CreateFoodScreen.kt` criado: header ×, `AppCard` com 5 `OutlinedTextField` (nome/kcal/carbs/proteína/gordura), `BottomPrimaryButton` "Salvar alimento" habilitado quando nome e kcal válidos.
+- `AddFoodPlaceholderScreen.kt`: imports `remember`/`mutableStateOf`/`getValue`/`setValue` adicionados; botão "+ Criar" (cor Accent) no header; `showCreateFood` estado local; branch `showCreateFood` antes de `detailFood`.
+- `DietTrackerApp.kt`: `onCreateFood` passado para `AddFoodScreen`.
+
+Arquivos alterados:
+- `MIGRATION_PLAN.md`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/meal/AddFoodViewModel.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/meal/CreateFoodScreen.kt` (novo)
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/meal/AddFoodPlaceholderScreen.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/DietTrackerApp.kt`
+
+Como testou:
+- `gradlew.bat test` — BUILD SUCCESSFUL (11 testes passando).
+- `gradlew.bat assembleDebug` — BUILD SUCCESSFUL.
+
+### 3. QA
+
+Validação feita:
+- `createCustomFood` insere `FoodEntity` com campos corretos e atualiza query. ✅
+- `CreateFoodScreen` usa apenas componentes existentes, sem nova dependência. ✅
+- Botão "+ Criar" no header do `AddFoodScreen`. ✅
+- `showCreateFood` estado local — sem poluir `DietTrackerApp`. ✅
+- Testes passam sem regressão. ✅
+
+Checklist funcional:
+- [x] `createCustomFood` na ViewModel.
+- [x] `CreateFoodScreen` criado.
+- [x] Botão "+ Criar" no AddFoodScreen.
+- [x] Após salvar, query busca atualiza.
+- [x] `gradlew.bat test` passa.
+- [x] `gradlew.bat assembleDebug` passa.
+
+Checklist visual:
+- [x] Header × consistente.
+- [x] Form dentro de `AppCard`.
+- [x] Botão fixo no rodapé.
+
+Decisão:
+- APROVADO
+
+### Próxima tarefa aberta pelo Arquiteto
+
+Nome:
+- Histórico de peso e tela dedicada de peso.
+
+Instrução para o próximo ciclo:
+- Criar tela dedicada de peso acessível pelo card de Valores Corporais na tela Hoje. Mostrar peso atual, peso alvo e histórico simples de registros. Reaproveitar `WeightRepository` e `TodayViewModel` já existentes.

@@ -56,10 +56,11 @@ Ignore imagens untracked na raiz. Responda com APROVADO ou REPROVADO e achados o
 - Ciclo 36: metas por refeição proporcionais à meta calórica diária.
 - Ciclo 37: tela de detalhe de refeição (`MealDetailScreen`) com macros, lista de itens e Adicionar mais.
 - Ciclo 38: tela de detalhe de alimento (`FoodDetailScreen`) com macros por 100g, porções e botão Adicionar.
+- Ciclo 39: cadastro de alimento customizado (`CreateFoodScreen`) acessível via botão "+ Criar" no AddFoodScreen.
 
 Ciclo em andamento:
-- Nenhum ciclo aberto após o Ciclo 38.
-- Próximo ciclo sugerido: cadastro de alimento customizado acessível via AddFoodScreen.
+- Nenhum ciclo aberto após o Ciclo 39.
+- Próximo ciclo sugerido: histórico de peso e tela dedicada de peso.
 
 ## Estilo de implementação
 
