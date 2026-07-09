@@ -1896,3 +1896,90 @@ Nome:
 
 Instrução para o próximo ciclo:
 - Criar navegação mínima somente do botão `+` da refeição para uma tela placeholder de adicionar alimento, sem implementar busca/lista ainda.
+
+## Ciclo 16
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Criar navegação mínima para adicionar alimento.
+
+Motivo:
+- Permitir sair da tela Hoje para uma primeira tela de adicionar alimento sem ainda implementar busca/lista.
+
+Tela ou funcionalidade original analisada:
+- Botão `+` em cada refeição.
+- Tela de adicionar alimento por refeição.
+
+Arquivos prováveis:
+- `android-native/app/src/main/kotlin/com/romling/diettracker/DietTrackerApp.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayScreen.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/meal/AddFoodPlaceholderScreen.kt`.
+
+Critérios de aceite funcionais:
+- Botão `+` da refeição abre uma tela placeholder.
+- Tela placeholder recebe a refeição selecionada.
+- Tela placeholder permite voltar para a tela Hoje.
+- Não implementar busca/lista de alimentos ainda.
+- `gradlew.bat test` passa.
+- `gradlew.bat assembleDebug` passa.
+
+Critérios de aceite visuais:
+- Placeholder mantém tema escuro e tokens existentes.
+- Não criar bottom bar, navigation graph, tela de detalhe ou lista real.
+
+Riscos:
+- Adicionar Navigation Compose cedo demais. Mitigação: estado local simples em `DietTrackerApp`.
+
+Instrução objetiva para o Dev:
+- Criar só a troca local Today/AddFood placeholder. Não adicionar dependência de navegação, busca, lista de alimentos, scanner ou câmera.
+
+### 2. DEV
+
+Implementação feita:
+- `DietTrackerApp` usa estado local para alternar entre `TodayScreen` e placeholder de adicionar alimento.
+- `TodayScreen` recebe `onAddMeal` e chama ao tocar no `+` visual.
+- Criado `AddFoodPlaceholderScreen` com cabeçalho, fechar e tiles visuais de modos.
+
+Arquivos alterados:
+- `MIGRATION_PLAN.md`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/DietTrackerApp.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayScreen.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/meal/AddFoodPlaceholderScreen.kt`.
+
+Como preservou o app original:
+- A navegação inicial segue o comportamento esperado do `+`, mas ainda não implementa busca/lista.
+
+Como testou:
+- Testes Android.
+- Build Android debug.
+- Revisão estática de escopo.
+
+Comando executado:
+- `gradlew.bat test`.
+- `gradlew.bat assembleDebug`.
+- Busca por `navigation-compose`, `NavHost`, `rememberNavController`, `LazyColumn`, `FoodRepository`, `search(`, `entriesForMeal`, `databaseBuilder`.
+
+Resultado:
+- `gradlew.bat test`: BUILD SUCCESSFUL.
+- `gradlew.bat assembleDebug`: BUILD SUCCESSFUL.
+- Busca de escopo: resultados apenas em código já existente fora do ciclo e testes.
+
+Envia para QA.
+
+### 3. QA
+
+Validação feita:
+- Subagente QA validou troca local Today/AddFood, botão `+`, placeholder com fechar e ausência de Navigation Compose/busca/lista/salvamento.
+- Imagens de referência continuam untracked na raiz e foram mantidas fora do ciclo.
+
+Decisão:
+- APROVADO
+
+### Próxima tarefa aberta pelo Arquiteto
+
+Nome:
+- Implementar busca simples de alimentos.
+
+Instrução para o próximo ciclo:
+- Implementar somente campo de busca e lista simples de alimentos na tela de adicionar alimento, usando `FoodRepository`. Não adicionar câmera, código de barras, digitar manual ou salvar no diário ainda.

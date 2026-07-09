@@ -2,6 +2,7 @@ package com.romling.diettracker.feature.today
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -43,6 +44,7 @@ import com.romling.diettracker.core.ui.theme.DietTrackerTheme
 @Composable
 fun TodayScreen(
     state: TodayUiState,
+    onAddMeal: (TodayMealSummary) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -58,7 +60,7 @@ fun TodayScreen(
         SectionTitle(title = "Resumo", actionLabel = "Detalhes")
         SummaryCard(state)
         SectionTitle(title = "Alimentação", actionLabel = "Mais")
-        MealsCard(state.meals)
+        MealsCard(meals = state.meals, onAddMeal = onAddMeal)
     }
 }
 
@@ -209,11 +211,11 @@ private fun MacroMetric(label: String, value: Double, goal: Double, modifier: Mo
 }
 
 @Composable
-private fun MealsCard(meals: List<TodayMealSummary>) {
+private fun MealsCard(meals: List<TodayMealSummary>, onAddMeal: (TodayMealSummary) -> Unit) {
     AppCard(contentPadding = PaddingValues(horizontal = 28.dp, vertical = 0.dp)) {
         Column {
             meals.forEachIndexed { index, meal ->
-                MealRow(meal)
+                MealRow(meal = meal, onAddMeal = onAddMeal)
                 if (index < meals.lastIndex) {
                     HorizontalDivider(color = AppColors.Line, thickness = 1.dp)
                 }
@@ -223,7 +225,7 @@ private fun MealsCard(meals: List<TodayMealSummary>) {
 }
 
 @Composable
-private fun MealRow(meal: TodayMealSummary) {
+private fun MealRow(meal: TodayMealSummary, onAddMeal: (TodayMealSummary) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -253,7 +255,9 @@ private fun MealRow(meal: TodayMealSummary) {
             )
         }
         Surface(
-            modifier = Modifier.size(AppSpacing.MealActionSize),
+            modifier = Modifier
+                .size(AppSpacing.MealActionSize)
+                .clickable { onAddMeal(meal) },
             shape = CircleShape,
             color = AppColors.TextPrimary,
         ) {
