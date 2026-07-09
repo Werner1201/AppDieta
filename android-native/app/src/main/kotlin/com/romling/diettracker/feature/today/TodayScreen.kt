@@ -44,6 +44,7 @@ import com.romling.diettracker.core.ui.theme.AppColors
 import com.romling.diettracker.core.ui.theme.AppShapes
 import com.romling.diettracker.core.ui.theme.AppSpacing
 import com.romling.diettracker.core.ui.theme.DietTrackerTheme
+import com.romling.diettracker.core.ui.theme.LocalAppDimensions
 
 @Composable
 fun TodayScreen(
@@ -226,10 +227,11 @@ private fun SummarySideMetric(value: String, label: String) {
 
 @Composable
 private fun RemainingRing(state: TodayUiState) {
+    val dims = LocalAppDimensions.current
     val progress = if (state.dailyKcal <= 0.0) 0f else (state.totals.kcal / state.dailyKcal).toFloat()
-    Box(modifier = Modifier.size(80.dp), contentAlignment = Alignment.Center) {
-        Canvas(modifier = Modifier.size(64.dp)) {
-            val stroke = Stroke(width = 8.dp.toPx(), cap = StrokeCap.Round)
+    Box(modifier = Modifier.size(dims.summaryRingBox), contentAlignment = Alignment.Center) {
+        Canvas(modifier = Modifier.size(dims.summaryRingCanvas)) {
+            val stroke = Stroke(width = dims.summaryRingStroke.toPx(), cap = StrokeCap.Round)
             val inset = stroke.width / 2
             val arcSize = Size(size.width - stroke.width, size.height - stroke.width)
             drawArc(
@@ -295,15 +297,16 @@ private fun MealsCard(meals: List<TodayMealSummary>, onAddMeal: (TodayMealSummar
 
 @Composable
 private fun MealRow(meal: TodayMealSummary, onAddMeal: (TodayMealSummary) -> Unit) {
+    val dims = LocalAppDimensions.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(80.dp),
+            .height(dims.mealRowHeight),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(dims.mealRowSpacing),
     ) {
         Surface(
-            modifier = Modifier.size(AppSpacing.MealIconSize),
+            modifier = Modifier.size(dims.mealIconSize),
             shape = CircleShape,
             color = AppColors.Line.copy(alpha = 0.55f),
         ) {
@@ -325,7 +328,7 @@ private fun MealRow(meal: TodayMealSummary, onAddMeal: (TodayMealSummary) -> Uni
         }
         Surface(
             modifier = Modifier
-                .size(AppSpacing.MealActionSize)
+                .size(dims.mealActionSize)
                 .clickable { onAddMeal(meal) },
             shape = CircleShape,
             color = AppColors.TextPrimary,

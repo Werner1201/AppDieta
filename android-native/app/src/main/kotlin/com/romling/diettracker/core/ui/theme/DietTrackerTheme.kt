@@ -3,6 +3,7 @@ package com.romling.diettracker.core.ui.theme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 
 private val DietColorScheme = darkColorScheme(
     background = AppColors.Background,
@@ -20,9 +21,12 @@ private val DietColorScheme = darkColorScheme(
 
 @Composable
 fun DietTrackerTheme(content: @Composable () -> Unit) {
-    MaterialTheme(
-        colorScheme = DietColorScheme,
-        typography = AppTypography,
-        content = content,
-    )
+    val dimensions = rememberAppDimensions()
+    CompositionLocalProvider(LocalAppDimensions provides dimensions) {
+        MaterialTheme(
+            colorScheme = DietColorScheme,
+            typography = AppTypography,
+            content = content,
+        )
+    }
 }

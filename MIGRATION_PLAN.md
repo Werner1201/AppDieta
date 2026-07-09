@@ -3085,3 +3085,94 @@ Checklist visual:
 
 Decisão:
 - APROVADO
+
+---
+
+## Ciclo 29
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Sistema de dimensões responsivas (`AppDimensions`) para adaptar a UI ao tamanho real da tela.
+
+Motivo:
+- Os valores de tamanho (anel, ícones, fontes, espaçamentos) são fixos. No Z Fold 6 dobrado (322 dp) precisaram ser hackeados individualmente no Ciclo 28. Num celular de 400 dp os mesmos valores ficariam pequenos demais. O app precisa escalar proporcionalmente ao `screenWidthDp` sem adicionar dependência nova.
+
+Arquivos prováveis:
+- `android-native/app/src/main/kotlin/com/romling/diettracker/core/ui/theme/AppDimensions.kt` (novo)
+- `android-native/app/src/main/kotlin/com/romling/diettracker/core/ui/theme/DietTrackerTheme.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayScreen.kt`
+
+Critérios de aceite funcionais:
+- `gradlew test` passa.
+- `gradlew assembleDebug` passa.
+
+Critérios de aceite visuais (no emulador 322 dp):
+- Tela Hoje renderiza igual ao resultado do Ciclo 28 (sem regressão).
+- Nenhum texto truncado nas seções Resumo e Alimentação.
+
+Critérios de aceite visuais (num AVD de 360–414 dp):
+- Anel, ícones e rows visivelmente maiores que no Z Fold 6, proporcionais à largura disponível.
+
+Riscos:
+- Valores calculados via `LocalConfiguration` podem causar recomposições desnecessárias se não cacheados. Mitigação: calcular uma única vez em `DietTrackerTheme` e distribuir via `CompositionLocal`.
+
+Instrução objetiva para o Dev:
+1. Criar `AppDimensions.kt` com `data class AppDimensions` contendo os tamanhos variáveis e `rememberAppDimensions()` que lê `LocalConfiguration.current.screenWidthDp`.
+2. Criar `val LocalAppDimensions = staticCompositionLocalOf { AppDimensions() }`.
+3. Em `DietTrackerTheme`, fornecer `AppDimensions` via `CompositionLocalProvider`.
+4. Em `TodayScreen.kt`, substituir valores hardcoded por `LocalAppDimensions.current.xxx`.
+5. Não alterar lógica de negócio nem ViewModels.
+
+Breakpoints:
+- `screenWidthDp < 360`: compact — anel 80dp, ícone 44dp, botão 40dp, row 80dp
+- `screenWidthDp in 360..479`: regular — anel 100dp, ícone 56dp, botão 48dp, row 96dp
+- `screenWidthDp >= 480`: large — anel 120dp, ícone 70dp, botão 58dp, row 112dp
+
+### 2. DEV
+
+Implementação feita:
+- Criado `AppDimensions.kt` com `data class AppDimensions` contendo 7 dimensões variáveis: `summaryRingBox`, `summaryRingCanvas`, `summaryRingStroke`, `mealIconSize`, `mealActionSize`, `mealRowHeight`, `mealRowSpacing`.
+- `rememberAppDimensions()` lê `LocalConfiguration.current.screenWidthDp` e retorna o breakpoint correto (`< 360` compact, `360–479` regular, `>= 480` large). Usa `remember(screenWidthDp)` para evitar recomposições desnecessárias.
+- `LocalAppDimensions = staticCompositionLocalOf { AppDimensions() }` fornece o valor padrão (compact).
+- `DietTrackerTheme` calcula `rememberAppDimensions()` uma única vez e envolve o conteúdo com `CompositionLocalProvider`.
+- `TodayScreen.kt`: `RemainingRing` e `MealRow` leem `LocalAppDimensions.current` em vez de usar valores hardcoded.
+- `AppSpacing.kt`: `MealIconSize` e `MealActionSize` marcados com `@Deprecated` apontando para `LocalAppDimensions`.
+- Nenhuma dependência nova adicionada.
+
+Arquivos alterados:
+- `MIGRATION_PLAN.md`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/core/ui/theme/AppDimensions.kt` (novo)
+- `android-native/app/src/main/kotlin/com/romling/diettracker/core/ui/theme/DietTrackerTheme.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/core/ui/theme/AppSpacing.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayScreen.kt`
+
+Como testou:
+- `./gradlew test` — BUILD SUCCESSFUL.
+- `./gradlew assembleDebug` — BUILD SUCCESSFUL.
+- APK instalado no emulador 322dp: sem regressão visual, todos os textos completos.
+
+### 3. QA
+
+Validação feita:
+- Verificado no emulador Galaxy Z Fold 6 (322dp, breakpoint compact).
+- Card Resumo: "Consumidas", "Gastas", macros e valores todos em uma linha — sem regressão.
+- Card Alimentação: "Café da manhã", "Almoço", "Jantar", "Lanches" completos — sem regressão.
+- Lógica de negócio e ViewModels intocados.
+- Nenhuma dependência nova.
+- `LocalAppDimensions` fornecido corretamente via `DietTrackerTheme` — composables não calculam dimensões por conta própria.
+- `remember(screenWidthDp)` evita recomposição desnecessária.
+- Imagens de referência mantidas fora do commit.
+
+Checklist funcional:
+- [x] `gradlew test` passa.
+- [x] `gradlew assembleDebug` passa.
+- [x] Sem regressão no emulador 322dp.
+
+Checklist visual:
+- [x] Breakpoint compact ativo em 322dp — dimensões idênticas ao Ciclo 28.
+- [x] Textos sem truncar.
+- [x] `AppDimensions` é a fonte única de dimensões variáveis por tela.
+
+Decisão:
+- APROVADO

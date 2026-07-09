@@ -50,10 +50,11 @@ Ignore imagens untracked na raiz. Responda com APROVADO ou REPROVADO e achados o
 - Ciclo 26: card de valores corporais (peso) na tela Hoje.
 - Ciclo 27: navegação inferior visual com cinco abas (Diário funcional, demais placeholders).
 - Ciclo 28: correção de bugs de layout na TodayScreen (tela estreita 322 dp).
+- Ciclo 29: sistema de dimensões responsivas `AppDimensions` via `CompositionLocal`.
 
 Ciclo em andamento:
-- Nenhum ciclo de código aberto após o Ciclo 28.
-- Próximo ciclo sugerido no `MIGRATION_PLAN.md`: calendário, streak, configurações de meta ou tela de detalhe de refeição.
+- Nenhum ciclo de código aberto após o Ciclo 29.
+- Próximo ciclo sugerido: corrigir bugs visuais na tela AddFood (título truncado, nomes de alimentos indistinguíveis após busca).
 
 ## Estilo de implementação
 

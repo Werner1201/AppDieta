@@ -11,6 +11,8 @@ object AppSpacing {
     val ToolGap = 14.dp
     val ButtonMinHeight = 58.dp
     val MacroProgressHeight = 12.dp
+    @Deprecated("Use LocalAppDimensions.current.mealIconSize")
     val MealIconSize = 44.dp
+    @Deprecated("Use LocalAppDimensions.current.mealActionSize")
     val MealActionSize = 40.dp
 }
