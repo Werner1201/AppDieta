@@ -1630,3 +1630,92 @@ Nome:
 
 Instrução para o próximo ciclo:
 - Criar uma primeira tela Hoje Compose ligada à `TodayUiState`, com cabeçalho e card de resumo apenas. Não migrar alimentação, água, peso ou navegação ainda.
+
+## Ciclo 13
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Criar primeira tela Hoje Compose.
+
+Motivo:
+- Substituir o placeholder inicial por uma primeira fatia real da tela Hoje, sem migrar todo o fluxo de uma vez.
+
+Tela ou funcionalidade original analisada:
+- Cabeçalho da tela Hoje.
+- CTA "Ver minhas Dicas Inteligentes".
+- Seção Resumo com card de calorias e macros.
+
+Arquivos prováveis:
+- `android-native/app/src/main/kotlin/com/romling/diettracker/DietTrackerApp.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayScreen.kt`.
+
+Critérios de aceite funcionais:
+- Criar `TodayScreen` Compose recebendo `TodayUiState`.
+- Renderizar cabeçalho com "Hoje", semana e contadores.
+- Renderizar CTA de dicas.
+- Renderizar card de resumo com consumidas, restantes, gastas, macros e "Agora: Comer".
+- Trocar placeholder do app pela primeira tela Hoje.
+- `gradlew.bat test` passa.
+- `gradlew.bat assembleDebug` passa.
+
+Critérios de aceite visuais:
+- Usar tokens/componentes Android já criados.
+- Não migrar lista de alimentação, água, peso, bottom bar ou navegação neste ciclo.
+- Evitar UI genérica Material sem a identidade escura/verde/roxa do app.
+
+Riscos:
+- Expandir a tela inteira cedo demais. Mitigação: limitar a cabeçalho, CTA e resumo.
+
+Instrução objetiva para o Dev:
+- Criar somente `TodayScreen` e substituir o placeholder em `DietTrackerApp`. Não ligar ViewModel, navigation, alimentação, água, peso ou bottom bar ainda.
+
+### 2. DEV
+
+Implementação feita:
+- Criado `TodayScreen` com cabeçalho, CTA de dicas, seção "Resumo" e card de resumo.
+- Card usa `AppCard`, `SectionTitle`, `MacroProgressBar` e tokens de tema existentes.
+- Adicionado anel visual simples para kcal restantes.
+- `DietTrackerApp` agora renderiza `TodayScreen` com estado padrão.
+
+Arquivos alterados:
+- `MIGRATION_PLAN.md`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/DietTrackerApp.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayScreen.kt`.
+
+Como preservou o app original:
+- A tela segue a identidade escura/verde/roxa e a estrutura inicial da tela Hoje original.
+
+Como testou:
+- Testes Android.
+- Build Android debug.
+- Revisão estática de escopo.
+
+Comando executado:
+- `gradlew.bat test`.
+- `gradlew.bat assembleDebug`.
+- Busca por imports/termos fora de escopo em `TodayScreen.kt` e `DietTrackerApp.kt`.
+
+Resultado:
+- `gradlew.bat test`: BUILD SUCCESSFUL.
+- `gradlew.bat assembleDebug`: BUILD SUCCESSFUL.
+- Revisão estática: sem navegação, ViewModel, Room ou repositories nesta tela.
+
+Envia para QA.
+
+### 3. QA
+
+Validação feita:
+- Subagente QA validou escopo visual, `TodayScreen`, troca do placeholder e ausência de ViewModel/navegação/bottom bar/alimentação/água/peso.
+- Imagens de referência continuam untracked na raiz e foram mantidas fora do ciclo.
+
+Decisão:
+- APROVADO
+
+### Próxima tarefa aberta pelo Arquiteto
+
+Nome:
+- Ligar TodayScreen à TodayViewModel.
+
+Instrução para o próximo ciclo:
+- Ligar a tela Hoje à `TodayViewModel` usando o container manual existente. Não adicionar navegação nem migrar alimentação, água ou peso ainda.

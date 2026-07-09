@@ -1,0 +1,221 @@
+package com.romling.diettracker.feature.today
+
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.PaddingValues
+import com.romling.diettracker.core.ui.components.AppCard
+import com.romling.diettracker.core.ui.components.MacroProgressBar
+import com.romling.diettracker.core.ui.components.SectionTitle
+import com.romling.diettracker.core.ui.theme.AppColors
+import com.romling.diettracker.core.ui.theme.AppShapes
+import com.romling.diettracker.core.ui.theme.AppSpacing
+import com.romling.diettracker.core.ui.theme.DietTrackerTheme
+
+@Composable
+fun TodayScreen(
+    state: TodayUiState,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(AppColors.Background)
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpacing.ScreenHorizontal, vertical = 28.dp),
+        verticalArrangement = Arrangement.spacedBy(28.dp),
+    ) {
+        TodayHeader(state)
+        SmartTipsButton()
+        SectionTitle(title = "Resumo", actionLabel = "Detalhes")
+        SummaryCard(state)
+    }
+}
+
+@Composable
+private fun TodayHeader(state: TodayUiState) {
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(text = "Hoje", style = MaterialTheme.typography.headlineLarge)
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                Text(text = "💎 0", style = MaterialTheme.typography.labelLarge)
+                Text(text = "🔥 0", style = MaterialTheme.typography.labelLarge)
+                Text(text = "🗓️", style = MaterialTheme.typography.labelLarge)
+            }
+        }
+        Text(
+            text = "Semana ${state.week}",
+            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Normal),
+        )
+    }
+}
+
+@Composable
+private fun SmartTipsButton() {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(76.dp),
+        shape = AppShapes.Button,
+        color = AppColors.TipBackground,
+        border = BorderStroke(3.dp, AppColors.TipBorder),
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 22.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Text(
+                text = "✦ Ver minhas Dicas Inteligentes",
+                color = AppColors.TipText,
+                style = MaterialTheme.typography.labelLarge,
+            )
+            Text(text = "→", color = AppColors.TipText, style = MaterialTheme.typography.labelLarge)
+        }
+    }
+}
+
+@Composable
+private fun SummaryCard(state: TodayUiState) {
+    AppCard(contentPadding = PaddingValues(0.dp)) {
+        Column {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 22.dp, vertical = 24.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                SummarySideMetric(value = state.totals.kcal.toInt().toString(), label = "Consumidas")
+                RemainingRing(state)
+                SummarySideMetric(value = "0", label = "Gastas")
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 22.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(22.dp),
+            ) {
+                MacroMetric("Carboidratos", state.totals.carbs, 284.0, Modifier.weight(1f))
+                MacroMetric("Proteína", state.totals.protein, 114.0, Modifier.weight(1f))
+                MacroMetric("Gordura", state.totals.fat, 75.0, Modifier.weight(1f))
+            }
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(58.dp)
+                    .background(AppColors.Green),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(text = "🍽️ Agora: Comer", style = MaterialTheme.typography.bodyLarge)
+            }
+        }
+    }
+}
+
+@Composable
+private fun SummarySideMetric(value: String, label: String) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(text = value, style = MaterialTheme.typography.headlineMedium)
+        Text(text = label, style = MaterialTheme.typography.bodyMedium)
+    }
+}
+
+@Composable
+private fun RemainingRing(state: TodayUiState) {
+    val progress = if (state.dailyKcal <= 0.0) 0f else (state.totals.kcal / state.dailyKcal).toFloat()
+    Box(modifier = Modifier.size(132.dp), contentAlignment = Alignment.Center) {
+        Canvas(modifier = Modifier.size(116.dp)) {
+            val stroke = Stroke(width = 14.dp.toPx(), cap = StrokeCap.Round)
+            val inset = stroke.width / 2
+            val arcSize = Size(size.width - stroke.width, size.height - stroke.width)
+            drawArc(
+                color = AppColors.Line,
+                startAngle = 135f,
+                sweepAngle = 270f,
+                useCenter = false,
+                topLeft = Offset(inset, inset),
+                size = arcSize,
+                style = stroke,
+            )
+            drawArc(
+                color = AppColors.Accent,
+                startAngle = 135f,
+                sweepAngle = 270f * progress.coerceIn(0f, 1f),
+                useCenter = false,
+                topLeft = Offset(inset, inset),
+                size = arcSize,
+                style = stroke,
+            )
+        }
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(text = state.remainingKcal.toString(), style = MaterialTheme.typography.headlineMedium)
+            Text(text = "Restantes", style = MaterialTheme.typography.bodyMedium)
+        }
+    }
+}
+
+@Composable
+private fun MacroMetric(label: String, value: Double, goal: Double, modifier: Modifier = Modifier) {
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(
+            text = label,
+            modifier = Modifier.fillMaxWidth(),
+            style = MaterialTheme.typography.bodyLarge,
+            textAlign = TextAlign.Center,
+        )
+        MacroProgressBar(progress = (value / goal).toFloat())
+        Text(
+            text = "${value.toInt()} / ${goal.toInt()} g",
+            modifier = Modifier.fillMaxWidth(),
+            style = MaterialTheme.typography.labelLarge,
+            textAlign = TextAlign.Center,
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun TodayScreenPreview() {
+    DietTrackerTheme {
+        TodayScreen(
+            TodayUiState(
+                date = "2026-07-01",
+                week = 27,
+                dailyKcal = 2333.0,
+                dailyProtein = 114.0,
+                totals = TodayNutritionTotals(kcal = 996.0, carbs = 81.0, protein = 83.0, fat = 35.0),
+                remainingKcal = 1337,
+            ),
+        )
+    }
+}
