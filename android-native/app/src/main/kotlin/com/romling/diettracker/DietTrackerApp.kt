@@ -26,6 +26,7 @@ import com.romling.diettracker.core.ui.theme.AppColors
 import com.romling.diettracker.core.ui.theme.DietTrackerTheme
 import com.romling.diettracker.feature.meal.AddFoodScreen
 import com.romling.diettracker.feature.meal.AddFoodViewModel
+import com.romling.diettracker.feature.settings.SettingsScreen
 import com.romling.diettracker.feature.today.CalendarScreen
 import com.romling.diettracker.feature.today.StreakScreen
 import com.romling.diettracker.feature.today.TodayMealSummary
@@ -92,6 +93,7 @@ fun DietTrackerApp(todayViewModel: TodayViewModel, addFoodViewModel: AddFoodView
                             onOpenCalendar = { showCalendar = true },
                             onOpenStreak = { showStreak = true },
                         )
+                        AppTab.PROFILE -> SettingsScreen(state = state)
                         else -> TabPlaceholder(selectedTab)
                     }
                 }

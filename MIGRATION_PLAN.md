@@ -3486,3 +3486,75 @@ Nome:
 
 Instrução para o próximo ciclo:
 - Criar uma tela simples de configurações para exibir metas padrão atuais. Não persistir edição ainda, salvo se DataStore já estiver pronto.
+
+---
+
+## Ciclo 34
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Configurações de metas iniciais.
+
+Motivo:
+- Exibir as metas padrão atuais do app Android sem introduzir persistência antes da hora.
+
+Arquivos prováveis:
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/settings/SettingsScreen.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/DietTrackerApp.kt`
+
+Critérios de aceite funcionais:
+- Aba Perfil abre tela de configurações.
+- Tela mostra calorias, carboidratos, proteína, gordura, água e peso alvo.
+- Usa valores já disponíveis em `TodayUiState` quando existirem.
+- Não persiste edição.
+- `gradlew.bat test` passa.
+- `gradlew.bat assembleDebug` passa.
+
+Critérios de aceite visuais:
+- Tela simples com card escuro existente.
+- Não criar formulário editável ainda.
+
+Riscos:
+- Criar persistência sem DataStore pronto. Mitigação: somente leitura neste ciclo.
+
+Instrução objetiva para o Dev:
+- Criar tela simples de metas e conectá-la à aba Perfil. Não implementar edição.
+
+### 2. DEV
+
+Implementação feita:
+- Criada `SettingsScreen` somente leitura.
+- Aba `Perfil` agora renderiza `SettingsScreen`.
+- Metas exibidas: calorias, carboidratos, proteína, gordura, água e peso alvo.
+
+Arquivos alterados:
+- `MIGRATION_PLAN.md`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/settings/SettingsScreen.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/DietTrackerApp.kt`
+
+Como testou:
+- `gradlew.bat test assembleDebug`.
+
+Resultado:
+- BUILD SUCCESSFUL.
+
+Envia para QA.
+
+### 3. QA
+
+Validação feita:
+- Subagente QA validou que a aba Perfil abre `SettingsScreen`, que a tela mostra calorias, carboidratos, proteína, gordura, água e peso alvo, que usa `TodayUiState` onde há valores disponíveis e que permanece somente leitura.
+- `gradlew.bat test assembleDebug` executado novamente com BUILD SUCCESSFUL.
+- `.claude/` e imagens de referência continuam untracked e foram mantidos fora do ciclo.
+
+Decisão:
+- APROVADO
+
+### Próxima tarefa aberta pelo Arquiteto
+
+Nome:
+- Preparar edição persistida de metas.
+
+Instrução para o próximo ciclo:
+- Verificar se DataStore deve ser adicionado agora. Se sim, implementar persistência mínima para metas; se não, manter tela readonly e escolher próxima funcionalidade de maior valor.
