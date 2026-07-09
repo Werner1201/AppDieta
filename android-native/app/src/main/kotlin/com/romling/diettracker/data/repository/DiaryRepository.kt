@@ -13,6 +13,7 @@ class DiaryRepository(
     fun entriesForDate(date: String) = diaryEntryDao.entriesForDate(date)
     fun entriesForMeal(date: String, mealType: String) = diaryEntryDao.entriesForMeal(date, mealType)
     fun entriesForMonth(yearMonth: String) = diaryEntryDao.entriesForMonth(yearMonth)
+    fun activeDates() = diaryEntryDao.activeDates()
     suspend fun delete(entry: DiaryEntryEntity) = diaryEntryDao.delete(entry)
     suspend fun deleteById(entryId: Long) = diaryEntryDao.deleteById(entryId)
 

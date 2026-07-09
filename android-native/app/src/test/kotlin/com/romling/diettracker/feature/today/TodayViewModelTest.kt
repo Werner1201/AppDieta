@@ -163,6 +163,29 @@ class TodayViewModelTest {
     }
 
     @Test
+    fun stateSummarizesCurrentStreak() = runTest(dispatcher) {
+        val viewModel = TodayViewModel(
+            diaryRepository = DiaryRepository(
+                FakeDiaryEntryDao(
+                    listOf(
+                        entry(date = "2026-06-29", kcal = 100.0, protein = 10.0),
+                        entry(date = "2026-06-30", kcal = 100.0, protein = 10.0),
+                        entry(date = "2026-07-01", kcal = 100.0, protein = 10.0),
+                    ),
+                ),
+            ),
+            waterRepository = WaterRepository(FakeWaterEntryDao()),
+            weightRepository = WeightRepository(FakeWeightEntryDao()),
+            dateProvider = { LocalDate.parse("2026-07-01") },
+        )
+
+        advanceUntilIdle()
+
+        assertEquals(3, viewModel.state.value.streak.current)
+        assertEquals(3, viewModel.state.value.streak.best)
+    }
+
+    @Test
     fun previousDayDecrementsDate() = runTest(dispatcher) {
         val viewModel = TodayViewModel(
             diaryRepository = DiaryRepository(FakeDiaryEntryDao(emptyList())),
@@ -216,9 +239,9 @@ class TodayViewModelTest {
     }
 }
 
-private fun entry(id: Long = 0, kcal: Double, protein: Double) = DiaryEntryEntity(
+private fun entry(id: Long = 0, date: String = "2026-07-01", kcal: Double, protein: Double) = DiaryEntryEntity(
     id = id,
-    date = "2026-07-01",
+    date = date,
     mealType = "lunch",
     foodId = 1,
     foodNameSnapshot = "Peito de frango",
@@ -251,6 +274,8 @@ private class FakeDiaryEntryDao(initialEntries: List<DiaryEntryEntity>) : DiaryE
         entries.map { items -> items.filter { it.date == date && it.mealType == mealType } }
     override fun entriesForMonth(yearMonth: String): Flow<List<DiaryEntryEntity>> =
         entries.map { items -> items.filter { it.date.startsWith(yearMonth) } }
+    override fun activeDates(): Flow<List<String>> =
+        entries.map { items -> items.map { it.date }.distinct().sorted() }
 
     override suspend fun insert(entry: DiaryEntryEntity): Long = error("Not used")
     override suspend fun delete(entry: DiaryEntryEntity) = Unit

@@ -8,15 +8,17 @@ import com.romling.diettracker.data.repository.DiaryRepository
 import com.romling.diettracker.data.repository.WaterRepository
 import com.romling.diettracker.data.repository.WeightRepository
 import com.romling.diettracker.domain.service.GreenDayService
+import com.romling.diettracker.domain.service.StreakSummary
+import com.romling.diettracker.domain.service.StreakService
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.temporal.IsoFields
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -30,6 +32,7 @@ class TodayViewModel(
     private val waterRepository: WaterRepository,
     private val weightRepository: WeightRepository,
     private val greenDayService: GreenDayService = GreenDayService(),
+    private val streakService: StreakService = StreakService(),
     dateProvider: () -> LocalDate = { LocalDate.now() },
     private val dailyKcal: Double = 2333.0,
     private val dailyProtein: Double = 114.0,
@@ -50,11 +53,13 @@ class TodayViewModel(
             diaryRepository.entriesForDate(dateString),
             waterRepository.entriesForDate(dateString),
             weightRepository.entries(),
-        ) { entries, waterEntries, weightEntries ->
+            diaryRepository.activeDates(),
+        ) { entries, waterEntries, weightEntries, activeDates ->
             entries.toTodayState(
                 date = date,
                 waterMl = waterEntries.sumOf { it.amountMl },
                 weightKg = weightEntries.firstOrNull()?.weightKg ?: defaultWeightKg,
+                streak = streakService.summary(activeDates, date),
             )
         }
     }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyState(today))
@@ -89,7 +94,12 @@ class TodayViewModel(
         viewModelScope.launch { weightRepository.addWeight(_date.value.toString(), weightKg) }
     }
 
-    private fun List<DiaryEntryEntity>.toTodayState(date: LocalDate, waterMl: Int, weightKg: Double): TodayUiState {
+    private fun List<DiaryEntryEntity>.toTodayState(
+        date: LocalDate,
+        waterMl: Int,
+        weightKg: Double,
+        streak: StreakSummary,
+    ): TodayUiState {
         val totals = TodayNutritionTotals(
             kcal = sumOf { it.kcal },
             carbs = sumOf { it.carbs },
@@ -112,6 +122,7 @@ class TodayViewModel(
             isGreenDay = greenDayService.isGreenDay(this, dailyKcal, dailyProtein),
             water = TodayWaterSummary(consumedMl = waterMl, goalMl = dailyWaterMl),
             weight = TodayWeightSummary(currentKg = weightKg, goalKg = weightGoalKg),
+            streak = TodayStreakSummary(current = streak.current, best = streak.best, activeDays = streak.activeDays),
         )
     }
 
@@ -148,6 +159,7 @@ data class TodayUiState(
     val meals: List<TodayMealSummary> = defaultMeals(),
     val water: TodayWaterSummary = TodayWaterSummary(),
     val weight: TodayWeightSummary = TodayWeightSummary(),
+    val streak: TodayStreakSummary = TodayStreakSummary(),
     val remainingKcal: Int,
     val isGreenDay: Boolean = false,
 )
@@ -163,6 +175,12 @@ data class TodayWaterSummary(
 data class TodayWeightSummary(
     val currentKg: Double = 108.0,
     val goalKg: Double = 80.0,
+)
+
+data class TodayStreakSummary(
+    val current: Int = 0,
+    val best: Int = 0,
+    val activeDays: Int = 0,
 )
 
 data class TodayEntrySummary(

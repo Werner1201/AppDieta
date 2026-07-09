@@ -3325,3 +3325,90 @@ Validado no emulador Galaxy Z Fold 6 (322 dp):
 - [x] `gradlew test` BUILD SUCCESSFUL (10 testes incluindo 3 novos de navegação)
 
 **APROVADO**
+
+---
+
+## Ciclo 32
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Mostrar sequência atual no topo da tela Hoje.
+
+Motivo:
+- O app web calcula sequência/streak a partir dos dias com registro alimentar. O Android ainda mostrava `🔥 0` fixo.
+
+Arquivos prováveis:
+- `android-native/app/src/main/kotlin/com/romling/diettracker/data/local/dao/Daos.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/data/repository/DiaryRepository.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/domain/service/StreakService.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayViewModel.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayScreen.kt`
+- `android-native/app/src/test/kotlin/com/romling/diettracker/domain/service/StreakServiceTest.kt`
+- `android-native/app/src/test/kotlin/com/romling/diettracker/feature/today/TodayViewModelTest.kt`
+
+Critérios de aceite funcionais:
+- Buscar datas ativas de `diary_entries`.
+- Calcular sequência atual igual ao web: contar para trás a partir da data selecionada enquanto houver registro.
+- Calcular maior sequência e total de dias ativos no serviço.
+- Mostrar sequência atual no topo (`🔥 N`).
+- `gradlew.bat test` passa.
+- `gradlew.bat assembleDebug` passa.
+
+Critérios de aceite visuais:
+- Apenas trocar `🔥 0` pelo valor real.
+- Não criar tela completa de streak neste ciclo.
+
+Riscos:
+- Divergir da regra web. Mitigação: portar a mesma regra de `app/services/diary.py`.
+
+Instrução objetiva para o Dev:
+- Implementar contador inicial de streak no header. Não criar tela de streak, calendário novo ou configurações.
+
+### 2. DEV
+
+Implementação feita:
+- `DiaryEntryDao` ganhou `activeDates()`.
+- `DiaryRepository` expõe `activeDates()`.
+- Adicionado `StreakService` com `current`, `best` e `activeDays`.
+- `TodayViewModel` combina datas ativas ao estado da data selecionada.
+- `TodayScreen` mostra `🔥 ${state.streak.current}` no header.
+- Testes cobrem regra do serviço e streak no estado da Today.
+
+Arquivos alterados:
+- `MIGRATION_PLAN.md`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/data/local/dao/Daos.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/data/repository/DiaryRepository.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/domain/service/StreakService.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayViewModel.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayScreen.kt`
+- `android-native/app/src/test/kotlin/com/romling/diettracker/domain/service/StreakServiceTest.kt`
+- `android-native/app/src/test/kotlin/com/romling/diettracker/data/repository/DiaryRepositoryTest.kt`
+- `android-native/app/src/test/kotlin/com/romling/diettracker/feature/meal/AddFoodViewModelTest.kt`
+- `android-native/app/src/test/kotlin/com/romling/diettracker/feature/today/TodayViewModelTest.kt`
+
+Como testou:
+- `gradlew.bat test assembleDebug`.
+
+Resultado:
+- BUILD SUCCESSFUL.
+
+Envia para QA.
+
+### 3. QA
+
+Validação feita:
+- Subagente QA validou `activeDates()` em DAO/repositório, regra do `StreakService`, integração no `TodayViewModel`, exibição no header e testes.
+- Subagente QA executou `gradlew.bat test assembleDebug` com BUILD SUCCESSFUL.
+- `.claude/` e imagens de referência continuam untracked e foram mantidos fora do ciclo.
+
+Decisão:
+- APROVADO
+
+### Próxima tarefa aberta pelo Arquiteto
+
+Nome:
+- Criar tela simples de sequência.
+
+Instrução para o próximo ciclo:
+- Usar `TodayStreakSummary`/`StreakService` para criar uma tela simples de sequência com atual, maior sequência e dias ativos. Não mexer em configurações ou importação.

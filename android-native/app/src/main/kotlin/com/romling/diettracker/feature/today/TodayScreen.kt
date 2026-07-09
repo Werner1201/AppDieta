@@ -159,7 +159,7 @@ private fun TodayHeader(state: TodayUiState, onOpenCalendar: () -> Unit = {}) {
             Text(text = titleText, style = MaterialTheme.typography.headlineLarge)
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 Text(text = "💎 0", style = MaterialTheme.typography.labelLarge)
-                Text(text = "🔥 0", style = MaterialTheme.typography.labelLarge)
+                Text(text = "🔥 ${state.streak.current}", style = MaterialTheme.typography.labelLarge)
                 Text(
                     text = "🗓️",
                     modifier = Modifier.clickable(onClick = onOpenCalendar),
