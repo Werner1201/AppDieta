@@ -40,6 +40,21 @@ class DiaryRepositoryTest {
     }
 
     @Test
+    fun updateEntryGramsScalesNutritionProportionally() = runTest {
+        val dao = FakeDiaryEntryDao()
+        val repository = DiaryRepository(dao)
+        val food = FoodEntity(id = 1, name = "Arroz", category = "Básicos", kcal100g = 130.0, carbs100g = 28.0, protein100g = 2.5, fat100g = 0.3)
+        repository.addFood("2026-07-01", "lunch", food, gramsTotal = 100.0)
+        val entryId = dao.entries.single().id
+
+        repository.updateEntryGrams(entryId, 200.0)
+
+        val updated = dao.entries.single()
+        assertEquals(200.0, updated.gramsTotal)
+        assertEquals(260.0, updated.kcal)
+    }
+
+    @Test
     fun addFoodRejectsNonPositiveGrams() = runTest {
         val repository = DiaryRepository(FakeDiaryEntryDao())
         val food = FoodEntity(
@@ -69,6 +84,8 @@ private class FakeDiaryEntryDao : DiaryEntryDao {
     override fun activeDates(): Flow<List<String>> =
         flowOf(entries.map { it.date }.distinct().sorted())
     override suspend fun allEntries(): List<DiaryEntryEntity> = entries
+    override suspend fun getById(id: Long): DiaryEntryEntity? = entries.firstOrNull { it.id == id }
+    override suspend fun update(entry: DiaryEntryEntity) { entries.replaceAll { if (it.id == entry.id) entry else it } }
 
     override suspend fun insert(entry: DiaryEntryEntity): Long {
         entries += entry.copy(id = entries.size + 1L)

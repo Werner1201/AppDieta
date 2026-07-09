@@ -63,10 +63,11 @@ Ignore imagens untracked na raiz. Responda com APROVADO ou REPROVADO e achados o
 - Ciclo 43: prompt copiável para o ChatGPT com formato JSON esperado (card + botão "Copiar" com feedback).
 - Ciclo 44: exportação de diário completo via share sheet JSON (`TodayViewModel.exportJson` + `Intent.ACTION_SEND`).
 - Ciclo 45: JSON escaping seguro em `exportJson` via `org.json.JSONObject`/`JSONArray` + teste unitário de round-trip.
+- Ciclo 46: edição de gramas de entrada no diário via `AlertDialog` em `MealDetailScreen`; nutrição recalculada proporcionalmente.
 
 Ciclo em andamento:
-- Nenhum ciclo aberto após o Ciclo 45.
-- Próximo ciclo sugerido: tela Receitas ou edição de entrada no diário.
+- Nenhum ciclo aberto após o Ciclo 46.
+- Próximo ciclo sugerido: tela Receitas ou importação de backup JSON.
 
 ## Estilo de implementação
 

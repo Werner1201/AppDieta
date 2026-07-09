@@ -12,15 +12,24 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -36,6 +45,7 @@ fun MealDetailScreen(
     meal: TodayMealSummary,
     entries: List<TodayEntrySummary>,
     onRemoveEntry: (Long) -> Unit,
+    onEditEntry: (Long, Double) -> Unit = { _, _ -> },
     onAddMore: () -> Unit,
     onClose: () -> Unit,
     modifier: Modifier = Modifier,
@@ -45,6 +55,37 @@ fun MealDetailScreen(
     val totalCarbs = mealEntries.sumOf { it.carbs }
     val totalProtein = mealEntries.sumOf { it.protein }
     val totalFat = mealEntries.sumOf { it.fat }
+    var editingEntry by remember { mutableStateOf<TodayEntrySummary?>(null) }
+    var editGrams by remember { mutableStateOf("") }
+
+    editingEntry?.let { entry ->
+        AlertDialog(
+            onDismissRequest = { editingEntry = null },
+            title = { Text(entry.name, maxLines = 2, overflow = TextOverflow.Ellipsis) },
+            text = {
+                OutlinedTextField(
+                    value = editGrams,
+                    onValueChange = { editGrams = it },
+                    label = { Text("Gramas") },
+                    suffix = { Text("g") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    val g = editGrams.replace(',', '.').toDoubleOrNull()
+                    if (g != null && g > 0) {
+                        onEditEntry(entry.id, g)
+                        editingEntry = null
+                    }
+                }) { Text("Salvar") }
+            },
+            dismissButton = {
+                TextButton(onClick = { editingEntry = null }) { Text("Cancelar") }
+            },
+        )
+    }
 
     Box(
         modifier = modifier
@@ -67,7 +108,14 @@ fun MealDetailScreen(
                     AppCard {
                         Column {
                             mealEntries.forEachIndexed { index, entry ->
-                                MealEntryRow(entry = entry, onRemove = { onRemoveEntry(entry.id) })
+                                MealEntryRow(
+                                    entry = entry,
+                                    onRemove = { onRemoveEntry(entry.id) },
+                                    onEdit = {
+                                        editGrams = entry.gramsTotal.toInt().toString()
+                                        editingEntry = entry
+                                    },
+                                )
                                 if (index < mealEntries.lastIndex) {
                                     HorizontalDivider(color = AppColors.Line, thickness = 1.dp)
                                 }
@@ -176,7 +224,7 @@ private fun MacroStatCell(label: String, value: String, goal: String? = null) {
 }
 
 @Composable
-private fun MealEntryRow(entry: TodayEntrySummary, onRemove: () -> Unit) {
+private fun MealEntryRow(entry: TodayEntrySummary, onRemove: () -> Unit, onEdit: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -197,7 +245,10 @@ private fun MealEntryRow(entry: TodayEntrySummary, onRemove: () -> Unit) {
                 color = AppColors.TextSecondary,
             )
         }
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.width(4.dp))
+        IconButton(onClick = onEdit) {
+            Text(text = "✎", style = MaterialTheme.typography.bodyLarge, color = AppColors.Accent)
+        }
         IconButton(onClick = onRemove) {
             Text(text = "✕", style = MaterialTheme.typography.bodyLarge, color = AppColors.Remove)
         }

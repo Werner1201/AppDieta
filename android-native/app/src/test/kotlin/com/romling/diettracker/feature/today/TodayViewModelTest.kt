@@ -238,6 +238,25 @@ class TodayViewModelTest {
     }
 
     @Test
+    fun updateEntryGramsScalesNutritionProportionally() = runTest(dispatcher) {
+        val dao = FakeDiaryEntryDao(listOf(entry(id = 5, kcal = 200.0, protein = 20.0)))
+        val viewModel = TodayViewModel(
+            diaryRepository = DiaryRepository(dao),
+            waterRepository = WaterRepository(FakeWaterEntryDao()),
+            weightRepository = WeightRepository(FakeWeightEntryDao()),
+            dateProvider = { LocalDate.parse("2026-07-01") },
+        )
+
+        viewModel.updateEntryGrams(5L, 200.0)
+        advanceUntilIdle()
+
+        val updated = dao.entries.value.single()
+        assertEquals(200.0, updated.gramsTotal)
+        assertEquals(400.0, updated.kcal)
+        assertEquals(40.0, updated.protein)
+    }
+
+    @Test
     fun exportJsonEscapesSpecialChars() = runTest(dispatcher) {
         val nameWithQuotes = """Café "duplo" \ test"""
         val dao = FakeDiaryEntryDao(listOf(entry(kcal = 200.0, protein = 10.0).copy(foodNameSnapshot = nameWithQuotes)))
@@ -314,6 +333,8 @@ private class FakeDiaryEntryDao(initialEntries: List<DiaryEntryEntity>) : DiaryE
     override fun activeDates(): Flow<List<String>> =
         entries.map { items -> items.map { it.date }.distinct().sorted() }
     override suspend fun allEntries(): List<DiaryEntryEntity> = entries.value
+    override suspend fun getById(id: Long): DiaryEntryEntity? = entries.value.firstOrNull { it.id == id }
+    override suspend fun update(entry: DiaryEntryEntity) { entries.value = entries.value.map { if (it.id == entry.id) entry else it } }
 
     override suspend fun insert(entry: DiaryEntryEntity): Long = error("Not used")
     override suspend fun delete(entry: DiaryEntryEntity) = Unit

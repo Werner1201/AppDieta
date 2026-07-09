@@ -109,6 +109,7 @@ fun DietTrackerApp(todayViewModel: TodayViewModel, addFoodViewModel: AddFoodView
                 meal = detailMeal!!,
                 entries = state.entries,
                 onRemoveEntry = todayViewModel::removeEntry,
+                onEditEntry = todayViewModel::updateEntryGrams,
                 onAddMore = { addMeal = detailMeal; detailMeal = null },
                 onClose = { detailMeal = null },
             )

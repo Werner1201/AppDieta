@@ -166,6 +166,8 @@ private class FakeDiaryEntryDao : DiaryEntryDao {
     override fun activeDates(): Flow<List<String>> =
         flowOf(entries.map { it.date }.distinct().sorted())
     override suspend fun allEntries(): List<DiaryEntryEntity> = entries
+    override suspend fun getById(id: Long): DiaryEntryEntity? = entries.firstOrNull { it.id == id }
+    override suspend fun update(entry: DiaryEntryEntity) { entries.replaceAll { if (it.id == entry.id) entry else it } }
 
     override suspend fun insert(entry: DiaryEntryEntity): Long {
         entries += entry.copy(id = entries.size + 1L)

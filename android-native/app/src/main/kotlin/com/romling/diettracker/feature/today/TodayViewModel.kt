@@ -97,6 +97,10 @@ class TodayViewModel(
         viewModelScope.launch { diaryRepository.deleteById(entryId) }
     }
 
+    fun updateEntryGrams(entryId: Long, newGrams: Double) {
+        viewModelScope.launch { diaryRepository.updateEntryGrams(entryId, newGrams) }
+    }
+
     fun addWater(amountMl: Int) {
         viewModelScope.launch { waterRepository.addWater(_date.value.toString(), amountMl) }
     }

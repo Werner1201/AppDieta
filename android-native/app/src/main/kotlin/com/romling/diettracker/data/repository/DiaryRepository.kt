@@ -18,6 +18,26 @@ class DiaryRepository(
     suspend fun delete(entry: DiaryEntryEntity) = diaryEntryDao.delete(entry)
     suspend fun deleteById(entryId: Long) = diaryEntryDao.deleteById(entryId)
 
+    suspend fun updateEntryGrams(entryId: Long, newGrams: Double) {
+        require(newGrams > 0) { "Grams must be positive." }
+        val entry = diaryEntryDao.getById(entryId) ?: return
+        if (entry.gramsTotal <= 0) return
+        val ratio = newGrams / entry.gramsTotal
+        diaryEntryDao.update(
+            entry.copy(
+                gramsTotal = newGrams,
+                unitLabel = "${newGrams.toInt()} g",
+                kcal = round(entry.kcal * ratio),
+                carbs = round1(entry.carbs * ratio),
+                protein = round1(entry.protein * ratio),
+                fat = round1(entry.fat * ratio),
+                fiber = round1(entry.fiber * ratio),
+                sugar = round1(entry.sugar * ratio),
+                sodiumMg = round1(entry.sodiumMg * ratio),
+            )
+        )
+    }
+
     suspend fun addImportedFood(
         date: String,
         mealType: String,

@@ -76,8 +76,14 @@ interface DiaryEntryDao {
     @Query("SELECT * FROM diary_entries ORDER BY date DESC, created_at DESC")
     suspend fun allEntries(): List<DiaryEntryEntity>
 
+    @Query("SELECT * FROM diary_entries WHERE id = :id LIMIT 1")
+    suspend fun getById(id: Long): DiaryEntryEntity?
+
     @Insert
     suspend fun insert(entry: DiaryEntryEntity): Long
+
+    @Update
+    suspend fun update(entry: DiaryEntryEntity)
 
     @Delete
     suspend fun delete(entry: DiaryEntryEntity)
