@@ -3728,3 +3728,98 @@ Nome:
 
 Instrução para o próximo ciclo:
 - Criar tela que mostra os itens registrados em uma refeição, com totais de kcal/macros e botão para adicionar mais alimentos. Reaproveitar `DiaryRepository` e `TodayViewModel` já existentes.
+
+---
+
+## Ciclo 37
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Tela de detalhe de refeição (`MealDetailScreen`).
+
+Motivo:
+- Tap na linha de refeição da tela Hoje não tinha destino. Sem tela de detalhe não é possível ver itens com macros nem remover alimentos por refeição individualmente.
+
+Arquivos prováveis:
+- `feature/today/TodayViewModel.kt` — `TodayEntrySummary` com macros
+- `feature/meal/MealDetailScreen.kt` — novo
+- `feature/today/TodayScreen.kt` — `onOpenDetail` callback em `MealRow`
+- `DietTrackerApp.kt` — estado `detailMeal`, rota
+
+Critérios de aceite funcionais:
+- Tap na linha da refeição abre `MealDetailScreen`.
+- Botão `+` na linha ainda abre `AddFoodScreen` diretamente.
+- Detalhe mostra: header com ←, ícone grande, grid kcal/carbs/proteína/gordura (totais do dia para a refeição), lista de itens (nome, gramas, kcal, ✕), botão "Adicionar mais" fixo no rodapé.
+- "Adicionar mais" abre `AddFoodScreen` para a mesma refeição.
+- `gradlew.bat test` passa.
+- `gradlew.bat assembleDebug` passa.
+
+Critérios de aceite visuais:
+- Card `AppCard` com tokens existentes.
+- Cores de remoção `AppColors.Remove` para ✕.
+- Sem componentes Material genéricos fora do padrão do app.
+
+Riscos:
+- Tap na row e tap no `+` conflitam. Mitigação: `+` usa `clickable(onClick = {...})` separado; row usa `clickable { onOpenDetail }`.
+
+Instrução objetiva para o Dev:
+- Implementar `MealDetailScreen`, ampliar `TodayEntrySummary` com macros, adicionar `onOpenDetail` à `MealRow`, conectar em `DietTrackerApp`. Sem novas dependências.
+
+### 2. DEV
+
+Implementação feita:
+- `TodayEntrySummary` ganhou `carbs`, `protein`, `fat`, `gramsTotal` (defaults = 0.0 para compatibilidade).
+- `toTodayState()` preenche todos os novos campos a partir de `DiaryEntryEntity`.
+- `MealDetailScreen.kt` criado: header ←, `MealHeroCard` com ícone + grid 4 macros, lista de entradas com nome/gramas/kcal/✕, `BottomPrimaryButton` "Adicionar mais".
+- `TodayScreen`: parâmetro `onOpenMealDetail` adicionado; `MealRow` tem `clickable { onOpenDetail }` na row e `clickable(onClick)` separado no botão `+`.
+- `DietTrackerApp`: `detailMeal: TodayMealSummary?` adicionado; branch `detailMeal != null` antes de `addMeal`; "Adicionar mais" seta `addMeal = detailMeal` e limpa `detailMeal`.
+
+Arquivos alterados:
+- `MIGRATION_PLAN.md`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayViewModel.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/meal/MealDetailScreen.kt` (novo)
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayScreen.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/DietTrackerApp.kt`
+
+Como testou:
+- `gradlew.bat test` — BUILD SUCCESSFUL (11 testes passando).
+- `gradlew.bat assembleDebug` — BUILD SUCCESSFUL.
+
+### 3. QA
+
+Validação feita:
+- `TodayEntrySummary` tem `carbs/protein/fat/gramsTotal` com defaults 0.0. ✅
+- `toTodayState` preenche todos os campos da entidade. ✅
+- `MealDetailScreen` compila e usa componentes existentes. ✅
+- `MealRow` tap em row → `onOpenDetail`; tap em `+` → `onAddMeal`. ✅
+- `DietTrackerApp` rota `detailMeal` antes de `addMeal`. ✅
+- "Adicionar mais" propaga refeição para `AddFoodScreen`. ✅
+- Testes passam sem regressão. ✅
+
+Checklist funcional:
+- [x] `TodayEntrySummary` ampliado.
+- [x] `MealDetailScreen` criado.
+- [x] Tap na row abre detalhe.
+- [x] `+` continua abrindo AddFood diretamente.
+- [x] "Adicionar mais" funciona no detalhe.
+- [x] `gradlew.bat test` passa.
+- [x] `gradlew.bat assembleDebug` passa.
+
+Checklist visual:
+- [x] Header com ←.
+- [x] Grid de 4 macros.
+- [x] Lista de itens com nome, gramas, kcal, ✕.
+- [x] Botão fixo no rodapé.
+- [x] Cores dentro dos tokens do app.
+
+Decisão:
+- APROVADO
+
+### Próxima tarefa aberta pelo Arquiteto
+
+Nome:
+- Detalhe de alimento (`FoodDetailScreen`).
+
+Instrução para o próximo ciclo:
+- Criar tela de detalhe do alimento acessível a partir da busca: mostra macros por 100g, campo de quantidade/porção e botão Adicionar. Reaproveitar `AddFoodViewModel` e `FoodRepository` já existentes.

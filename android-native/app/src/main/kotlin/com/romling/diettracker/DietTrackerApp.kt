@@ -26,6 +26,7 @@ import com.romling.diettracker.core.ui.theme.AppColors
 import com.romling.diettracker.core.ui.theme.DietTrackerTheme
 import com.romling.diettracker.feature.meal.AddFoodScreen
 import com.romling.diettracker.feature.meal.AddFoodViewModel
+import com.romling.diettracker.feature.meal.MealDetailScreen
 import com.romling.diettracker.feature.settings.SettingsScreen
 import com.romling.diettracker.feature.today.CalendarScreen
 import com.romling.diettracker.feature.today.StreakScreen
@@ -48,6 +49,7 @@ fun DietTrackerApp(todayViewModel: TodayViewModel, addFoodViewModel: AddFoodView
     val calendarGreenDays by todayViewModel.calendarGreenDays.collectAsState()
     val addFoodState by addFoodViewModel.state.collectAsState()
     var addMeal by remember { mutableStateOf<TodayMealSummary?>(null) }
+    var detailMeal by remember { mutableStateOf<TodayMealSummary?>(null) }
     var showCalendar by remember { mutableStateOf(false) }
     var showStreak by remember { mutableStateOf(false) }
     var selectedTab by remember { mutableStateOf(AppTab.DIARY) }
@@ -65,6 +67,14 @@ fun DietTrackerApp(todayViewModel: TodayViewModel, addFoodViewModel: AddFoodView
                 },
                 onMonthChanged = todayViewModel::setCalendarMonth,
                 onClose = { showCalendar = false },
+            )
+        } else if (detailMeal != null) {
+            MealDetailScreen(
+                meal = detailMeal!!,
+                entries = state.entries,
+                onRemoveEntry = todayViewModel::removeEntry,
+                onAddMore = { addMeal = detailMeal; detailMeal = null },
+                onClose = { detailMeal = null },
             )
         } else if (addMeal != null) {
             AddFoodScreen(
@@ -84,6 +94,7 @@ fun DietTrackerApp(todayViewModel: TodayViewModel, addFoodViewModel: AddFoodView
                         AppTab.DIARY -> TodayScreen(
                             state = state,
                             onAddMeal = { addMeal = it },
+                            onOpenMealDetail = { detailMeal = it },
                             onRemoveEntry = todayViewModel::removeEntry,
                             onAddWater = todayViewModel::addWater,
                             onRemoveLastWater = todayViewModel::removeLastWater,

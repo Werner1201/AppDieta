@@ -55,6 +55,7 @@ import com.romling.diettracker.core.ui.theme.LocalAppDimensions
 fun TodayScreen(
     state: TodayUiState,
     onAddMeal: (TodayMealSummary) -> Unit = {},
+    onOpenMealDetail: (TodayMealSummary) -> Unit = {},
     onRemoveEntry: (Long) -> Unit = {},
     onAddWater: (Int) -> Unit = {},
     onRemoveLastWater: () -> Unit = {},
@@ -103,7 +104,7 @@ fun TodayScreen(
             onShowRegistered = { showRegisteredOnly = true },
         )
         if (!showRegisteredOnly) {
-            MealsCard(meals = state.meals, onAddMeal = onAddMeal)
+            MealsCard(meals = state.meals, onAddMeal = onAddMeal, onOpenDetail = onOpenMealDetail)
         }
         if (state.entries.isNotEmpty()) {
             SectionTitle(title = if (showRegisteredOnly) "Registrados hoje" else "Registrados")
@@ -321,11 +322,15 @@ private fun MacroMetric(label: String, value: Double, goal: Double, modifier: Mo
 }
 
 @Composable
-private fun MealsCard(meals: List<TodayMealSummary>, onAddMeal: (TodayMealSummary) -> Unit) {
+private fun MealsCard(
+    meals: List<TodayMealSummary>,
+    onAddMeal: (TodayMealSummary) -> Unit,
+    onOpenDetail: (TodayMealSummary) -> Unit,
+) {
     AppCard(contentPadding = PaddingValues(horizontal = 14.dp, vertical = 0.dp)) {
         Column {
             meals.forEachIndexed { index, meal ->
-                MealRow(meal = meal, onAddMeal = onAddMeal)
+                MealRow(meal = meal, onAddMeal = onAddMeal, onOpenDetail = onOpenDetail)
                 if (index < meals.lastIndex) {
                     HorizontalDivider(color = AppColors.Line, thickness = 1.dp)
                 }
@@ -335,12 +340,17 @@ private fun MealsCard(meals: List<TodayMealSummary>, onAddMeal: (TodayMealSummar
 }
 
 @Composable
-private fun MealRow(meal: TodayMealSummary, onAddMeal: (TodayMealSummary) -> Unit) {
+private fun MealRow(
+    meal: TodayMealSummary,
+    onAddMeal: (TodayMealSummary) -> Unit,
+    onOpenDetail: (TodayMealSummary) -> Unit,
+) {
     val dims = LocalAppDimensions.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(dims.mealRowHeight),
+            .height(dims.mealRowHeight)
+            .clickable { onOpenDetail(meal) },
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(dims.mealRowSpacing),
     ) {
@@ -368,7 +378,7 @@ private fun MealRow(meal: TodayMealSummary, onAddMeal: (TodayMealSummary) -> Uni
         Surface(
             modifier = Modifier
                 .size(dims.mealActionSize)
-                .clickable { onAddMeal(meal) },
+                .clickable(onClick = { onAddMeal(meal) }),
             shape = CircleShape,
             color = AppColors.TextPrimary,
         ) {

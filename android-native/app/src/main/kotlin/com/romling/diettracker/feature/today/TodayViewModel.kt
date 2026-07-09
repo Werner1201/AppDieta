@@ -127,7 +127,16 @@ class TodayViewModel(
         return emptyState(date, settings).copy(
             totals = totals,
             entries = map {
-                TodayEntrySummary(id = it.id, mealType = it.mealType, name = it.foodNameSnapshot, kcal = it.kcal)
+                TodayEntrySummary(
+                    id = it.id,
+                    mealType = it.mealType,
+                    name = it.foodNameSnapshot,
+                    kcal = it.kcal,
+                    carbs = it.carbs,
+                    protein = it.protein,
+                    fat = it.fat,
+                    gramsTotal = it.gramsTotal,
+                )
             },
             meals = defaultMeals(settings.dailyKcal).map { meal ->
                 val mealEntries = filter { it.mealType == meal.key }
@@ -212,6 +221,10 @@ data class TodayEntrySummary(
     val mealType: String,
     val name: String,
     val kcal: Double,
+    val carbs: Double = 0.0,
+    val protein: Double = 0.0,
+    val fat: Double = 0.0,
+    val gramsTotal: Double = 0.0,
 )
 
 data class TodayNutritionTotals(
