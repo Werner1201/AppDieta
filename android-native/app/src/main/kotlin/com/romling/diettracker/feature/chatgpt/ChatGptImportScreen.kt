@@ -18,9 +18,15 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -39,6 +45,9 @@ fun ChatGptImportScreen(
     onClose: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val clipboard = LocalClipboardManager.current
+    var copied by remember { mutableStateOf(false) }
+
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -70,9 +79,43 @@ fun ChatGptImportScreen(
                 verticalArrangement = Arrangement.spacedBy(AppSpacing.SectionGap),
             ) {
                 AppCard {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(
+                            text = "1. Copie o prompt abaixo e cole no ChatGPT:",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = AppColors.TextSecondary,
+                        )
+                        Text(
+                            text = CHATGPT_PROMPT,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = AppColors.TextPrimary,
+                        )
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(44.dp)
+                                .clickable {
+                                    clipboard.setText(AnnotatedString(CHATGPT_PROMPT))
+                                    copied = true
+                                },
+                            shape = AppShapes.Button,
+                            color = if (copied) AppColors.Green else AppColors.Panel,
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Text(
+                                    text = if (copied) "✅ Copiado!" else "Copiar prompt",
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = AppColors.Accent,
+                                )
+                            }
+                        }
+                    }
+                }
+
+                AppCard {
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         Text(
-                            text = "Cole o JSON gerado pelo ChatGPT:",
+                            text = "2. Cole o JSON que o ChatGPT gerou:",
                             style = MaterialTheme.typography.labelMedium,
                             color = AppColors.TextSecondary,
                         )
@@ -152,6 +195,16 @@ fun ChatGptImportScreen(
         }
     }
 }
+
+private const val CHATGPT_PROMPT = """Me dê o JSON com todas as refeições de hoje no formato abaixo. Responda APENAS com o JSON, sem explicações.
+
+Formato:
+[{"nome": "nome do alimento", "porcao_g": 100, "refeicao": "almoco", "kcal": 200, "proteina": 15, "carbs": 20, "gordura": 5}]
+
+Valores de refeicao: "cafe" (café da manhã), "almoco" (almoço), "jantar", "lanche"
+
+Refeições de hoje:
+"""
 
 @Composable
 private fun PreviewRow(item: ImportItem) {

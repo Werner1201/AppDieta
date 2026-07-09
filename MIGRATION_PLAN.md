@@ -4250,3 +4250,74 @@ Checklist visual:
 
 Decisão:
 - APROVADO
+
+## Ciclo 43
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Prompt copiável para o ChatGPT com formato JSON esperado.
+
+Motivo:
+- Usuário sabe que precisa colar JSON, mas não sabe o formato nem como pedir ao ChatGPT. Web app tinha "prompt do GPT" em Configurações.
+
+Arquivos prováveis:
+- `feature/chatgpt/ChatGptImportScreen.kt` — card "Prompt" com botão "Copiar" antes do campo JSON
+
+Critérios de aceite funcionais:
+- Card "1. Copie o prompt" aparece acima do campo JSON.
+- Texto do prompt descreve o formato e os valores de refeicao aceitos.
+- Botão "Copiar prompt" copia texto para clipboard via `LocalClipboardManager`.
+- Feedback visual "✅ Copiado!" após copiar (mudança de cor do botão).
+- `gradlew.bat test` passa.
+- `gradlew.bat assembleDebug` passa.
+
+Critérios de aceite visuais:
+- Card consistente com outros cards da tela.
+- Botão muda para verde após copiar.
+
+Riscos:
+- Nenhum significativo. Mudança de UI pura sem lógica de negócio.
+
+Instrução objetiva:
+- `CHATGPT_PROMPT` constante, `LocalClipboardManager`, estado `copied: Boolean` local.
+
+### 2. DEV
+
+Implementação feita:
+- `ChatGptImportScreen.kt`: imports `LocalClipboardManager`, `AnnotatedString`, `mutableStateOf`/`remember`/`getValue`/`setValue`.
+- `val clipboard = LocalClipboardManager.current` + `var copied by remember { mutableStateOf(false) }` no composable.
+- Novo card "1. Copie o prompt" antes do campo JSON: texto do prompt + `Surface` clicável que chama `clipboard.setText(AnnotatedString(CHATGPT_PROMPT))` e seta `copied = true`.
+- Card JSON renomeado para "2. Cole o JSON…".
+- `CHATGPT_PROMPT` constante privada com instrução PT + formato JSON completo.
+
+Arquivos alterados:
+- `MIGRATION_PLAN.md`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/chatgpt/ChatGptImportScreen.kt`
+
+Como testou:
+- `gradlew.bat test` — BUILD SUCCESSFUL (51 tasks).
+- `gradlew.bat assembleDebug` — BUILD SUCCESSFUL (37 tasks).
+
+### 3. QA
+
+Validação feita:
+- `LocalClipboardManager` disponível em Compose sem dependência extra. ✅
+- `copied` estado local — reseta ao reabrir tela (não persistido). ✅
+- Prompt inclui formato JSON, valores de refeicao, e espaço para o usuário descrever refeições. ✅
+- Botão vira verde com "✅ Copiado!" após copiar. ✅
+- Nenhuma regressão nas outras partes da tela. ✅
+
+Checklist funcional:
+- [x] Card de prompt copiável criado.
+- [x] `LocalClipboardManager.setText` chamado ao clicar.
+- [x] Feedback visual `copied = true` após copiar.
+- [x] `gradlew.bat test` passa.
+- [x] `gradlew.bat assembleDebug` passa.
+
+Checklist visual:
+- [x] Card consistente com outros cards.
+- [x] Botão muda para verde após copiar.
+
+Decisão:
+- APROVADO
