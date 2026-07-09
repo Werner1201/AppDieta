@@ -71,6 +71,35 @@ class AddFoodViewModelTest {
         assertEquals("100 g", diaryDao.entries.single().unitLabel)
         assertEquals(100.0, diaryDao.entries.single().gramsTotal)
     }
+
+    @Test
+    fun selectFoodShowsPortions() = runTest(dispatcher) {
+        val viewModel = AddFoodViewModel(
+            foodRepository = FoodRepository(FakeFoodDao(), FakeFoodPortionDao()),
+            diaryRepository = DiaryRepository(FakeDiaryEntryDao()),
+        )
+
+        viewModel.selectFood(1)
+        advanceUntilIdle()
+
+        assertEquals("1 xícara", viewModel.state.value.portions.single().label)
+    }
+
+    @Test
+    fun addFoodSavesSelectedPortion() = runTest(dispatcher) {
+        val diaryDao = FakeDiaryEntryDao()
+        val viewModel = AddFoodViewModel(
+            foodRepository = FoodRepository(FakeFoodDao(), FakeFoodPortionDao()),
+            diaryRepository = DiaryRepository(diaryDao),
+            dateProvider = { LocalDate.parse("2026-07-01") },
+        )
+
+        viewModel.addFood(mealType = "breakfast", foodId = 1, portion = FoodPortionItem("1 xícara", 237.0))
+        advanceUntilIdle()
+
+        assertEquals("1 xícara", diaryDao.entries.single().unitLabel)
+        assertEquals(237.0, diaryDao.entries.single().gramsTotal)
+    }
 }
 
 private class FakeFoodDao : FoodDao {
@@ -92,7 +121,15 @@ private class FakeFoodDao : FoodDao {
 }
 
 private class FakeFoodPortionDao : FoodPortionDao {
-    override fun portionsForFood(foodId: Long): Flow<List<FoodPortionEntity>> = flowOf(emptyList())
+    override fun portionsForFood(foodId: Long): Flow<List<FoodPortionEntity>> =
+        flowOf(
+            if (foodId == 1L) {
+                listOf(FoodPortionEntity(foodId = 1, label = "1 xícara", grams = 237.0))
+            } else {
+                emptyList()
+            },
+        )
+
     override suspend fun insert(portion: FoodPortionEntity): Long = portion.id
 }
 

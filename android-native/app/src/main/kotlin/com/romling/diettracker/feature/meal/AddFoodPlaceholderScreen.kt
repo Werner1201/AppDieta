@@ -32,7 +32,8 @@ fun AddFoodScreen(
     meal: TodayMealSummary,
     state: AddFoodUiState,
     onQueryChange: (String) -> Unit,
-    onAddFood: (FoodSearchItem) -> Unit,
+    onSelectFood: (Long) -> Unit,
+    onAddFood: (FoodSearchItem, FoodPortionItem?) -> Unit,
     onClose: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -71,17 +72,27 @@ fun AddFoodScreen(
                 placeholder = { Text("O que você comeu?") },
                 textStyle = MaterialTheme.typography.bodyLarge,
             )
-            FoodsCard(foods = state.foods, onAddFood = onAddFood)
+            FoodsCard(state = state, onSelectFood = onSelectFood, onAddFood = onAddFood)
         }
     }
 }
 
 @Composable
-private fun FoodsCard(foods: List<FoodSearchItem>, onAddFood: (FoodSearchItem) -> Unit) {
+private fun FoodsCard(
+    state: AddFoodUiState,
+    onSelectFood: (Long) -> Unit,
+    onAddFood: (FoodSearchItem, FoodPortionItem?) -> Unit,
+) {
+    val foods = state.foods.take(20)
     Column {
-        foods.take(20).forEachIndexed { index, food ->
-            FoodRow(food = food, onAddFood = onAddFood)
-            if (index < foods.take(20).lastIndex) {
+        foods.forEachIndexed { index, food ->
+            FoodRow(food = food, onSelectFood = onSelectFood, onAddFood = onAddFood)
+            if (state.selectedFoodId == food.id) {
+                state.portions.forEach { portion ->
+                    PortionRow(portion = portion, onAddFood = { onAddFood(food, portion) })
+                }
+            }
+            if (index < foods.lastIndex) {
                 HorizontalDivider(color = AppColors.Line, thickness = 1.dp)
             }
         }
@@ -89,11 +100,16 @@ private fun FoodsCard(foods: List<FoodSearchItem>, onAddFood: (FoodSearchItem) -
 }
 
 @Composable
-private fun FoodRow(food: FoodSearchItem, onAddFood: (FoodSearchItem) -> Unit) {
+private fun FoodRow(
+    food: FoodSearchItem,
+    onSelectFood: (Long) -> Unit,
+    onAddFood: (FoodSearchItem, FoodPortionItem?) -> Unit,
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(76.dp),
+            .height(76.dp)
+            .clickable { onSelectFood(food.id) },
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(14.dp),
     ) {
@@ -103,7 +119,7 @@ private fun FoodRow(food: FoodSearchItem, onAddFood: (FoodSearchItem) -> Unit) {
         }
         Text(text = "${food.kcal.toInt()} kcal", style = MaterialTheme.typography.bodyLarge)
         Surface(
-            modifier = Modifier.clickable { onAddFood(food) },
+            modifier = Modifier.clickable { onAddFood(food, null) },
             shape = androidx.compose.foundation.shape.CircleShape,
             color = AppColors.Background,
             border = androidx.compose.foundation.BorderStroke(2.dp, AppColors.Accent),
@@ -112,5 +128,21 @@ private fun FoodRow(food: FoodSearchItem, onAddFood: (FoodSearchItem) -> Unit) {
                 Text(text = "+", color = AppColors.Accent, style = MaterialTheme.typography.titleLarge)
             }
         }
+    }
+}
+
+@Composable
+private fun PortionRow(portion: FoodPortionItem, onAddFood: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(52.dp)
+            .clickable(onClick = onAddFood)
+            .padding(start = 18.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        Text(text = portion.label, style = MaterialTheme.typography.bodyLarge)
+        Text(text = "${portion.grams.toInt()} g", style = MaterialTheme.typography.bodyMedium)
     }
 }

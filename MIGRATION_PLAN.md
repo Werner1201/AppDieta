@@ -2341,3 +2341,95 @@ Nome:
 
 Instrução para o próximo ciclo:
 - Permitir escolher uma porção cadastrada antes de salvar alimento, reaproveitando os dados já existentes. Não criar porção customizada, importação, câmera ou código de barras ainda.
+
+## Ciclo 21
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Adicionar seleção de porção simples.
+
+Motivo:
+- Permitir salvar um alimento com uma porção cadastrada, não apenas a porção padrão.
+
+Tela ou funcionalidade original analisada:
+- Tela de adicionar alimento na refeição.
+- Porções cadastradas de alimentos.
+
+Arquivos prováveis:
+- `android-native/app/src/main/kotlin/com/romling/diettracker/DietTrackerApp.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/meal/AddFoodPlaceholderScreen.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/meal/AddFoodViewModel.kt`.
+- `android-native/app/src/test/kotlin/com/romling/diettracker/feature/meal/AddFoodViewModelTest.kt`.
+
+Critérios de aceite funcionais:
+- Selecionar um alimento carrega porções cadastradas via `FoodRepository.portionsForFood`.
+- A tela mostra porções do alimento selecionado.
+- Tocar numa porção salva o alimento com `gramsTotal` e `unitLabel` da porção.
+- O botão `+` mantém o salvamento da porção padrão.
+- `gradlew.bat test` passa.
+- `gradlew.bat assembleDebug` passa.
+
+Critérios de aceite visuais:
+- A lista continua simples e legível.
+- Não criar modal ou tela nova.
+- Não criar porção customizada neste ciclo.
+
+Riscos:
+- Mudar o fluxo padrão de adicionar alimento. Mitigação: manter o `+` salvando a porção padrão.
+
+Instrução objetiva para o Dev:
+- Reaproveitar `FoodPortionDao` e `DiaryRepository.addFood`. Não implementar importação, câmera, código de barras, detalhes ou porção customizada.
+
+### 2. DEV
+
+Implementação feita:
+- `AddFoodViewModel` passou a controlar alimento selecionado e carregar porções cadastradas.
+- `AddFoodScreen` mostra porções abaixo do alimento selecionado.
+- Tocar numa porção salva com label e gramas da porção.
+- O botão `+` continua salvando a porção padrão.
+- Testes cobrem carregamento de porções e salvamento com porção escolhida.
+
+Arquivos alterados:
+- `MIGRATION_PLAN.md`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/DietTrackerApp.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/meal/AddFoodPlaceholderScreen.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/meal/AddFoodViewModel.kt`.
+- `android-native/app/src/test/kotlin/com/romling/diettracker/feature/meal/AddFoodViewModelTest.kt`.
+
+Como preservou o app original:
+- Usa as porções cadastradas já modeladas no banco.
+- Mantém salvamento padrão sem exigir seleção extra.
+
+Como testou:
+- Testes Android.
+- Build Android debug.
+
+Comando executado:
+- `gradlew.bat test`.
+- `gradlew.bat assembleDebug`.
+
+Resultado:
+- `gradlew.bat test`: BUILD SUCCESSFUL.
+- `gradlew.bat assembleDebug`: BUILD SUCCESSFUL.
+
+Envia para QA.
+
+### 3. QA
+
+Validação feita:
+- Subagente QA validou carregamento por `FoodRepository.portionsForFood`, exibição de porções, salvamento com `gramsTotal`/`unitLabel` da porção e preservação do botão `+` para porção padrão.
+- Subagente QA confirmou testes cobrindo carregar porções e salvar porção selecionada.
+- Subagente QA executou `:app:test` e `:app:assembleDebug` com BUILD SUCCESSFUL.
+- Imagens de referência continuam untracked na raiz e foram mantidas fora do ciclo.
+
+Decisão:
+- APROVADO
+
+### Próxima tarefa aberta pelo Arquiteto
+
+Nome:
+- Criar detalhe simples do alimento.
+
+Instrução para o próximo ciclo:
+- Permitir abrir uma tela simples de detalhe do alimento a partir da lista de busca, exibindo dados nutricionais já disponíveis. Não criar edição avançada, importação, câmera ou código de barras ainda.

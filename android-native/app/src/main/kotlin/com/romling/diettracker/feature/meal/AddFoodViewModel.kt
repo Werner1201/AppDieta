@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -22,11 +23,17 @@ class AddFoodViewModel(
     private val dateProvider: () -> LocalDate = { LocalDate.now() },
 ) : ViewModel() {
     private val query = MutableStateFlow("")
+    private val selectedFoodId = MutableStateFlow<Long?>(null)
     private val foods = query.flatMapLatest { foodRepository.search(it) }
+    private val portions = selectedFoodId.flatMapLatest { foodId ->
+        if (foodId == null) flowOf(emptyList()) else foodRepository.portionsForFood(foodId)
+    }
 
-    val state: StateFlow<AddFoodUiState> = combine(query, foods) { query, foods ->
+    val state: StateFlow<AddFoodUiState> = combine(query, foods, selectedFoodId, portions) { query, foods, selectedFoodId, portions ->
         AddFoodUiState(
             query = query,
+            selectedFoodId = selectedFoodId,
+            portions = portions.map { FoodPortionItem(label = it.label, grams = it.grams) },
             foods = foods.map {
                 FoodSearchItem(
                     id = it.id,
@@ -42,10 +49,20 @@ class AddFoodViewModel(
         query.value = value
     }
 
-    fun addFood(mealType: String, foodId: Long, onAdded: () -> Unit = {}) {
+    fun selectFood(foodId: Long) {
+        selectedFoodId.value = if (selectedFoodId.value == foodId) null else foodId
+    }
+
+    fun addFood(mealType: String, foodId: Long, portion: FoodPortionItem? = null, onAdded: () -> Unit = {}) {
         viewModelScope.launch {
             val food = foodRepository.getById(foodId) ?: return@launch
-            diaryRepository.addFood(date = dateProvider().toString(), mealType = mealType, food = food)
+            diaryRepository.addFood(
+                date = dateProvider().toString(),
+                mealType = mealType,
+                food = food,
+                gramsTotal = portion?.grams ?: food.gramsPerDefaultUnit,
+                unitLabel = portion?.label ?: food.defaultUnit,
+            )
             onAdded()
         }
     }
@@ -64,6 +81,8 @@ class AddFoodViewModelFactory(
 data class AddFoodUiState(
     val query: String = "",
     val foods: List<FoodSearchItem> = emptyList(),
+    val selectedFoodId: Long? = null,
+    val portions: List<FoodPortionItem> = emptyList(),
 )
 
 data class FoodSearchItem(
@@ -71,4 +90,9 @@ data class FoodSearchItem(
     val name: String,
     val serving: String,
     val kcal: Double,
+)
+
+data class FoodPortionItem(
+    val label: String,
+    val grams: Double,
 )
