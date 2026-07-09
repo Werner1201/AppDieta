@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
@@ -20,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.romling.diettracker.core.ui.components.AppCard
@@ -55,12 +57,12 @@ fun AddFoodScreen(
             Text(
                 text = "×",
                 modifier = Modifier.clickable(onClick = onClose),
-                style = MaterialTheme.typography.headlineLarge,
+                style = MaterialTheme.typography.headlineSmall,
             )
             Text(
                 text = meal.label,
                 modifier = Modifier.weight(1f),
-                style = MaterialTheme.typography.headlineLarge,
+                style = MaterialTheme.typography.headlineSmall,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -123,8 +125,8 @@ private fun FoodRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(76.dp)
-            .clickable { onSelectFood(food.id) },
+            .clickable { onSelectFood(food.id) }
+            .padding(vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(14.dp),
     ) {
@@ -132,13 +134,17 @@ private fun FoodRow(
             modifier = Modifier
                 .weight(1f)
                 .clickable { onOpenFoodDetails(food.id) },
+            verticalArrangement = Arrangement.spacedBy(2.dp),
         ) {
-            Text(text = food.name, style = MaterialTheme.typography.titleLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            Text(text = food.serving, style = MaterialTheme.typography.bodyMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(text = food.name, style = MaterialTheme.typography.titleSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            Text(text = food.serving, style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
         Text(
             text = "${food.kcal.toInt()} kcal",
-            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.width(52.dp),
+            style = MaterialTheme.typography.labelMedium,
+            textAlign = TextAlign.End,
+            maxLines = 1,
         )
         Surface(
             modifier = Modifier.clickable { onAddFood(food, null) },
@@ -146,8 +152,8 @@ private fun FoodRow(
             color = AppColors.Background,
             border = androidx.compose.foundation.BorderStroke(2.dp, AppColors.Accent),
         ) {
-            Box(modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp), contentAlignment = Alignment.Center) {
-                Text(text = "+", color = AppColors.Accent, style = MaterialTheme.typography.titleLarge)
+            Box(modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp), contentAlignment = Alignment.Center) {
+                Text(text = "+", color = AppColors.Accent, style = MaterialTheme.typography.bodyLarge)
             }
         }
     }

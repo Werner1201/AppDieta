@@ -51,10 +51,11 @@ Ignore imagens untracked na raiz. Responda com APROVADO ou REPROVADO e achados o
 - Ciclo 27: navegação inferior visual com cinco abas (Diário funcional, demais placeholders).
 - Ciclo 28: correção de bugs de layout na TodayScreen (tela estreita 322 dp).
 - Ciclo 29: sistema de dimensões responsivas `AppDimensions` via `CompositionLocal`.
+- Ciclo 30: correção de bugs visuais críticos na tela AddFood (título e nomes de alimentos).
 
 Ciclo em andamento:
-- Nenhum ciclo de código aberto após o Ciclo 29.
-- Próximo ciclo sugerido: corrigir bugs visuais na tela AddFood (título truncado, nomes de alimentos indistinguíveis após busca).
+- Nenhum ciclo de código aberto após o Ciclo 30.
+- Próximo ciclo sugerido: calendário com dias verdes, streak ou configurações de meta.
 
 ## Estilo de implementação
 

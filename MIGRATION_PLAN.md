@@ -3176,3 +3176,83 @@ Checklist visual:
 
 Decisão:
 - APROVADO
+
+---
+
+## Ciclo 30
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Corrigir bugs críticos de layout na tela AddFood: título truncado e nomes de alimentos indistinguíveis.
+
+Motivo:
+- Inspeção visual revelou dois bugs críticos: (1) o título da tela ("Café da manhã") trunca com ellipsis porque usa `headlineLarge` (36sp) junto com o botão ×; (2) na lista de alimentos, após busca por "arroz" todos os 4 resultados aparecem como "Arroz …" — impossível distinguir Branco de Integral. Também corrigir acento em "Abobora Cozida" no seed.
+
+Arquivos prováveis:
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/meal/AddFoodPlaceholderScreen.kt`
+- `android-native/app/src/main/assets/foods_seed.json`
+
+Critérios de aceite funcionais:
+- `gradlew test` passa.
+- `gradlew assembleDebug` passa.
+
+Critérios de aceite visuais:
+- Título da tela ("Café da manhã") visível completo ao lado do botão ×.
+- Na lista, alimentos com nomes parecidos (ex.: "Arroz Branco Cozido" vs "Arroz Integral Cozido") são distinguíveis visualmente.
+- Sem regressão na funcionalidade de busca e adição de alimento.
+
+Riscos:
+- `maxLines = 2` na row de alimento pode quebrar o ritmo visual se itens tiverem alturas diferentes. Mitigação: usar `padding(vertical)` em vez de `height` fixo.
+
+Instrução objetiva para o Dev:
+1. Header: trocar `headlineLarge` por `headlineSmall` em × e no label da refeição.
+2. FoodRow: trocar `titleLarge` por `bodyLarge` no nome; `maxLines = 1` → `maxLines = 2`; remover `height(76.dp)` e adicionar `padding(vertical = 10.dp)`; dar largura fixa `width(64.dp)` + `textAlign = End` ao texto de kcal; reduzir padding do botão + de `12/6.dp` para `8/4.dp`.
+3. `foods_seed.json`: corrigir `"Abobora Cozida"` → `"Abóbora Cozida"`.
+4. Não alterar lógica de negócio.
+
+### 2. DEV
+
+Implementação feita:
+- Header: `headlineLarge` → `headlineSmall` (24sp) no botão × e no título da refeição.
+- `FoodRow`: removido `height(76.dp)`, adicionado `padding(vertical = 10.dp)`.
+- Nome do alimento: `titleLarge` → `titleSmall` (14sp, medium), `maxLines = 1` → `maxLines = 2`.
+- Serving text: `bodyMedium` → `bodySmall`.
+- Kcal column: `Modifier.width(64.dp)` → `Modifier.width(52.dp)`, fonte `bodyLarge` → `labelMedium`, `textAlign = End`.
+- Botão +: padding `12/6.dp` → `8/4.dp`, fonte `titleLarge` → `bodyLarge`.
+- Adicionado import `TextAlign` e `width`.
+- `foods_seed.json`: `"Abobora Cozida"` → `"Abóbora Cozida"` (correção aplica-se a novas instalações).
+
+Arquivos alterados:
+- `MIGRATION_PLAN.md`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/meal/AddFoodPlaceholderScreen.kt`
+- `android-native/app/src/main/assets/foods_seed.json`
+
+Como testou:
+- `./gradlew test` — BUILD SUCCESSFUL.
+- `./gradlew assembleDebug` — BUILD SUCCESSFUL.
+- APK instalado no emulador: título "Café da manhã" completo, nomes de alimentos legíveis, quebras apenas em palavras inteiras.
+
+### 3. QA
+
+Validação feita:
+- Verificado no emulador Galaxy Z Fold 6 (322dp).
+- "× Café da manhã" — título completo em uma linha. ✅
+- "Abacate", "Abacaxi", "Abobrinha", "Acerola", "Achocolatado", "Acém Cozido" — nomes curtos em uma linha. ✅
+- "Abobora Cozida", "Abobrinha Caseiro", "Achocolatado Caseiro", "Acém Cozido Caseiro" — quebras naturais em palavra inteira, nomes distinguíveis. ✅
+- Nenhuma quebra mid-word detectada. ✅
+- Seed fix "Abóbora Cozida" aplica-se a novas instalações (BD existente mantém "Abobora" sem acento). ✅ (observação documentada)
+- Testes unitários passaram. ✅
+
+Checklist funcional:
+- [x] `gradlew test` passa.
+- [x] `gradlew assembleDebug` passa.
+- [x] Sem regressão no fluxo de adição de alimento.
+
+Checklist visual:
+- [x] Título da tela completo.
+- [x] Nomes de alimentos legíveis e distinguíveis.
+- [x] Nenhuma quebra mid-word.
+
+Decisão:
+- APROVADO
