@@ -62,6 +62,7 @@ fun TodayScreen(
     onPreviousDay: () -> Unit = {},
     onNextDay: () -> Unit = {},
     onOpenCalendar: () -> Unit = {},
+    onOpenStreak: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     var showRegisteredOnly by remember { mutableStateOf(false) }
@@ -91,7 +92,7 @@ fun TodayScreen(
             .padding(horizontal = AppSpacing.ScreenHorizontal, vertical = 28.dp),
         verticalArrangement = Arrangement.spacedBy(28.dp),
     ) {
-        TodayHeader(state = state, onOpenCalendar = onOpenCalendar)
+        TodayHeader(state = state, onOpenCalendar = onOpenCalendar, onOpenStreak = onOpenStreak)
         SmartTipsButton()
         SectionTitle(title = "Resumo", actionLabel = "Detalhes")
         SummaryCard(state)
@@ -145,7 +146,7 @@ private fun FilterTab(text: String, selected: Boolean, onClick: () -> Unit, modi
 }
 
 @Composable
-private fun TodayHeader(state: TodayUiState, onOpenCalendar: () -> Unit = {}) {
+private fun TodayHeader(state: TodayUiState, onOpenCalendar: () -> Unit = {}, onOpenStreak: () -> Unit = {}) {
     val titleText = if (state.isToday) "Hoje" else {
         val d = LocalDate.parse(state.date)
         "${d.dayOfMonth}/${d.monthValue}"
@@ -159,7 +160,11 @@ private fun TodayHeader(state: TodayUiState, onOpenCalendar: () -> Unit = {}) {
             Text(text = titleText, style = MaterialTheme.typography.headlineLarge)
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 Text(text = "💎 0", style = MaterialTheme.typography.labelLarge)
-                Text(text = "🔥 ${state.streak.current}", style = MaterialTheme.typography.labelLarge)
+                Text(
+                    text = "🔥 ${state.streak.current}",
+                    modifier = Modifier.clickable(onClick = onOpenStreak),
+                    style = MaterialTheme.typography.labelLarge,
+                )
                 Text(
                     text = "🗓️",
                     modifier = Modifier.clickable(onClick = onOpenCalendar),

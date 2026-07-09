@@ -27,6 +27,7 @@ import com.romling.diettracker.core.ui.theme.DietTrackerTheme
 import com.romling.diettracker.feature.meal.AddFoodScreen
 import com.romling.diettracker.feature.meal.AddFoodViewModel
 import com.romling.diettracker.feature.today.CalendarScreen
+import com.romling.diettracker.feature.today.StreakScreen
 import com.romling.diettracker.feature.today.TodayMealSummary
 import com.romling.diettracker.feature.today.TodayScreen
 import com.romling.diettracker.feature.today.TodayViewModel
@@ -47,10 +48,13 @@ fun DietTrackerApp(todayViewModel: TodayViewModel, addFoodViewModel: AddFoodView
     val addFoodState by addFoodViewModel.state.collectAsState()
     var addMeal by remember { mutableStateOf<TodayMealSummary?>(null) }
     var showCalendar by remember { mutableStateOf(false) }
+    var showStreak by remember { mutableStateOf(false) }
     var selectedTab by remember { mutableStateOf(AppTab.DIARY) }
 
     DietTrackerTheme {
-        if (showCalendar) {
+        if (showStreak) {
+            StreakScreen(streak = state.streak, onClose = { showStreak = false })
+        } else if (showCalendar) {
             CalendarScreen(
                 greenDays = calendarGreenDays,
                 selectedDate = currentDate,
@@ -86,6 +90,7 @@ fun DietTrackerApp(todayViewModel: TodayViewModel, addFoodViewModel: AddFoodView
                             onPreviousDay = todayViewModel::previousDay,
                             onNextDay = todayViewModel::nextDay,
                             onOpenCalendar = { showCalendar = true },
+                            onOpenStreak = { showStreak = true },
                         )
                         else -> TabPlaceholder(selectedTab)
                     }

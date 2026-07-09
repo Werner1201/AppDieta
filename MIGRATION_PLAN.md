@@ -3412,3 +3412,77 @@ Nome:
 
 Instrução para o próximo ciclo:
 - Usar `TodayStreakSummary`/`StreakService` para criar uma tela simples de sequência com atual, maior sequência e dias ativos. Não mexer em configurações ou importação.
+
+---
+
+## Ciclo 33
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Criar tela simples de sequência.
+
+Motivo:
+- Permitir ver atual, maior sequência e dias ativos sem depender apenas do número no header.
+
+Arquivos prováveis:
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/StreakScreen.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/DietTrackerApp.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayScreen.kt`
+
+Critérios de aceite funcionais:
+- Tocar no indicador `🔥` abre uma tela simples de sequência.
+- Tela mostra sequência atual, maior sequência e dias ativos.
+- Tela fecha e retorna ao diário.
+- `gradlew.bat test` passa.
+- `gradlew.bat assembleDebug` passa.
+
+Critérios de aceite visuais:
+- Tela simples com card escuro existente.
+- Não criar navegação nova.
+- Não mexer em configurações ou importação.
+
+Riscos:
+- Duplicar lógica de cálculo. Mitigação: usar `TodayStreakSummary` já calculado.
+
+Instrução objetiva para o Dev:
+- Criar tela simples usando o resumo já disponível. Não adicionar novas regras.
+
+### 2. DEV
+
+Implementação feita:
+- Criada `StreakScreen` com atual, maior sequência e dias ativos.
+- `DietTrackerApp` controla `showStreak`.
+- `TodayScreen` torna o indicador `🔥` clicável.
+
+Arquivos alterados:
+- `MIGRATION_PLAN.md`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/StreakScreen.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/DietTrackerApp.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayScreen.kt`
+
+Como testou:
+- `gradlew.bat test assembleDebug`.
+
+Resultado:
+- BUILD SUCCESSFUL.
+
+Envia para QA.
+
+### 3. QA
+
+Validação feita:
+- Subagente QA validou abertura pelo indicador `🔥`, tela usando `TodayStreakSummary`, fechamento de volta ao diário e ausência de nova regra/configuração/importação.
+- Subagente QA executou `gradlew.bat test assembleDebug` com BUILD SUCCESSFUL.
+- `.claude/` e imagens de referência continuam untracked e foram mantidos fora do ciclo.
+
+Decisão:
+- APROVADO
+
+### Próxima tarefa aberta pelo Arquiteto
+
+Nome:
+- Configurações de metas iniciais.
+
+Instrução para o próximo ciclo:
+- Criar uma tela simples de configurações para exibir metas padrão atuais. Não persistir edição ainda, salvo se DataStore já estiver pronto.
