@@ -61,10 +61,11 @@ Ignore imagens untracked na raiz. Responda com APROVADO ou REPROVADO e achados o
 - Ciclo 41: lista e exclusão de alimentos customizados (`CustomFoodsScreen`) acessível via "Meus alimentos" em Configurações.
 - Ciclo 42: importador ChatGPT (`ChatGptImportScreen`) — cola JSON → prévia → salva no diário.
 - Ciclo 43: prompt copiável para o ChatGPT com formato JSON esperado (card + botão "Copiar" com feedback).
+- Ciclo 44: exportação de diário completo via share sheet JSON (`TodayViewModel.exportJson` + `Intent.ACTION_SEND`).
 
 Ciclo em andamento:
-- Nenhum ciclo aberto após o Ciclo 43.
-- Próximo ciclo sugerido: exportação/backup JSON do diário ou tela Receitas.
+- Nenhum ciclo aberto após o Ciclo 44.
+- Próximo ciclo sugerido: JSON escaping seguro em exportJson, teste de exportJson, ou tela Receitas.
 
 ## Estilo de implementação
 

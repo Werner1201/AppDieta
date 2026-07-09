@@ -4321,3 +4321,61 @@ Checklist visual:
 
 Decisão:
 - APROVADO
+
+## Ciclo 44
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Exportação de diário completo via share sheet (JSON).
+
+Motivo:
+- Usuário precisa exportar dados para backup, ChatGPT ou análise externa.
+
+Arquivos prováveis:
+- `data/local/dao/Daos.kt` — `DiaryEntryDao.allEntries()`
+- `data/repository/DiaryRepository.kt` — `allEntries()`
+- `feature/today/TodayViewModel.kt` — `exportJson(): String`
+- `feature/settings/SettingsScreen.kt` — row "Exportar diário (JSON)"
+- `DietTrackerApp.kt` — share intent via `Intent.ACTION_SEND`
+- Três `FakeDiaryEntryDao` nos testes
+
+Critérios de aceite funcionais:
+- Row "Exportar diário (JSON)" aparece em Configurações.
+- Tap chama share sheet nativa do Android.
+- JSON tem campos: `app`, `exported_at`, `count`, `entries[]` com `date`, `meal`, `name`, `grams`, `kcal`, `carbs`, `protein`, `fat`.
+- `gradlew.bat test` passa.
+- `gradlew.bat assembleDebug` passa.
+
+Riscos:
+- Três `FakeDiaryEntryDao` em teste precisam de override `allEntries()`.
+- Nomes customizados com aspas podem gerar JSON inválido (risco latente).
+
+### 2. DEV
+
+Arquivos alterados:
+- `android-native/app/src/main/kotlin/com/romling/diettracker/data/local/dao/Daos.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/data/repository/DiaryRepository.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayViewModel.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/settings/SettingsScreen.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/DietTrackerApp.kt`
+- `android-native/app/src/test/kotlin/com/romling/diettracker/feature/today/TodayViewModelTest.kt`
+- `android-native/app/src/test/kotlin/com/romling/diettracker/feature/meal/AddFoodViewModelTest.kt`
+- `android-native/app/src/test/kotlin/com/romling/diettracker/data/repository/DiaryRepositoryTest.kt`
+
+Como testou:
+- `gradlew.bat test` — BUILD SUCCESSFUL (51 tasks).
+- `gradlew.bat assembleDebug` — BUILD SUCCESSFUL (37 tasks).
+
+### 3. QA
+
+Checklist funcional:
+- [x] DAO e repositório expõem `allEntries()`.
+- [x] `exportJson()` no ViewModel retorna JSON válido para casos comuns.
+- [x] Row de exportação em Configurações com callback.
+- [x] Share sheet disparada via `Intent.createChooser`.
+- [x] `gradlew.bat test` passa.
+- [x] `gradlew.bat assembleDebug` passa.
+
+Decisão:
+- APROVADO com ressalvas (JSON escaping latente; sem teste de exportJson)

@@ -1,6 +1,8 @@
 package com.romling.diettracker
 
+import android.content.Intent
 import androidx.compose.foundation.background
+import kotlinx.coroutines.launch
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,7 +19,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -54,6 +58,8 @@ fun DietTrackerApp(todayViewModel: TodayViewModel, addFoodViewModel: AddFoodView
     val addFoodState by addFoodViewModel.state.collectAsState()
     val customFoods by addFoodViewModel.customFoods.collectAsState()
     val importState by chatGptImportViewModel.state.collectAsState()
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     var addMeal by remember { mutableStateOf<TodayMealSummary?>(null) }
     var detailMeal by remember { mutableStateOf<TodayMealSummary?>(null) }
     var showCalendar by remember { mutableStateOf(false) }
@@ -139,7 +145,22 @@ fun DietTrackerApp(todayViewModel: TodayViewModel, addFoodViewModel: AddFoodView
                             onOpenCalendar = { showCalendar = true },
                             onOpenStreak = { showStreak = true },
                         )
-                        AppTab.PROFILE -> SettingsScreen(state = state, onSaveGoals = todayViewModel::saveGoals, onOpenCustomFoods = { showCustomFoods = true })
+                        AppTab.PROFILE -> SettingsScreen(
+                            state = state,
+                            onSaveGoals = todayViewModel::saveGoals,
+                            onOpenCustomFoods = { showCustomFoods = true },
+                            onExportDiary = {
+                                scope.launch {
+                                    val json = todayViewModel.exportJson()
+                                    val intent = Intent(Intent.ACTION_SEND).apply {
+                                        type = "text/plain"
+                                        putExtra(Intent.EXTRA_SUBJECT, "AppDieta - Diário exportado")
+                                        putExtra(Intent.EXTRA_TEXT, json)
+                                    }
+                                    context.startActivity(Intent.createChooser(intent, "Compartilhar diário"))
+                                }
+                            },
+                        )
                         else -> TabPlaceholder(selectedTab)
                     }
                 }

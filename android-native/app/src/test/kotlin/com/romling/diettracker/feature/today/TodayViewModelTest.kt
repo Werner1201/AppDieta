@@ -295,6 +295,7 @@ private class FakeDiaryEntryDao(initialEntries: List<DiaryEntryEntity>) : DiaryE
         entries.map { items -> items.filter { it.date.startsWith(yearMonth) } }
     override fun activeDates(): Flow<List<String>> =
         entries.map { items -> items.map { it.date }.distinct().sorted() }
+    override suspend fun allEntries(): List<DiaryEntryEntity> = entries.value
 
     override suspend fun insert(entry: DiaryEntryEntity): Long = error("Not used")
     override suspend fun delete(entry: DiaryEntryEntity) = Unit

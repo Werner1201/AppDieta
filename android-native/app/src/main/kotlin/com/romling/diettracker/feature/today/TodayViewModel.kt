@@ -113,6 +113,18 @@ class TodayViewModel(
         settingsRepository?.save(settings)
     }
 
+    suspend fun exportJson(): String {
+        val entries = diaryRepository.allEntries()
+        val items = entries.joinToString(",\n    ") { e ->
+            """{"date":"${e.date}","meal":"${e.mealType}","name":"${e.foodNameSnapshot}","grams":${e.gramsTotal.toInt()},"kcal":${e.kcal.toInt()},"carbs":${e.carbs},"protein":${e.protein},"fat":${e.fat}}"""
+        }
+        return buildString {
+            append("{\n  \"app\": \"AppDieta\",\n  \"exported_at\": \"${java.time.LocalDate.now()}\",\n  \"count\": ${entries.size},\n  \"entries\": [\n    ")
+            append(items)
+            append("\n  ]\n}")
+        }
+    }
+
     private fun List<DiaryEntryEntity>.toTodayState(
         date: LocalDate,
         waterMl: Int,

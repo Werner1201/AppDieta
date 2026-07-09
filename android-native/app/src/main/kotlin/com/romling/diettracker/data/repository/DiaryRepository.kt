@@ -10,6 +10,7 @@ class DiaryRepository(
     private val diaryEntryDao: DiaryEntryDao,
     private val now: () -> String = { Instant.now().toString() },
 ) {
+    suspend fun allEntries(): List<DiaryEntryEntity> = diaryEntryDao.allEntries()
     fun entriesForDate(date: String) = diaryEntryDao.entriesForDate(date)
     fun entriesForMeal(date: String, mealType: String) = diaryEntryDao.entriesForMeal(date, mealType)
     fun entriesForMonth(yearMonth: String) = diaryEntryDao.entriesForMonth(yearMonth)

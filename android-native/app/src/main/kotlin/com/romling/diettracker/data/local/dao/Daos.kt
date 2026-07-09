@@ -73,6 +73,9 @@ interface DiaryEntryDao {
     @Query("SELECT DISTINCT date FROM diary_entries ORDER BY date")
     fun activeDates(): Flow<List<String>>
 
+    @Query("SELECT * FROM diary_entries ORDER BY date DESC, created_at DESC")
+    suspend fun allEntries(): List<DiaryEntryEntity>
+
     @Insert
     suspend fun insert(entry: DiaryEntryEntity): Long
 
