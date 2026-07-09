@@ -12,7 +12,8 @@ import kotlin.test.assertTrue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
@@ -50,6 +51,24 @@ class TodayViewModelTest {
         assertEquals(4, viewModel.state.value.meals.size)
         assertEquals(1800.0, viewModel.state.value.meals.single { it.key == "lunch" }.kcal)
     }
+
+    @Test
+    fun stateUpdatesWhenDiaryEntriesChange() = runTest(dispatcher) {
+        val dao = FakeDiaryEntryDao(emptyList())
+        val viewModel = TodayViewModel(
+            diaryRepository = DiaryRepository(dao),
+            dateProvider = { LocalDate.parse("2026-07-01") },
+        )
+
+        advanceUntilIdle()
+        assertEquals(0.0, viewModel.state.value.totals.kcal)
+
+        dao.entries.value = listOf(entry(kcal = 237.0, protein = 12.4))
+        advanceUntilIdle()
+
+        assertEquals(237.0, viewModel.state.value.totals.kcal)
+        assertEquals(237.0, viewModel.state.value.meals.single { it.key == "lunch" }.kcal)
+    }
 }
 
 private fun entry(kcal: Double, protein: Double) = DiaryEntryEntity(
@@ -66,10 +85,12 @@ private fun entry(kcal: Double, protein: Double) = DiaryEntryEntity(
     fat = 5.0,
 )
 
-private class FakeDiaryEntryDao(private val entries: List<DiaryEntryEntity>) : DiaryEntryDao {
-    override fun entriesForDate(date: String): Flow<List<DiaryEntryEntity>> = flowOf(entries.filter { it.date == date })
+private class FakeDiaryEntryDao(initialEntries: List<DiaryEntryEntity>) : DiaryEntryDao {
+    val entries = MutableStateFlow(initialEntries)
+
+    override fun entriesForDate(date: String): Flow<List<DiaryEntryEntity>> = entries.map { items -> items.filter { it.date == date } }
     override fun entriesForMeal(date: String, mealType: String): Flow<List<DiaryEntryEntity>> =
-        flowOf(entries.filter { it.date == date && it.mealType == mealType })
+        entries.map { items -> items.filter { it.date == date && it.mealType == mealType } }
 
     override suspend fun insert(entry: DiaryEntryEntity): Long = error("Not used")
     override suspend fun delete(entry: DiaryEntryEntity) = Unit

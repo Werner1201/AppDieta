@@ -2173,3 +2173,81 @@ Nome:
 
 Instrução para o próximo ciclo:
 - Garantir que a tela Hoje reflita imediatamente o alimento salvo ao voltar, ajustando apenas o necessário em estado/flows. Não criar remoção ou edição ainda.
+
+## Ciclo 19
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Atualizar Today após adicionar alimento.
+
+Motivo:
+- Garantir que a tela Hoje reflita o alimento recém-salvo ao voltar do fluxo de adicionar alimento.
+
+Tela ou funcionalidade original analisada:
+- Tela Hoje.
+- Fluxo de adicionar alimento.
+
+Arquivos prováveis:
+- `android-native/app/src/test/kotlin/com/romling/diettracker/feature/today/TodayViewModelTest.kt`.
+
+Critérios de aceite funcionais:
+- Confirmar que `TodayViewModel` reage a novas emissões de `DiaryRepository.entriesForDate`.
+- Não duplicar refresh manual se o `Flow` já resolve.
+- `gradlew.bat test` passa.
+- `gradlew.bat assembleDebug` passa.
+
+Critérios de aceite visuais:
+- Nenhum, tarefa de estado/teste.
+- Não alterar UI.
+
+Riscos:
+- Adicionar refresh manual desnecessário. Mitigação: provar o comportamento com teste.
+
+Instrução objetiva para o Dev:
+- Se o `Flow` já atualiza a tela, adicionar apenas teste cobrindo a emissão nova. Não criar refresh manual, remoção ou edição.
+
+### 2. DEV
+
+Implementação feita:
+- Atualizado fake DAO da `TodayViewModelTest` para usar `MutableStateFlow`.
+- Adicionado teste que emite nova entrada no diário e valida atualização de totais e resumo de refeição.
+- Nenhuma mudança de produção foi necessária.
+
+Arquivos alterados:
+- `MIGRATION_PLAN.md`.
+- `android-native/app/src/test/kotlin/com/romling/diettracker/feature/today/TodayViewModelTest.kt`.
+
+Como preservou o app original:
+- Mantém o fluxo reativo via Room/Flow sem adicionar refresh manual.
+
+Como testou:
+- Testes Android.
+- Build Android debug.
+
+Comando executado:
+- `gradlew.bat test`.
+- `gradlew.bat assembleDebug`.
+
+Resultado:
+- `gradlew.bat test`: BUILD SUCCESSFUL.
+- `gradlew.bat assembleDebug`: BUILD SUCCESSFUL.
+
+Envia para QA.
+
+### 3. QA
+
+Validação feita:
+- Subagente QA validou que o diff rastreado contém apenas plano/teste, com `MutableStateFlow` provando atualização reativa da `TodayViewModel`.
+- Imagens de referência continuam untracked na raiz e foram mantidas fora do ciclo.
+
+Decisão:
+- APROVADO
+
+### Próxima tarefa aberta pelo Arquiteto
+
+Nome:
+- Adicionar remoção simples de alimento.
+
+Instrução para o próximo ciclo:
+- Permitir remover uma entrada alimentar registrada a partir de uma lista simples na tela Hoje ou em uma tela mínima, usando `DiaryRepository.deleteById`. Não criar edição de porção ainda.
