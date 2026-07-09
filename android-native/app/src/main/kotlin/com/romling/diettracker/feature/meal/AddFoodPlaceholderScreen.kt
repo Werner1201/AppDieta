@@ -33,6 +33,8 @@ fun AddFoodScreen(
     state: AddFoodUiState,
     onQueryChange: (String) -> Unit,
     onSelectFood: (Long) -> Unit,
+    onOpenFoodDetails: (Long) -> Unit,
+    onCloseFoodDetails: () -> Unit,
     onAddFood: (FoodSearchItem, FoodPortionItem?) -> Unit,
     onClose: () -> Unit,
     modifier: Modifier = Modifier,
@@ -72,7 +74,13 @@ fun AddFoodScreen(
                 placeholder = { Text("O que você comeu?") },
                 textStyle = MaterialTheme.typography.bodyLarge,
             )
-            FoodsCard(state = state, onSelectFood = onSelectFood, onAddFood = onAddFood)
+            state.detailFood?.let { FoodDetails(food = it, onClose = onCloseFoodDetails) }
+            FoodsCard(
+                state = state,
+                onSelectFood = onSelectFood,
+                onOpenFoodDetails = onOpenFoodDetails,
+                onAddFood = onAddFood,
+            )
         }
     }
 }
@@ -81,12 +89,18 @@ fun AddFoodScreen(
 private fun FoodsCard(
     state: AddFoodUiState,
     onSelectFood: (Long) -> Unit,
+    onOpenFoodDetails: (Long) -> Unit,
     onAddFood: (FoodSearchItem, FoodPortionItem?) -> Unit,
 ) {
     val foods = state.foods.take(20)
     Column {
         foods.forEachIndexed { index, food ->
-            FoodRow(food = food, onSelectFood = onSelectFood, onAddFood = onAddFood)
+            FoodRow(
+                food = food,
+                onSelectFood = onSelectFood,
+                onOpenFoodDetails = onOpenFoodDetails,
+                onAddFood = onAddFood,
+            )
             if (state.selectedFoodId == food.id) {
                 state.portions.forEach { portion ->
                     PortionRow(portion = portion, onAddFood = { onAddFood(food, portion) })
@@ -103,6 +117,7 @@ private fun FoodsCard(
 private fun FoodRow(
     food: FoodSearchItem,
     onSelectFood: (Long) -> Unit,
+    onOpenFoodDetails: (Long) -> Unit,
     onAddFood: (FoodSearchItem, FoodPortionItem?) -> Unit,
 ) {
     Row(
@@ -113,11 +128,18 @@ private fun FoodRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        Column(modifier = Modifier.weight(1f)) {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .clickable { onOpenFoodDetails(food.id) },
+        ) {
             Text(text = food.name, style = MaterialTheme.typography.titleLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
             Text(text = food.serving, style = MaterialTheme.typography.bodyMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
-        Text(text = "${food.kcal.toInt()} kcal", style = MaterialTheme.typography.bodyLarge)
+        Text(
+            text = "${food.kcal.toInt()} kcal",
+            style = MaterialTheme.typography.bodyLarge,
+        )
         Surface(
             modifier = Modifier.clickable { onAddFood(food, null) },
             shape = androidx.compose.foundation.shape.CircleShape,
@@ -128,6 +150,33 @@ private fun FoodRow(
                 Text(text = "+", color = AppColors.Accent, style = MaterialTheme.typography.titleLarge)
             }
         }
+    }
+}
+
+@Composable
+private fun FoodDetails(food: FoodSearchItem, onClose: () -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text(text = food.name, style = MaterialTheme.typography.titleLarge)
+            Text(text = "Fechar", modifier = Modifier.clickable(onClick = onClose), style = MaterialTheme.typography.bodyLarge)
+        }
+        NutritionRow("Calorias", "${food.kcal.toInt()} kcal")
+        NutritionRow("Carboidratos", "${food.carbs} g")
+        NutritionRow("Proteína", "${food.protein} g")
+        NutritionRow("Gordura", "${food.fat} g")
+        NutritionRow("Fibra", "${food.fiber} g")
+        NutritionRow("Açúcares", "${food.sugar} g")
+        NutritionRow("Sódio", "${food.sodiumMg.toInt()} mg")
+        NutritionRow("Fonte", food.source)
+        HorizontalDivider(color = AppColors.Line, thickness = 1.dp)
+    }
+}
+
+@Composable
+private fun NutritionRow(label: String, value: String) {
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+        Text(text = label, style = MaterialTheme.typography.bodyMedium)
+        Text(text = value, style = MaterialTheme.typography.bodyMedium)
     }
 }
 

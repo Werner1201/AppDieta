@@ -86,6 +86,26 @@ class AddFoodViewModelTest {
     }
 
     @Test
+    fun openFoodDetailsShowsNutrition() = runTest(dispatcher) {
+        val viewModel = AddFoodViewModel(
+            foodRepository = FoodRepository(FakeFoodDao(), FakeFoodPortionDao()),
+            diaryRepository = DiaryRepository(FakeDiaryEntryDao()),
+        )
+
+        advanceUntilIdle()
+        viewModel.openFoodDetails(1)
+        advanceUntilIdle()
+
+        assertEquals("Café", viewModel.state.value.detailFood?.name)
+        assertEquals(0.3, viewModel.state.value.detailFood?.protein)
+
+        viewModel.closeFoodDetails()
+        advanceUntilIdle()
+
+        assertEquals(null, viewModel.state.value.detailFood)
+    }
+
+    @Test
     fun addFoodSavesSelectedPortion() = runTest(dispatcher) {
         val diaryDao = FakeDiaryEntryDao()
         val viewModel = AddFoodViewModel(

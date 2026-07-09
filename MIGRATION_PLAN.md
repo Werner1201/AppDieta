@@ -2433,3 +2433,94 @@ Nome:
 
 Instrução para o próximo ciclo:
 - Permitir abrir uma tela simples de detalhe do alimento a partir da lista de busca, exibindo dados nutricionais já disponíveis. Não criar edição avançada, importação, câmera ou código de barras ainda.
+
+## Ciclo 22
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Criar detalhe simples do alimento.
+
+Motivo:
+- Permitir consultar informação nutricional básica antes de registrar o alimento.
+
+Tela ou funcionalidade original analisada:
+- Lista de busca de alimentos na refeição.
+- Detalhe nutricional do alimento.
+
+Arquivos prováveis:
+- `android-native/app/src/main/kotlin/com/romling/diettracker/DietTrackerApp.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/meal/AddFoodPlaceholderScreen.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/meal/AddFoodViewModel.kt`.
+- `android-native/app/src/test/kotlin/com/romling/diettracker/feature/meal/AddFoodViewModelTest.kt`.
+
+Critérios de aceite funcionais:
+- Tocar no nome do alimento abre detalhe simples.
+- O detalhe exibe dados nutricionais já disponíveis no banco.
+- É possível fechar o detalhe.
+- Tocar na linha ainda permite abrir porções.
+- O botão `+` continua salvando porção padrão.
+- `gradlew.bat test` passa.
+- `gradlew.bat assembleDebug` passa.
+
+Critérios de aceite visuais:
+- Detalhe simples e legível.
+- Não criar navegação pesada.
+- Não criar edição avançada, importação, câmera ou código de barras neste ciclo.
+
+Riscos:
+- Quebrar seleção de porções do ciclo anterior. Mitigação: manter toque na linha para porções e toque no nome para detalhe.
+
+Instrução objetiva para o Dev:
+- Exibir detalhe simples com os dados já carregados em `FoodSearchItem`. Não buscar dados remotos nem adicionar nova dependência.
+
+### 2. DEV
+
+Implementação feita:
+- `AddFoodViewModel` passou a controlar alimento em detalhe e expor nutrientes no item de busca.
+- `AddFoodScreen` mostra painel de detalhe com calorias, macros, fibra, açúcares, sódio e fonte.
+- Tocar no nome abre detalhe; tocar na linha abre porções; `+` salva porção padrão.
+- Teste cobre abrir e fechar detalhe com nutrientes.
+
+Arquivos alterados:
+- `MIGRATION_PLAN.md`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/DietTrackerApp.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/meal/AddFoodPlaceholderScreen.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/meal/AddFoodViewModel.kt`.
+- `android-native/app/src/test/kotlin/com/romling/diettracker/feature/meal/AddFoodViewModelTest.kt`.
+
+Como preservou o app original:
+- Usa somente dados nutricionais locais já existentes.
+- Mantém o fluxo de adicionar alimento no mesmo lugar.
+
+Como testou:
+- Testes Android.
+- Build Android debug.
+
+Comando executado:
+- `gradlew.bat test assembleDebug`.
+
+Resultado:
+- `gradlew.bat test`: BUILD SUCCESSFUL.
+- `gradlew.bat assembleDebug`: BUILD SUCCESSFUL.
+
+Envia para QA.
+
+### 3. QA
+
+Validação feita:
+- Subagente QA validou abertura do detalhe pelo nome, dados nutricionais locais, ação de fechar, preservação da seleção de porções e do botão `+` para porção padrão.
+- Subagente QA confirmou teste `openFoodDetailsShowsNutrition` e ausência de dependência nova ou funcionalidades fora de escopo.
+- Subagente QA executou teste Gradle com BUILD SUCCESSFUL.
+- Imagens de referência continuam untracked na raiz e foram mantidas fora do ciclo.
+
+Decisão:
+- APROVADO
+
+### Próxima tarefa aberta pelo Arquiteto
+
+Nome:
+- Melhorar filtro de alimentos registrados.
+
+Instrução para o próximo ciclo:
+- Na tela Hoje, permitir alternar para ver apenas alimentos registrados do dia e remover por ali. Não mexer em importação, câmera ou código de barras ainda.

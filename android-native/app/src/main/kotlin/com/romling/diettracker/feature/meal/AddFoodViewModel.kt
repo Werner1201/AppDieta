@@ -24,24 +24,34 @@ class AddFoodViewModel(
 ) : ViewModel() {
     private val query = MutableStateFlow("")
     private val selectedFoodId = MutableStateFlow<Long?>(null)
+    private val detailFoodId = MutableStateFlow<Long?>(null)
     private val foods = query.flatMapLatest { foodRepository.search(it) }
     private val portions = selectedFoodId.flatMapLatest { foodId ->
         if (foodId == null) flowOf(emptyList()) else foodRepository.portionsForFood(foodId)
     }
 
-    val state: StateFlow<AddFoodUiState> = combine(query, foods, selectedFoodId, portions) { query, foods, selectedFoodId, portions ->
+    val state: StateFlow<AddFoodUiState> = combine(query, foods, selectedFoodId, detailFoodId, portions) { query, foods, selectedFoodId, detailFoodId, portions ->
+        val items = foods.map {
+            FoodSearchItem(
+                id = it.id,
+                name = it.name,
+                serving = it.defaultUnit,
+                kcal = it.kcal100g,
+                carbs = it.carbs100g,
+                protein = it.protein100g,
+                fat = it.fat100g,
+                fiber = it.fiber100g,
+                sugar = it.sugar100g,
+                sodiumMg = it.sodiumMg100g,
+                source = it.source,
+            )
+        }
         AddFoodUiState(
             query = query,
             selectedFoodId = selectedFoodId,
+            detailFood = items.firstOrNull { it.id == detailFoodId },
             portions = portions.map { FoodPortionItem(label = it.label, grams = it.grams) },
-            foods = foods.map {
-                FoodSearchItem(
-                    id = it.id,
-                    name = it.name,
-                    serving = it.defaultUnit,
-                    kcal = it.kcal100g,
-                )
-            },
+            foods = items,
         )
     }.stateIn(viewModelScope, SharingStarted.Eagerly, AddFoodUiState())
 
@@ -51,6 +61,14 @@ class AddFoodViewModel(
 
     fun selectFood(foodId: Long) {
         selectedFoodId.value = if (selectedFoodId.value == foodId) null else foodId
+    }
+
+    fun openFoodDetails(foodId: Long) {
+        detailFoodId.value = foodId
+    }
+
+    fun closeFoodDetails() {
+        detailFoodId.value = null
     }
 
     fun addFood(mealType: String, foodId: Long, portion: FoodPortionItem? = null, onAdded: () -> Unit = {}) {
@@ -82,6 +100,7 @@ data class AddFoodUiState(
     val query: String = "",
     val foods: List<FoodSearchItem> = emptyList(),
     val selectedFoodId: Long? = null,
+    val detailFood: FoodSearchItem? = null,
     val portions: List<FoodPortionItem> = emptyList(),
 )
 
@@ -90,6 +109,13 @@ data class FoodSearchItem(
     val name: String,
     val serving: String,
     val kcal: Double,
+    val carbs: Double,
+    val protein: Double,
+    val fat: Double,
+    val fiber: Double,
+    val sugar: Double,
+    val sodiumMg: Double,
+    val source: String,
 )
 
 data class FoodPortionItem(

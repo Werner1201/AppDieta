@@ -31,6 +31,8 @@ fun DietTrackerApp(todayViewModel: TodayViewModel, addFoodViewModel: AddFoodView
                 state = addFoodState,
                 onQueryChange = addFoodViewModel::updateQuery,
                 onSelectFood = addFoodViewModel::selectFood,
+                onOpenFoodDetails = addFoodViewModel::openFoodDetails,
+                onCloseFoodDetails = addFoodViewModel::closeFoodDetails,
                 onAddFood = { food, portion -> addFoodViewModel.addFood(addMeal!!.key, food.id, portion) { addMeal = null } },
                 onClose = { addMeal = null },
             )
