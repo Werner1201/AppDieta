@@ -20,6 +20,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -48,6 +52,8 @@ fun TodayScreen(
     onRemoveEntry: (Long) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
+    var showRegisteredOnly by remember { mutableStateOf(false) }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -61,10 +67,43 @@ fun TodayScreen(
         SectionTitle(title = "Resumo", actionLabel = "Detalhes")
         SummaryCard(state)
         SectionTitle(title = "Alimentação", actionLabel = "Mais")
-        MealsCard(meals = state.meals, onAddMeal = onAddMeal)
+        FoodFilterTabs(
+            showRegisteredOnly = showRegisteredOnly,
+            onShowAll = { showRegisteredOnly = false },
+            onShowRegistered = { showRegisteredOnly = true },
+        )
+        if (!showRegisteredOnly) {
+            MealsCard(meals = state.meals, onAddMeal = onAddMeal)
+        }
         if (state.entries.isNotEmpty()) {
-            SectionTitle(title = "Registrados")
+            SectionTitle(title = if (showRegisteredOnly) "Registrados hoje" else "Registrados")
             EntriesCard(entries = state.entries, onRemoveEntry = onRemoveEntry)
+        } else if (showRegisteredOnly) {
+            EmptyEntriesCard()
+        }
+    }
+}
+
+@Composable
+private fun FoodFilterTabs(showRegisteredOnly: Boolean, onShowAll: () -> Unit, onShowRegistered: () -> Unit) {
+    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        FilterTab(text = "Todos", selected = !showRegisteredOnly, onClick = onShowAll, modifier = Modifier.weight(1f))
+        FilterTab(text = "Registrados", selected = showRegisteredOnly, onClick = onShowRegistered, modifier = Modifier.weight(1f))
+    }
+}
+
+@Composable
+private fun FilterTab(text: String, selected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    Surface(
+        modifier = modifier
+            .height(48.dp)
+            .clickable(onClick = onClick),
+        shape = AppShapes.Button,
+        color = if (selected) AppColors.Green else AppColors.Panel,
+        border = BorderStroke(2.dp, if (selected) AppColors.Accent else AppColors.Line),
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            Text(text = text, style = MaterialTheme.typography.labelLarge)
         }
     }
 }
@@ -284,6 +323,13 @@ private fun EntriesCard(entries: List<TodayEntrySummary>, onRemoveEntry: (Long) 
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun EmptyEntriesCard() {
+    AppCard {
+        Text(text = "Nenhum alimento registrado hoje.", style = MaterialTheme.typography.bodyLarge)
     }
 }
 

@@ -48,13 +48,11 @@ Ignore imagens untracked na raiz. Responda com APROVADO ou REPROVADO e achados o
 - Ciclo 20: remoção simples de alimento.
 - Ciclo 21: seleção de porção simples.
 - Ciclo 22: detalhe simples do alimento.
+- Ciclo 23: filtro de alimentos registrados.
 
 Ciclo em andamento:
-- Melhorar filtro de alimentos registrados.
-- Arquivo já alterado: `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayScreen.kt`.
-- Intenção: na tela Hoje, alternar entre `Todos` e `Registrados`, mantendo remoção de registros.
-- Já foi executado com sucesso: `.\gradlew.bat test assembleDebug`.
-- Falta registrar o Ciclo 23 no `MIGRATION_PLAN.md`, rodar QA, commitar e pushar.
+- Nenhum ciclo de código aberto após o Ciclo 23.
+- Próximo ciclo sugerido no `MIGRATION_PLAN.md`: revisar acentos no Android nativo.
 
 ## Estilo de implementação
 

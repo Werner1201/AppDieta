@@ -2524,3 +2524,87 @@ Nome:
 
 Instrução para o próximo ciclo:
 - Na tela Hoje, permitir alternar para ver apenas alimentos registrados do dia e remover por ali. Não mexer em importação, câmera ou código de barras ainda.
+
+## Ciclo 23
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Melhorar filtro de alimentos registrados.
+
+Motivo:
+- Facilitar ver e remover apenas alimentos já registrados no dia.
+
+Tela ou funcionalidade original analisada:
+- Tela Hoje.
+- Lista de alimentos registrados.
+
+Arquivos prováveis:
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayScreen.kt`.
+
+Critérios de aceite funcionais:
+- A tela Hoje permite alternar entre `Todos` e `Registrados`.
+- Em `Todos`, mantém refeições e registros.
+- Em `Registrados`, oculta refeições e mostra só registros do dia.
+- A remoção continua funcionando na lista de registrados.
+- Quando não há registros, mostra estado vazio.
+- `gradlew.bat test` passa.
+- `gradlew.bat assembleDebug` passa.
+
+Critérios de aceite visuais:
+- Controle simples, legível e consistente com o tema.
+- Não criar navegação nova.
+- Não mexer em importação, câmera ou código de barras.
+
+Riscos:
+- Esconder a ação de adicionar refeição. Mitigação: filtro inicia em `Todos`.
+
+Instrução objetiva para o Dev:
+- Implementar o filtro como estado local de UI em `TodayScreen`, reaproveitando a lista `Registrados` já existente.
+
+### 2. DEV
+
+Implementação feita:
+- Adicionado filtro local `Todos` / `Registrados` na tela Hoje.
+- Em `Registrados`, a tela oculta o card de refeições e mantém a lista removível de registros.
+- Adicionado estado vazio quando não há alimento registrado hoje.
+
+Arquivos alterados:
+- `MIGRATION_PLAN.md`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayScreen.kt`.
+
+Como preservou o app original:
+- Mantém a visualização padrão `Todos`.
+- Reaproveita `EntriesCard` e `onRemoveEntry`.
+
+Como testou:
+- Testes Android.
+- Build Android debug.
+
+Comando executado:
+- `gradlew.bat test assembleDebug`.
+
+Resultado:
+- `gradlew.bat test`: BUILD SUCCESSFUL.
+- `gradlew.bat assembleDebug`: BUILD SUCCESSFUL.
+
+Envia para QA.
+
+### 3. QA
+
+Validação feita:
+- Subagente QA validou alternância `Todos` / `Registrados`, preservação de refeições em `Todos`, ocultação de refeições em `Registrados`, remoção via `onRemoveEntry` e estado vazio.
+- Subagente QA confirmou ausência de mudança de lógica de dados, importação, câmera ou código de barras.
+- Validação local executou `gradlew.bat test assembleDebug` com BUILD SUCCESSFUL.
+- Imagens de referência continuam untracked na raiz e foram mantidas fora do ciclo.
+
+Decisão:
+- APROVADO
+
+### Próxima tarefa aberta pelo Arquiteto
+
+Nome:
+- Revisar acentos no Android nativo.
+
+Instrução para o próximo ciclo:
+- Corrigir textos com mojibake visível no código Android nativo, começando pelas telas já migradas. Não mexer em lógica de dados neste ciclo.
