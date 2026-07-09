@@ -3823,3 +3823,86 @@ Nome:
 
 Instrução para o próximo ciclo:
 - Criar tela de detalhe do alimento acessível a partir da busca: mostra macros por 100g, campo de quantidade/porção e botão Adicionar. Reaproveitar `AddFoodViewModel` e `FoodRepository` já existentes.
+
+---
+
+## Ciclo 38
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Tela de detalhe de alimento (`FoodDetailScreen`).
+
+Motivo:
+- Tocar no nome de um alimento na busca mostrava inline `FoodDetails` simples sem porções e sem botão Adicionar. Substituir por tela completa com macros e porções.
+
+Arquivos prováveis:
+- `feature/meal/FoodDetailScreen.kt` — novo
+- `feature/meal/AddFoodPlaceholderScreen.kt` — remover inline `FoodDetails`, adicionar branch `FoodDetailScreen`
+
+Critérios de aceite funcionais:
+- Tocar no nome do alimento → `FoodDetailScreen` full-screen.
+- Tela mostra: header × com nome do alimento, card nutricional por 100g (kcal, carbs, proteína, gordura, fibra, açúcares, sódio), card de porções disponíveis (se houver), botão "Adicionar porção padrão".
+- Tocar numa porção → adiciona e fecha detalhe + `AddFoodScreen`.
+- "Adicionar porção padrão" → adiciona com porção nula e fecha.
+- `gradlew.bat test` passa.
+- `gradlew.bat assembleDebug` passa.
+
+Critérios de aceite visuais:
+- Usa tokens/componentes existentes (`AppCard`, `BottomPrimaryButton`, `AppColors`).
+- Valores nutricionais destacados em `AppColors.Accent`.
+- Sem Material genérico fora do padrão.
+
+Riscos:
+- Após adicionar, ambas telas fecham. Mitigação: `onAddFood` em `FoodDetailScreen` encadeia `onCloseFoodDetails` + `onClose`.
+
+### 2. DEV
+
+Implementação feita:
+- Criado `FoodDetailScreen.kt` com `FoodDetailHeader`, `NutritionCard`, `PortionsCard` e `BottomPrimaryButton`.
+- `AddFoodScreen`: branch no início — se `state.detailFood != null`, renderiza `FoodDetailScreen` e retorna; caso contrário renderiza busca normal.
+- Inline `FoodDetails` e `NutritionRow` privados removidos de `AddFoodPlaceholderScreen.kt`.
+
+Arquivos alterados:
+- `MIGRATION_PLAN.md`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/meal/FoodDetailScreen.kt` (novo)
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/meal/AddFoodPlaceholderScreen.kt`
+
+Como testou:
+- `gradlew.bat test` — BUILD SUCCESSFUL (11 testes passando).
+- `gradlew.bat assembleDebug` — BUILD SUCCESSFUL.
+
+### 3. QA
+
+Validação feita:
+- `FoodDetailScreen` usa apenas `FoodSearchItem`, `FoodPortionItem` e componentes existentes — sem nova dependência. ✅
+- `AddFoodScreen` ramo `detailFood != null` exibe `FoodDetailScreen` full-screen. ✅
+- Adicionar via porção ou botão padrão encadeia `onCloseFoodDetails` + `onClose`. ✅
+- Inline `FoodDetails` removido sem deixar imports órfãos. ✅
+- Testes passam sem regressão. ✅
+
+Checklist funcional:
+- [x] `FoodDetailScreen` criado.
+- [x] Card nutricional por 100g.
+- [x] Card de porções (quando existirem).
+- [x] Botão "Adicionar porção padrão".
+- [x] Adicionar fecha detalhe e AddFoodScreen.
+- [x] `gradlew.bat test` passa.
+- [x] `gradlew.bat assembleDebug` passa.
+
+Checklist visual:
+- [x] Header com ×.
+- [x] Valores nutricionais em Accent.
+- [x] Porções clicáveis em lista.
+- [x] Botão fixo no rodapé.
+
+Decisão:
+- APROVADO
+
+### Próxima tarefa aberta pelo Arquiteto
+
+Nome:
+- Cadastro de alimento customizado.
+
+Instrução para o próximo ciclo:
+- Criar tela simples para cadastrar alimento personalizado com nome, kcal/100g, carbs, proteína e gordura. Usar `FoodRepository.add` já existente. Acessível de dentro do AddFoodScreen (botão "Criar alimento").

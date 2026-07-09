@@ -55,10 +55,11 @@ Ignore imagens untracked na raiz. Responda com APROVADO ou REPROVADO e achados o
 - Ciclo 35: edição persistida de metas via SharedPreferences.
 - Ciclo 36: metas por refeição proporcionais à meta calórica diária.
 - Ciclo 37: tela de detalhe de refeição (`MealDetailScreen`) com macros, lista de itens e Adicionar mais.
+- Ciclo 38: tela de detalhe de alimento (`FoodDetailScreen`) com macros por 100g, porções e botão Adicionar.
 
 Ciclo em andamento:
-- Nenhum ciclo aberto após o Ciclo 37.
-- Próximo ciclo sugerido: tela de detalhe de alimento (`FoodDetailScreen`) com macros por 100g, porção e botão Adicionar.
+- Nenhum ciclo aberto após o Ciclo 38.
+- Próximo ciclo sugerido: cadastro de alimento customizado acessível via AddFoodScreen.
 
 ## Estilo de implementação
 
