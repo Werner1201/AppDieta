@@ -26,6 +26,7 @@ fun DietTrackerApp(todayViewModel: TodayViewModel, addFoodViewModel: AddFoodView
                 onRemoveEntry = todayViewModel::removeEntry,
                 onAddWater = todayViewModel::addWater,
                 onRemoveLastWater = todayViewModel::removeLastWater,
+                onAddWeight = todayViewModel::addWeight,
             )
         } else {
             AddFoodScreen(

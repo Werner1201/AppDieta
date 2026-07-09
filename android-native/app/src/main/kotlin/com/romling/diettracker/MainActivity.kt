@@ -15,7 +15,7 @@ class MainActivity : ComponentActivity() {
         val container = (application as DietTrackerApplication).container
         val todayViewModel = ViewModelProvider(
             this,
-            TodayViewModelFactory(container.diaryRepository, container.waterRepository),
+            TodayViewModelFactory(container.diaryRepository, container.waterRepository, container.weightRepository),
         )[TodayViewModel::class.java]
         val addFoodViewModel = ViewModelProvider(
             this,

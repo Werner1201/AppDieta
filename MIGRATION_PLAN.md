@@ -2782,3 +2782,119 @@ Nome:
 
 Instrução para o próximo ciclo:
 - Portar o card de peso da tela Hoje usando `WeightEntryDao`, mostrando peso atual/alvo e registro simples. Não criar calendário, configurações ou gráficos ainda.
+
+## Ciclo 26
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Adicionar valores corporais iniciais.
+
+Motivo:
+- Portar o card de peso da tela Hoje original para o Android nativo.
+
+Tela ou funcionalidade original analisada:
+- `today.html`, seção `Valores corporais`.
+- `weight_entries` no banco local.
+
+Arquivos prováveis:
+- `android-native/app/src/main/kotlin/com/romling/diettracker/data/repository/WeightRepository.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/DietTrackerApplication.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/MainActivity.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/DietTrackerApp.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayViewModel.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayScreen.kt`.
+- `android-native/app/src/test/kotlin/com/romling/diettracker/feature/today/TodayViewModelTest.kt`.
+
+Critérios de aceite funcionais:
+- Ler o peso mais recente a partir de `WeightEntryDao`.
+- Mostrar peso atual e objetivo padrão de 80 kg.
+- Permitir ajustar o peso em passos de 0,1 kg.
+- Permitir registrar o peso do dia.
+- `gradlew.bat test` passa.
+- `gradlew.bat assembleDebug` passa.
+
+Critérios de aceite visuais:
+- Card simples e consistente com os cards escuros existentes.
+- Não criar tela separada.
+- Não criar gráficos, calendário, configurações ou importação.
+
+Riscos:
+- Aumentar escopo para histórico/gráfico. Mitigação: registrar apenas peso atual neste ciclo.
+
+Instrução objetiva para o Dev:
+- Reaproveitar `WeightEntryDao` e exibir/registrar peso na tela Hoje. Não criar histórico visual nem configurações.
+
+### 2. DEV
+
+Implementação feita:
+- Adicionado `WeightRepository` com listagem e inserção positiva.
+- `AppContainer`, `MainActivity` e `DietTrackerApp` passaram a injetar/conectar peso na tela Hoje.
+- `TodayViewModel` combina diário, água e peso, expondo `TodayWeightSummary`.
+- `TodayScreen` renderiza `Valores corporais` com peso atual, meta, ajuste por 0,1 kg e botão registrar.
+- Testes cobrem leitura do peso mais recente e inserção do registro para hoje.
+
+Arquivos alterados:
+- `MIGRATION_PLAN.md`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/data/repository/WeightRepository.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/DietTrackerApplication.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/MainActivity.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/DietTrackerApp.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayViewModel.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayScreen.kt`.
+- `android-native/app/src/test/kotlin/com/romling/diettracker/feature/today/TodayViewModelTest.kt`.
+
+Como preservou o app original:
+- Usa `weight_entries` já modelado no Room.
+- Mantém peso na tela Hoje.
+- Mantém meta fixa padrão de 80 kg neste ciclo.
+
+Como testou:
+- Testes Android.
+- Build Android debug.
+
+Comando executado:
+- `gradlew.bat test assembleDebug`.
+
+Resultado:
+- `gradlew.bat test`: BUILD SUCCESSFUL.
+- `gradlew.bat assembleDebug`: BUILD SUCCESSFUL.
+
+Envia para QA.
+
+### 3. QA
+
+Validação feita:
+- QA validou `WeightRepository` com listagem e inserção positiva via `WeightEntryDao`.
+- `TodayViewModel` lê o peso mais recente usando `weightEntries.firstOrNull()` com fallback para `defaultWeightKg`.
+- `TodayWeightSummary` expõe `currentKg` e `goalKg` (80 kg padrão).
+- `WeightCard` em `TodayScreen` exibe peso atual, meta, botões de ajuste ±0,1 kg e botão registrar.
+- Testes `stateUsesLatestWeightEntry` e `addWeightInsertsWeightForToday` cobrem leitura e inserção.
+- Nenhuma tela separada, gráfico, calendário, configurações ou importação foram adicionados.
+- Imagens de referência continuam untracked na raiz e foram mantidas fora do ciclo.
+
+Checklist funcional:
+- [x] `WeightRepository` criado com listagem e inserção positiva.
+- [x] `TodayViewModel` lê peso mais recente do `WeightEntryDao`.
+- [x] Peso atual e meta padrão de 80 kg exibidos.
+- [x] Ajuste por 0,1 kg implementado.
+- [x] Registro de peso funcional via `TodayViewModel.addWeight`.
+- [x] Testes cobrem leitura e inserção do peso.
+- [x] `gradlew.bat test` passa.
+- [x] `gradlew.bat assembleDebug` passa.
+
+Checklist visual:
+- [x] Card escuro e consistente com `AppCard`.
+- [x] Sem tela separada.
+- [x] Sem gráfico, calendário ou configurações.
+
+Decisão:
+- APROVADO
+
+### Próxima tarefa aberta pelo Arquiteto
+
+Nome:
+- Adicionar navegação inferior inicial.
+
+Instrução para o próximo ciclo:
+- Criar navegação inferior visual entre Diário, Jejum, Receitas, Perfil e Pro, mantendo Diário como única tela funcional por enquanto. Não criar telas completas novas ainda.

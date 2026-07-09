@@ -2,10 +2,13 @@ package com.romling.diettracker.feature.today
 
 import com.romling.diettracker.data.local.dao.DiaryEntryDao
 import com.romling.diettracker.data.local.dao.WaterEntryDao
+import com.romling.diettracker.data.local.dao.WeightEntryDao
 import com.romling.diettracker.data.local.entity.DiaryEntryEntity
 import com.romling.diettracker.data.local.entity.WaterEntryEntity
+import com.romling.diettracker.data.local.entity.WeightEntryEntity
 import com.romling.diettracker.data.repository.DiaryRepository
 import com.romling.diettracker.data.repository.WaterRepository
+import com.romling.diettracker.data.repository.WeightRepository
 import java.time.LocalDate
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -42,6 +45,7 @@ class TodayViewModelTest {
         val viewModel = TodayViewModel(
             diaryRepository = DiaryRepository(FakeDiaryEntryDao(listOf(entry(kcal = 1800.0, protein = 92.0)))),
             waterRepository = WaterRepository(FakeWaterEntryDao()),
+            weightRepository = WeightRepository(FakeWeightEntryDao()),
             dateProvider = { LocalDate.parse("2026-07-01") },
         )
 
@@ -63,6 +67,7 @@ class TodayViewModelTest {
         val viewModel = TodayViewModel(
             diaryRepository = DiaryRepository(dao),
             waterRepository = WaterRepository(FakeWaterEntryDao()),
+            weightRepository = WeightRepository(FakeWeightEntryDao()),
             dateProvider = { LocalDate.parse("2026-07-01") },
         )
 
@@ -82,6 +87,7 @@ class TodayViewModelTest {
         val viewModel = TodayViewModel(
             diaryRepository = DiaryRepository(dao),
             waterRepository = WaterRepository(FakeWaterEntryDao()),
+            weightRepository = WeightRepository(FakeWeightEntryDao()),
             dateProvider = { LocalDate.parse("2026-07-01") },
         )
 
@@ -97,6 +103,7 @@ class TodayViewModelTest {
         val viewModel = TodayViewModel(
             diaryRepository = DiaryRepository(FakeDiaryEntryDao(emptyList())),
             waterRepository = WaterRepository(waterDao),
+            weightRepository = WeightRepository(FakeWeightEntryDao()),
             dateProvider = { LocalDate.parse("2026-07-01") },
         )
 
@@ -112,6 +119,7 @@ class TodayViewModelTest {
         val viewModel = TodayViewModel(
             diaryRepository = DiaryRepository(FakeDiaryEntryDao(emptyList())),
             waterRepository = WaterRepository(waterDao),
+            weightRepository = WeightRepository(FakeWeightEntryDao()),
             dateProvider = { LocalDate.parse("2026-07-01") },
         )
 
@@ -120,6 +128,38 @@ class TodayViewModelTest {
 
         assertEquals(250, waterDao.entries.value.single().amountMl)
         assertEquals("2026-07-01", waterDao.entries.value.single().date)
+    }
+
+    @Test
+    fun stateUsesLatestWeightEntry() = runTest(dispatcher) {
+        val viewModel = TodayViewModel(
+            diaryRepository = DiaryRepository(FakeDiaryEntryDao(emptyList())),
+            waterRepository = WaterRepository(FakeWaterEntryDao()),
+            weightRepository = WeightRepository(FakeWeightEntryDao(listOf(weight(weightKg = 107.4)))),
+            dateProvider = { LocalDate.parse("2026-07-01") },
+        )
+
+        advanceUntilIdle()
+
+        assertEquals(107.4, viewModel.state.value.weight.currentKg)
+        assertEquals(80.0, viewModel.state.value.weight.goalKg)
+    }
+
+    @Test
+    fun addWeightInsertsWeightForToday() = runTest(dispatcher) {
+        val weightDao = FakeWeightEntryDao()
+        val viewModel = TodayViewModel(
+            diaryRepository = DiaryRepository(FakeDiaryEntryDao(emptyList())),
+            waterRepository = WaterRepository(FakeWaterEntryDao()),
+            weightRepository = WeightRepository(weightDao),
+            dateProvider = { LocalDate.parse("2026-07-01") },
+        )
+
+        viewModel.addWeight(107.8)
+        advanceUntilIdle()
+
+        assertEquals(107.8, weightDao.entries.value.single().weightKg)
+        assertEquals("2026-07-01", weightDao.entries.value.single().date)
     }
 }
 
@@ -142,6 +182,12 @@ private fun water(id: Long = 0, amountMl: Int) = WaterEntryEntity(
     id = id,
     date = "2026-07-01",
     amountMl = amountMl,
+)
+
+private fun weight(id: Long = 0, weightKg: Double) = WeightEntryEntity(
+    id = id,
+    date = "2026-07-01",
+    weightKg = weightKg,
 )
 
 private class FakeDiaryEntryDao(initialEntries: List<DiaryEntryEntity>) : DiaryEntryDao {
@@ -172,5 +218,16 @@ private class FakeWaterEntryDao(initialEntries: List<WaterEntryEntity> = emptyLi
     override suspend fun deleteLastForDate(date: String) {
         val last = entries.value.filter { it.date == date }.maxByOrNull { it.id } ?: return
         entries.value = entries.value.filterNot { it.id == last.id }
+    }
+}
+
+private class FakeWeightEntryDao(initialEntries: List<WeightEntryEntity> = emptyList()) : WeightEntryDao {
+    val entries = MutableStateFlow(initialEntries)
+
+    override fun entries(): Flow<List<WeightEntryEntity>> = entries
+
+    override suspend fun insert(entry: WeightEntryEntity): Long {
+        entries.value = listOf(entry.copy(id = entries.value.size + 1L)) + entries.value
+        return entries.value.first().id
     }
 }

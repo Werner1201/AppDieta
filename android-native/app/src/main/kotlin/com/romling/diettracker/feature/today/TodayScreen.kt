@@ -52,6 +52,7 @@ fun TodayScreen(
     onRemoveEntry: (Long) -> Unit = {},
     onAddWater: (Int) -> Unit = {},
     onRemoveLastWater: () -> Unit = {},
+    onAddWeight: (Double) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     var showRegisteredOnly by remember { mutableStateOf(false) }
@@ -86,6 +87,8 @@ fun TodayScreen(
         if (!showRegisteredOnly) {
             SectionTitle(title = "Monitor de água")
             WaterCard(water = state.water, onAddWater = onAddWater, onRemoveLastWater = onRemoveLastWater)
+            SectionTitle(title = "Valores corporais")
+            WeightCard(weight = state.weight, onAddWeight = onAddWeight)
         }
     }
 }
@@ -374,6 +377,51 @@ private fun WaterButton(text: String, onClick: () -> Unit, modifier: Modifier = 
     ) {
         Box(contentAlignment = Alignment.Center) {
             Text(text = text, style = MaterialTheme.typography.labelLarge)
+        }
+    }
+}
+
+@Composable
+private fun WeightCard(weight: TodayWeightSummary, onAddWeight: (Double) -> Unit) {
+    var draftKg by remember(weight.currentKg) { mutableStateOf(weight.currentKg) }
+
+    AppCard {
+        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text(text = "Peso", style = MaterialTheme.typography.titleLarge)
+            Text(text = "Objetivo: ${"%.1f".format(weight.goalKg)} kg", style = MaterialTheme.typography.bodyMedium)
+            Text(text = "${"%.1f".format(draftKg)} kg", style = MaterialTheme.typography.headlineLarge)
+            Row(horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                WeightButton(text = "−", onClick = { draftKg = maxOf(1.0, draftKg - 0.1) })
+                WeightButton(text = "+", onClick = { draftKg += 0.1 })
+            }
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .clickable { onAddWeight("%.1f".format(draftKg).replace(',', '.').toDouble()) },
+                shape = AppShapes.Button,
+                color = AppColors.TextPrimary,
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Text(text = "Registrar", color = AppColors.Background, style = MaterialTheme.typography.labelLarge)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun WeightButton(text: String, onClick: () -> Unit) {
+    Surface(
+        modifier = Modifier
+            .size(52.dp)
+            .clickable(onClick = onClick),
+        shape = CircleShape,
+        color = AppColors.Background,
+        border = BorderStroke(2.dp, AppColors.TextPrimary),
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            Text(text = text, style = MaterialTheme.typography.headlineMedium)
         }
     }
 }
