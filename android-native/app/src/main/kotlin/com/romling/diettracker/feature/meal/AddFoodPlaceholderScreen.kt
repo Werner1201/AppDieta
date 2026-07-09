@@ -10,7 +10,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,8 +28,10 @@ import com.romling.diettracker.core.ui.theme.AppSpacing
 import com.romling.diettracker.feature.today.TodayMealSummary
 
 @Composable
-fun AddFoodPlaceholderScreen(
+fun AddFoodScreen(
     meal: TodayMealSummary,
+    state: AddFoodUiState,
+    onQueryChange: (String) -> Unit,
     onClose: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -33,6 +39,7 @@ fun AddFoodPlaceholderScreen(
         modifier = modifier
             .fillMaxSize()
             .background(AppColors.Background)
+            .verticalScroll(rememberScrollState())
             .padding(horizontal = AppSpacing.ScreenHorizontal, vertical = 34.dp),
         verticalArrangement = Arrangement.spacedBy(26.dp),
     ) {
@@ -55,36 +62,52 @@ fun AddFoodPlaceholderScreen(
             )
         }
         AppCard {
-            Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-                AddModeTile(icon = "🔍", label = "Pesquisar", selected = true, modifier = Modifier.weight(1f))
-                AddModeTile(icon = "📷", label = "Câmera", modifier = Modifier.weight(1f))
-                AddModeTile(icon = "▥", label = "Código", modifier = Modifier.weight(1f))
-            }
-            Text(
-                text = "Adicionar alimento",
-                style = MaterialTheme.typography.titleLarge,
+            OutlinedTextField(
+                value = state.query,
+                onValueChange = onQueryChange,
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                placeholder = { Text("O que você comeu?") },
+                textStyle = MaterialTheme.typography.bodyLarge,
             )
+            FoodsCard(state.foods)
         }
     }
 }
 
 @Composable
-private fun AddModeTile(
-    icon: String,
-    label: String,
-    selected: Boolean = false,
-    modifier: Modifier = Modifier,
-) {
-    Surface(
-        modifier = modifier.height(104.dp),
-        shape = com.romling.diettracker.core.ui.theme.AppShapes.Card,
-        color = if (selected) AppColors.Green else AppColors.Panel,
-        border = androidx.compose.foundation.BorderStroke(3.dp, if (selected) AppColors.Accent else AppColors.Line),
+private fun FoodsCard(foods: List<FoodSearchItem>) {
+    Column {
+        foods.take(20).forEachIndexed { index, food ->
+            FoodRow(food)
+            if (index < foods.take(20).lastIndex) {
+                HorizontalDivider(color = AppColors.Line, thickness = 1.dp)
+            }
+        }
+    }
+}
+
+@Composable
+private fun FoodRow(food: FoodSearchItem) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(76.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        Box(contentAlignment = Alignment.Center) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(text = icon, style = MaterialTheme.typography.headlineMedium)
-                Text(text = label, style = MaterialTheme.typography.bodyMedium)
+        Column(modifier = Modifier.weight(1f)) {
+            Text(text = food.name, style = MaterialTheme.typography.titleLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(text = food.serving, style = MaterialTheme.typography.bodyMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        }
+        Text(text = "${food.kcal.toInt()} kcal", style = MaterialTheme.typography.bodyLarge)
+        Surface(
+            shape = androidx.compose.foundation.shape.CircleShape,
+            color = AppColors.Background,
+            border = androidx.compose.foundation.BorderStroke(2.dp, AppColors.Accent),
+        ) {
+            Box(modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp), contentAlignment = Alignment.Center) {
+                Text(text = "+", color = AppColors.Accent, style = MaterialTheme.typography.titleLarge)
             }
         }
     }

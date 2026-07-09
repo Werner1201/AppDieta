@@ -1983,3 +1983,98 @@ Nome:
 
 Instrução para o próximo ciclo:
 - Implementar somente campo de busca e lista simples de alimentos na tela de adicionar alimento, usando `FoodRepository`. Não adicionar câmera, código de barras, digitar manual ou salvar no diário ainda.
+
+## Ciclo 17
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Implementar busca simples de alimentos.
+
+Motivo:
+- Começar o fluxo de adicionar alimento pela busca/lista, sem ainda salvar registros no diário.
+
+Tela ou funcionalidade original analisada:
+- Tela de adicionar alimento.
+- Busca por alimentos.
+
+Arquivos prováveis:
+- `android-native/app/src/main/kotlin/com/romling/diettracker/MainActivity.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/DietTrackerApp.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/meal/AddFoodPlaceholderScreen.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/meal/AddFoodViewModel.kt`.
+- `android-native/app/src/test/kotlin/com/romling/diettracker/feature/meal/AddFoodViewModelTest.kt`.
+
+Critérios de aceite funcionais:
+- Criar estado/ViewModel mínimo de busca usando `FoodRepository`.
+- Campo de busca atualiza a consulta.
+- Lista mostra alimentos retornados pelo repositório.
+- Cada item mostra nome, porção e kcal.
+- Não salvar no diário ainda.
+- `gradlew.bat test` passa.
+- `gradlew.bat assembleDebug` passa.
+
+Critérios de aceite visuais:
+- Manter tema escuro e card do app.
+- Não adicionar câmera, código de barras, digitar manual, scanner ou navegação nova.
+
+Riscos:
+- Transformar busca em fluxo completo de adicionar alimento. Mitigação: itens têm `+` visual sem persistência.
+
+Instrução objetiva para o Dev:
+- Implementar apenas busca/lista simples. Não criar salvamento, seleção final, porções, câmera, código de barras ou cadastro manual.
+
+### 2. DEV
+
+Implementação feita:
+- Criado `AddFoodViewModel` com `query`, `AddFoodUiState` e lista de `FoodSearchItem`.
+- `MainActivity` cria `AddFoodViewModel` usando `FoodRepository` do container manual.
+- `DietTrackerApp` passa estado e callback de busca para `AddFoodScreen`.
+- `AddFoodScreen` renderiza campo de busca e lista simples de alimentos.
+- Removidos tiles visuais de câmera/código para manter o ciclo restrito à busca.
+- Criado teste unitário da ViewModel de busca.
+
+Arquivos alterados:
+- `MIGRATION_PLAN.md`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/MainActivity.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/DietTrackerApp.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/meal/AddFoodPlaceholderScreen.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/meal/AddFoodViewModel.kt`.
+- `android-native/app/src/test/kotlin/com/romling/diettracker/feature/meal/AddFoodViewModelTest.kt`.
+
+Como preservou o app original:
+- A busca usa o catálogo local já migrado e mantém a tela sem salvar dados ainda.
+
+Como testou:
+- Testes Android.
+- Build Android debug.
+- Revisão estática de escopo.
+
+Comando executado:
+- `gradlew.bat test`.
+- `gradlew.bat assembleDebug`.
+- Busca por `insert(`, `addFood(`, `DiaryRepository`, `Camera`, `Barcode`, `NavHost`, `rememberNavController`, `navigation-compose`, `LazyColumn` nos arquivos do ciclo.
+
+Resultado:
+- `gradlew.bat test`: BUILD SUCCESSFUL.
+- `gradlew.bat assembleDebug`: BUILD SUCCESSFUL.
+- Busca de escopo: apenas `insert` nos fakes de teste.
+
+Envia para QA.
+
+### 3. QA
+
+Validação feita:
+- Subagente QA validou busca simples com `FoodRepository`, wiring da ViewModel, campo/lista e ausência de salvamento/porções/câmera/código/navegação real.
+- Imagens de referência continuam untracked na raiz e foram mantidas fora do ciclo.
+
+Decisão:
+- APROVADO
+
+### Próxima tarefa aberta pelo Arquiteto
+
+Nome:
+- Adicionar alimento ao diário.
+
+Instrução para o próximo ciclo:
+- Permitir tocar no `+` de um alimento para registrar a porção padrão no diário usando `DiaryRepository.addFood`. Não implementar seleção de porção customizada ainda.
