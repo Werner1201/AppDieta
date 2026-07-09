@@ -11,6 +11,7 @@ import com.romling.diettracker.data.local.entity.DailyCommitmentEntity
 import com.romling.diettracker.data.local.entity.DiaryEntryEntity
 import com.romling.diettracker.data.local.entity.FoodEntity
 import com.romling.diettracker.data.local.entity.FoodPortionEntity
+import com.romling.diettracker.data.local.entity.RecipeEntity
 import com.romling.diettracker.data.local.entity.WaterEntryEntity
 import com.romling.diettracker.data.local.entity.WeightEntryEntity
 import kotlinx.coroutines.flow.Flow
@@ -120,6 +121,18 @@ interface DailyCommitmentDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(entry: DailyCommitmentEntity)
+}
+
+@Dao
+interface RecipeDao {
+    @Query("SELECT * FROM recipes ORDER BY name")
+    fun allRecipes(): Flow<List<RecipeEntity>>
+
+    @Insert
+    suspend fun insert(recipe: RecipeEntity): Long
+
+    @Query("DELETE FROM recipes WHERE id = :id")
+    suspend fun deleteById(id: Long)
 }
 
 @Dao

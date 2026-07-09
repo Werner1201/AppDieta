@@ -33,6 +33,8 @@ import com.romling.diettracker.feature.meal.AddFoodViewModel
 import com.romling.diettracker.feature.chatgpt.ChatGptImportScreen
 import com.romling.diettracker.feature.chatgpt.ChatGptImportViewModel
 import com.romling.diettracker.feature.meal.CustomFoodsScreen
+import com.romling.diettracker.feature.recipes.RecipesScreen
+import com.romling.diettracker.feature.recipes.RecipesViewModel
 import com.romling.diettracker.feature.meal.MealDetailScreen
 import com.romling.diettracker.feature.settings.SettingsScreen
 import com.romling.diettracker.feature.today.CalendarScreen
@@ -51,13 +53,19 @@ private enum class AppTab(val label: String, val icon: String) {
 }
 
 @Composable
-fun DietTrackerApp(todayViewModel: TodayViewModel, addFoodViewModel: AddFoodViewModel, chatGptImportViewModel: ChatGptImportViewModel) {
+fun DietTrackerApp(
+    todayViewModel: TodayViewModel,
+    addFoodViewModel: AddFoodViewModel,
+    chatGptImportViewModel: ChatGptImportViewModel,
+    recipesViewModel: RecipesViewModel,
+) {
     val state by todayViewModel.state.collectAsState()
     val currentDate by todayViewModel.currentDate.collectAsState()
     val calendarGreenDays by todayViewModel.calendarGreenDays.collectAsState()
     val addFoodState by addFoodViewModel.state.collectAsState()
     val customFoods by addFoodViewModel.customFoods.collectAsState()
     val importState by chatGptImportViewModel.state.collectAsState()
+    val recipes by recipesViewModel.recipes.collectAsState()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var addMeal by remember { mutableStateOf<TodayMealSummary?>(null) }
@@ -161,6 +169,11 @@ fun DietTrackerApp(todayViewModel: TodayViewModel, addFoodViewModel: AddFoodView
                                     context.startActivity(Intent.createChooser(intent, "Compartilhar diário"))
                                 }
                             },
+                        )
+                        AppTab.RECIPES -> RecipesScreen(
+                            recipes = recipes,
+                            onCreate = recipesViewModel::create,
+                            onDelete = recipesViewModel::delete,
                         )
                         else -> TabPlaceholder(selectedTab)
                     }

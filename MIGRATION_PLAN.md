@@ -4481,6 +4481,51 @@ Checklist funcional:
 Decisão:
 - APROVADO
 
+## Ciclo 47
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Tela Receitas — lista e cadastro de receitas simples (nome + descrição).
+
+Motivo:
+- Tab "Receitas" existe no nav bar mas mostrava placeholder "Em breve". Ciclo mínimo sem ingredientes rastreados.
+
+Critérios de aceite:
+- Tab Receitas exibe lista de receitas. Botão "Nova" abre AlertDialog com nome + descrição.
+- Receita criada aparece na lista, pode ser deletada. Estado vazio "Nenhuma receita ainda."
+- Migration MIGRATION_1_2 preserva dados existentes.
+- `gradlew.bat test` passa. `gradlew.bat assembleDebug` passa.
+
+### 2. DEV
+
+Arquivos criados/alterados:
+- `data/local/entity/RecipeEntity.kt` (NOVO)
+- `data/local/dao/Daos.kt` (RecipeDao adicionado)
+- `data/local/AppDatabase.kt` (versão 2 + MIGRATION_1_2)
+- `DietTrackerApplication.kt` (addMigrations + recipeRepository)
+- `data/repository/RecipeRepository.kt` (NOVO)
+- `feature/recipes/RecipesViewModel.kt` (NOVO)
+- `feature/recipes/RecipesScreen.kt` (NOVO)
+- `DietTrackerApp.kt` (4º param + AppTab.RECIPES)
+- `MainActivity.kt` (RecipesViewModel instanciado)
+
+Como testou:
+- `gradlew.bat test` — BUILD SUCCESSFUL.
+- `gradlew.bat assembleDebug` — BUILD SUCCESSFUL.
+
+### 3. QA
+
+Checklist funcional:
+- [x] RecipeEntity, RecipeDao, AppDatabase v2, MIGRATION_1_2.
+- [x] RecipeRepository, RecipesViewModel, RecipesScreen completos.
+- [x] DietTrackerApp e MainActivity atualizados.
+- [x] `gradlew.bat test` passa.
+- [x] `gradlew.bat assembleDebug` passa.
+
+Decisão:
+- APROVADO
+
 ## Ciclo 45
 
 ### 1. ARQUITETO
@@ -4524,3 +4569,4 @@ Checklist funcional:
 
 Decisão:
 - APROVADO
+

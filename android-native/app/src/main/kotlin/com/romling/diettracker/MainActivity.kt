@@ -8,6 +8,8 @@ import com.romling.diettracker.feature.chatgpt.ChatGptImportViewModel
 import com.romling.diettracker.feature.chatgpt.ChatGptImportViewModelFactory
 import com.romling.diettracker.feature.meal.AddFoodViewModel
 import com.romling.diettracker.feature.meal.AddFoodViewModelFactory
+import com.romling.diettracker.feature.recipes.RecipesViewModel
+import com.romling.diettracker.feature.recipes.RecipesViewModelFactory
 import com.romling.diettracker.feature.today.TodayViewModel
 import com.romling.diettracker.feature.today.TodayViewModelFactory
 
@@ -32,6 +34,10 @@ class MainActivity : ComponentActivity() {
             this,
             ChatGptImportViewModelFactory(container.diaryRepository),
         )[ChatGptImportViewModel::class.java]
-        setContent { DietTrackerApp(todayViewModel, addFoodViewModel, chatGptImportViewModel) }
+        val recipesViewModel = ViewModelProvider(
+            this,
+            RecipesViewModelFactory(container.recipeRepository),
+        )[RecipesViewModel::class.java]
+        setContent { DietTrackerApp(todayViewModel, addFoodViewModel, chatGptImportViewModel, recipesViewModel) }
     }
 }
