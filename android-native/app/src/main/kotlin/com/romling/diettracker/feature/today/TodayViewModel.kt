@@ -12,10 +12,11 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 class TodayViewModel(
-    diaryRepository: DiaryRepository,
+    private val diaryRepository: DiaryRepository,
     private val greenDayService: GreenDayService = GreenDayService(),
     dateProvider: () -> LocalDate = { LocalDate.now() },
     private val dailyKcal: Double = 2333.0,
@@ -37,6 +38,14 @@ class TodayViewModel(
         )
         return emptyState().copy(
             totals = totals,
+            entries = map {
+                TodayEntrySummary(
+                    id = it.id,
+                    mealType = it.mealType,
+                    name = it.foodNameSnapshot,
+                    kcal = it.kcal,
+                )
+            },
             meals = defaultMeals().map { meal ->
                 val mealEntries = filter { it.mealType == meal.key }
                 meal.copy(
@@ -47,6 +56,12 @@ class TodayViewModel(
             remainingKcal = maxOf(0, (dailyKcal - totals.kcal).roundToInt()),
             isGreenDay = greenDayService.isGreenDay(this, dailyKcal, dailyProtein),
         )
+    }
+
+    fun removeEntry(entryId: Long) {
+        viewModelScope.launch {
+            diaryRepository.deleteById(entryId)
+        }
     }
 
     private fun emptyState() = TodayUiState(
@@ -73,9 +88,17 @@ data class TodayUiState(
     val dailyKcal: Double,
     val dailyProtein: Double,
     val totals: TodayNutritionTotals = TodayNutritionTotals(),
+    val entries: List<TodayEntrySummary> = emptyList(),
     val meals: List<TodayMealSummary> = defaultMeals(),
     val remainingKcal: Int,
     val isGreenDay: Boolean = false,
+)
+
+data class TodayEntrySummary(
+    val id: Long,
+    val mealType: String,
+    val name: String,
+    val kcal: Double,
 )
 
 data class TodayNutritionTotals(

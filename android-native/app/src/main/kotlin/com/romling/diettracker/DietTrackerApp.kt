@@ -20,7 +20,11 @@ fun DietTrackerApp(todayViewModel: TodayViewModel, addFoodViewModel: AddFoodView
     var addMeal by remember { mutableStateOf<TodayMealSummary?>(null) }
     DietTrackerTheme {
         if (addMeal == null) {
-            TodayScreen(state = state, onAddMeal = { addMeal = it })
+            TodayScreen(
+                state = state,
+                onAddMeal = { addMeal = it },
+                onRemoveEntry = todayViewModel::removeEntry,
+            )
         } else {
             AddFoodScreen(
                 meal = addMeal!!,

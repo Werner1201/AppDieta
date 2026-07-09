@@ -49,6 +49,7 @@ class TodayViewModelTest {
         assertEquals(533, viewModel.state.value.remainingKcal)
         assertTrue(viewModel.state.value.isGreenDay)
         assertEquals(4, viewModel.state.value.meals.size)
+        assertEquals("Peito de frango", viewModel.state.value.entries.single().name)
         assertEquals(1800.0, viewModel.state.value.meals.single { it.key == "lunch" }.kcal)
     }
 
@@ -69,9 +70,24 @@ class TodayViewModelTest {
         assertEquals(237.0, viewModel.state.value.totals.kcal)
         assertEquals(237.0, viewModel.state.value.meals.single { it.key == "lunch" }.kcal)
     }
+
+    @Test
+    fun removeEntryDeletesById() = runTest(dispatcher) {
+        val dao = FakeDiaryEntryDao(listOf(entry(id = 10, kcal = 237.0, protein = 12.4)))
+        val viewModel = TodayViewModel(
+            diaryRepository = DiaryRepository(dao),
+            dateProvider = { LocalDate.parse("2026-07-01") },
+        )
+
+        viewModel.removeEntry(10)
+        advanceUntilIdle()
+
+        assertEquals(emptyList(), dao.entries.value)
+    }
 }
 
-private fun entry(kcal: Double, protein: Double) = DiaryEntryEntity(
+private fun entry(id: Long = 0, kcal: Double, protein: Double) = DiaryEntryEntity(
+    id = id,
     date = "2026-07-01",
     mealType = "lunch",
     foodId = 1,
@@ -94,5 +110,7 @@ private class FakeDiaryEntryDao(initialEntries: List<DiaryEntryEntity>) : DiaryE
 
     override suspend fun insert(entry: DiaryEntryEntity): Long = error("Not used")
     override suspend fun delete(entry: DiaryEntryEntity) = Unit
-    override suspend fun deleteById(entryId: Long) = Unit
+    override suspend fun deleteById(entryId: Long) {
+        entries.value = entries.value.filterNot { it.id == entryId }
+    }
 }

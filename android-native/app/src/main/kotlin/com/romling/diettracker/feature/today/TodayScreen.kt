@@ -45,6 +45,7 @@ import com.romling.diettracker.core.ui.theme.DietTrackerTheme
 fun TodayScreen(
     state: TodayUiState,
     onAddMeal: (TodayMealSummary) -> Unit = {},
+    onRemoveEntry: (Long) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -61,6 +62,10 @@ fun TodayScreen(
         SummaryCard(state)
         SectionTitle(title = "Alimentação", actionLabel = "Mais")
         MealsCard(meals = state.meals, onAddMeal = onAddMeal)
+        if (state.entries.isNotEmpty()) {
+            SectionTitle(title = "Registrados")
+            EntriesCard(entries = state.entries, onRemoveEntry = onRemoveEntry)
+        }
     }
 }
 
@@ -263,6 +268,46 @@ private fun MealRow(meal: TodayMealSummary, onAddMeal: (TodayMealSummary) -> Uni
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Text(text = "+", color = AppColors.Background, style = MaterialTheme.typography.headlineMedium)
+            }
+        }
+    }
+}
+
+@Composable
+private fun EntriesCard(entries: List<TodayEntrySummary>, onRemoveEntry: (Long) -> Unit) {
+    AppCard(contentPadding = PaddingValues(horizontal = 22.dp, vertical = 0.dp)) {
+        Column {
+            entries.forEachIndexed { index, entry ->
+                EntryRow(entry = entry, onRemoveEntry = onRemoveEntry)
+                if (index < entries.lastIndex) {
+                    HorizontalDivider(color = AppColors.Line, thickness = 1.dp)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun EntryRow(entry: TodayEntrySummary, onRemoveEntry: (Long) -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(72.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(14.dp),
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(text = entry.name, style = MaterialTheme.typography.titleLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(text = "${entry.kcal.toInt()} kcal", style = MaterialTheme.typography.bodyMedium)
+        }
+        Surface(
+            modifier = Modifier.clickable { onRemoveEntry(entry.id) },
+            shape = CircleShape,
+            color = AppColors.Background,
+            border = BorderStroke(2.dp, AppColors.Remove),
+        ) {
+            Box(modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp), contentAlignment = Alignment.Center) {
+                Text(text = "−", color = AppColors.Remove, style = MaterialTheme.typography.titleLarge)
             }
         }
     }

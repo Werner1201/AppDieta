@@ -2251,3 +2251,93 @@ Nome:
 
 Instrução para o próximo ciclo:
 - Permitir remover uma entrada alimentar registrada a partir de uma lista simples na tela Hoje ou em uma tela mínima, usando `DiaryRepository.deleteById`. Não criar edição de porção ainda.
+
+## Ciclo 20
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Adicionar remoção simples de alimento.
+
+Motivo:
+- Permitir desfazer um registro alimentar sem voltar ao app web.
+
+Tela ou funcionalidade original analisada:
+- Tela Hoje.
+- Registros alimentares do dia.
+
+Arquivos prováveis:
+- `android-native/app/src/main/kotlin/com/romling/diettracker/DietTrackerApp.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayScreen.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayViewModel.kt`.
+- `android-native/app/src/test/kotlin/com/romling/diettracker/feature/today/TodayViewModelTest.kt`.
+
+Critérios de aceite funcionais:
+- `TodayUiState` expõe entradas registradas do dia.
+- A tela Hoje mostra uma lista simples de registros quando houver itens.
+- Cada registro permite remover usando `DiaryRepository.deleteById`.
+- `gradlew.bat test` passa.
+- `gradlew.bat assembleDebug` passa.
+
+Critérios de aceite visuais:
+- Lista simples e legível.
+- Não criar tela nova.
+- Não criar edição de porção neste ciclo.
+
+Riscos:
+- Remover item errado. Mitigação: ação usa o `id` persistido da entrada.
+
+Instrução objetiva para o Dev:
+- Adicionar apenas remoção simples de registro alimentar. Não implementar edição, porção customizada, detalhes, câmera ou código de barras.
+
+### 2. DEV
+
+Implementação feita:
+- `TodayUiState` passou a carregar resumos das entradas registradas.
+- `TodayViewModel.removeEntry` chama `DiaryRepository.deleteById`.
+- `TodayScreen` exibe seção `Registrados` com botão simples de remover.
+- `DietTrackerApp` conecta a ação da tela ao ViewModel.
+- Teste cobre remoção pelo id.
+
+Arquivos alterados:
+- `MIGRATION_PLAN.md`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/DietTrackerApp.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayScreen.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayViewModel.kt`.
+- `android-native/app/src/test/kotlin/com/romling/diettracker/feature/today/TodayViewModelTest.kt`.
+
+Como preservou o app original:
+- Usa a API de remoção já prevista no repositório.
+- Mantém a UI no fluxo Hoje, sem adicionar navegação nova.
+
+Como testou:
+- Testes Android.
+- Build Android debug.
+
+Comando executado:
+- `gradlew.bat test`.
+- `gradlew.bat assembleDebug`.
+
+Resultado:
+- `gradlew.bat test`: BUILD SUCCESSFUL.
+- `gradlew.bat assembleDebug`: BUILD SUCCESSFUL.
+
+Envia para QA.
+
+### 3. QA
+
+Validação feita:
+- Subagente QA validou exposição de entradas no estado, lista `Registrados`, conexão com `TodayViewModel.removeEntry`, chamada a `DiaryRepository.deleteById` e teste de remoção.
+- Subagente QA executou `:app:testDebugUnitTest --tests com.romling.diettracker.feature.today.TodayViewModelTest` com BUILD SUCCESSFUL.
+- Imagens de referência continuam untracked na raiz e foram mantidas fora do ciclo.
+
+Decisão:
+- APROVADO
+
+### Próxima tarefa aberta pelo Arquiteto
+
+Nome:
+- Adicionar seleção de porção simples.
+
+Instrução para o próximo ciclo:
+- Permitir escolher uma porção cadastrada antes de salvar alimento, reaproveitando os dados já existentes. Não criar porção customizada, importação, câmera ou código de barras ainda.
