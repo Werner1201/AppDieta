@@ -229,9 +229,9 @@ private fun SummaryCard(state: TodayUiState) {
                     .padding(horizontal = 22.dp, vertical = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(22.dp),
             ) {
-                MacroMetric("Carbs", state.totals.carbs, 284.0, Modifier.weight(1f))
-                MacroMetric("Proteína", state.totals.protein, 114.0, Modifier.weight(1f))
-                MacroMetric("Gordura", state.totals.fat, 75.0, Modifier.weight(1f))
+                MacroMetric("Carbs", state.totals.carbs, state.dailyCarbs, Modifier.weight(1f))
+                MacroMetric("Proteína", state.totals.protein, state.dailyProtein, Modifier.weight(1f))
+                MacroMetric("Gordura", state.totals.fat, state.dailyFat, Modifier.weight(1f))
             }
             Box(
                 modifier = Modifier
@@ -309,7 +309,7 @@ private fun MacroMetric(label: String, value: Double, goal: Double, modifier: Mo
             textAlign = TextAlign.Center,
             maxLines = 1,
         )
-        MacroProgressBar(progress = (value / goal).toFloat())
+        MacroProgressBar(progress = if (goal <= 0.0) 0f else (value / goal).toFloat())
         Text(
             text = "${value.toInt()}/${goal.toInt()}g",
             modifier = Modifier.fillMaxWidth(),

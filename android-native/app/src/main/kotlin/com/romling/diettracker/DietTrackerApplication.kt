@@ -7,6 +7,7 @@ import com.romling.diettracker.data.local.AppDatabase
 import com.romling.diettracker.data.local.seed.FoodSeedLoader
 import com.romling.diettracker.data.repository.DiaryRepository
 import com.romling.diettracker.data.repository.FoodRepository
+import com.romling.diettracker.data.repository.SettingsRepository
 import com.romling.diettracker.data.repository.WaterRepository
 import com.romling.diettracker.data.repository.WeightRepository
 import kotlinx.coroutines.CoroutineScope
@@ -50,6 +51,9 @@ class AppContainer(private val context: Context) {
     }
     val weightRepository: WeightRepository by lazy {
         WeightRepository(database.weightEntryDao())
+    }
+    val settingsRepository: SettingsRepository by lazy {
+        SettingsRepository(context.getSharedPreferences("diet_tracker_settings", Context.MODE_PRIVATE))
     }
 
     fun seedFoods() {

@@ -93,7 +93,7 @@ fun DietTrackerApp(todayViewModel: TodayViewModel, addFoodViewModel: AddFoodView
                             onOpenCalendar = { showCalendar = true },
                             onOpenStreak = { showStreak = true },
                         )
-                        AppTab.PROFILE -> SettingsScreen(state = state)
+                        AppTab.PROFILE -> SettingsScreen(state = state, onSaveGoals = todayViewModel::saveGoals)
                         else -> TabPlaceholder(selectedTab)
                     }
                 }

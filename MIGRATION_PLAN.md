@@ -3344,6 +3344,7 @@ Arquivos prováveis:
 - `android-native/app/src/main/kotlin/com/romling/diettracker/domain/service/StreakService.kt`
 - `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayViewModel.kt`
 - `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayScreen.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayScreen.kt`
 - `android-native/app/src/test/kotlin/com/romling/diettracker/domain/service/StreakServiceTest.kt`
 - `android-native/app/src/test/kotlin/com/romling/diettracker/feature/today/TodayViewModelTest.kt`
 
@@ -3558,3 +3559,89 @@ Nome:
 
 Instrução para o próximo ciclo:
 - Verificar se DataStore deve ser adicionado agora. Se sim, implementar persistência mínima para metas; se não, manter tela readonly e escolher próxima funcionalidade de maior valor.
+
+---
+
+## Ciclo 35
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Edição persistida de metas.
+
+Motivo:
+- Permitir que as metas exibidas em Perfil sejam ajustadas e usadas pela tela Hoje.
+
+Arquivos prováveis:
+- `android-native/app/src/main/kotlin/com/romling/diettracker/data/repository/SettingsRepository.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/settings/SettingsScreen.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayViewModel.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/DietTrackerApplication.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/MainActivity.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/DietTrackerApp.kt`
+
+Critérios de aceite funcionais:
+- Perfil mostra campos editáveis para calorias, carboidratos, proteína, gordura, água e peso alvo.
+- Botão salvar persiste metas localmente.
+- Tela Hoje passa a usar as metas salvas para calorias restantes, proteína/dia verde, água e peso alvo.
+- Não adicionar DataStore neste ciclo se a persistência mínima puder ser feita com API nativa.
+- `gradlew.bat test` passa.
+- `gradlew.bat assembleDebug` passa.
+
+Critérios de aceite visuais:
+- Manter tela simples dentro do card escuro existente.
+- Não criar navegação nova.
+
+Riscos:
+- Persistir metas sem refletir no estado do diário. Mitigação: `TodayViewModel` observa o fluxo de configurações.
+- Adicionar dependência desnecessária. Mitigação: usar `SharedPreferences` encapsulado por repositório.
+
+Instrução objetiva para o Dev:
+- Implementar persistência mínima de metas e conectar no estado do diário. Não criar tela avançada de perfil.
+
+### 2. DEV
+
+Implementação feita:
+- Criado `SettingsRepository` com `GoalSettings` e persistência via `SharedPreferences`.
+- `AppContainer` expõe `settingsRepository`.
+- `TodayViewModel` observa metas salvas e recalcula calorias restantes, dia verde, água e peso alvo.
+- `TodayScreen` usa as metas salvas para carboidratos, proteína e gordura no resumo.
+- `SettingsScreen` virou formulário simples com botão `Salvar metas`.
+- `DietTrackerApp` conecta Perfil ao salvamento no `TodayViewModel`.
+
+Arquivos alterados:
+- `MIGRATION_PLAN.md`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/data/repository/SettingsRepository.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/settings/SettingsScreen.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayViewModel.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayScreen.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/DietTrackerApplication.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/MainActivity.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/DietTrackerApp.kt`
+
+Como testou:
+- `gradlew.bat test assembleDebug`.
+
+Resultado:
+- BUILD SUCCESSFUL.
+
+Envia para QA.
+
+### 3. QA
+
+Validação feita:
+- Subagente QA validou Perfil abrindo `SettingsScreen` editável, salvamento via `TodayViewModel.saveGoals`, persistência por `SettingsRepository`/`SharedPreferences` e uso das metas no estado Hoje.
+- Subagente QA confirmou que DataStore não foi adicionado.
+- `gradlew.bat test assembleDebug` executado novamente com BUILD SUCCESSFUL.
+- `.claude/` e imagens de referência continuam untracked e foram mantidos fora do ciclo.
+
+Decisão:
+- APROVADO
+
+### Próxima tarefa aberta pelo Arquiteto
+
+Nome:
+- Refinar metas por refeição.
+
+Instrução para o próximo ciclo:
+- Fazer as metas de cada refeição seguirem a meta calórica diária ou permitir configuração explícita por refeição, mantendo o app simples.
