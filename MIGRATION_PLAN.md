@@ -1719,3 +1719,91 @@ Nome:
 
 Instrução para o próximo ciclo:
 - Ligar a tela Hoje à `TodayViewModel` usando o container manual existente. Não adicionar navegação nem migrar alimentação, água ou peso ainda.
+
+## Ciclo 14
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Ligar TodayScreen à TodayViewModel.
+
+Motivo:
+- Fazer a primeira tela Hoje usar dados reais do banco via `TodayViewModel`, sem ainda migrar novas seções.
+
+Tela ou funcionalidade original analisada:
+- Tela Hoje inicial.
+- Resumo calórico.
+
+Arquivos prováveis:
+- `android-native/app/src/main/kotlin/com/romling/diettracker/MainActivity.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/DietTrackerApp.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayViewModel.kt`.
+
+Critérios de aceite funcionais:
+- `MainActivity` cria `TodayViewModel` usando o container manual existente.
+- `DietTrackerApp` recebe a ViewModel.
+- `DietTrackerApp` coleta `StateFlow<TodayUiState>` e passa estado para `TodayScreen`.
+- Criar factory mínima se necessário.
+- `gradlew.bat test` passa.
+- `gradlew.bat assembleDebug` passa.
+
+Critérios de aceite visuais:
+- Não criar navegação.
+- Não migrar alimentação, água, peso, bottom bar ou novas seções.
+
+Riscos:
+- Introduzir DI/navegação cedo demais. Mitigação: usar `ViewModelProvider.Factory` mínima.
+
+Instrução objetiva para o Dev:
+- Ligar somente a tela atual à ViewModel. Não criar navigation graph, bottom bar, telas novas ou novas features.
+
+### 2. DEV
+
+Implementação feita:
+- `MainActivity` cria `TodayViewModel` com `TodayViewModelFactory`.
+- `TodayViewModelFactory` usa `DiaryRepository` do container manual.
+- `DietTrackerApp` coleta o estado da ViewModel com `collectAsState`.
+- `TodayScreen` permanece recebendo apenas `TodayUiState`.
+
+Arquivos alterados:
+- `MIGRATION_PLAN.md`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/MainActivity.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/DietTrackerApp.kt`.
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayViewModel.kt`.
+
+Como preservou o app original:
+- A tela Hoje passa a consumir dados locais Android sem alterar app web nem criar navegação nova.
+
+Como testou:
+- Testes Android.
+- Build Android debug.
+- Revisão estática de escopo.
+
+Comando executado:
+- `gradlew.bat test`.
+- `gradlew.bat assembleDebug`.
+- Busca por `NavHost`, `Bottom`, `Water`, `Weight`, `MealCard`, `entriesForMeal`, `FoodRepository`, `FoodDao`, `Room.databaseBuilder` nos arquivos do ciclo.
+
+Resultado:
+- `gradlew.bat test`: BUILD SUCCESSFUL.
+- `gradlew.bat assembleDebug`: BUILD SUCCESSFUL.
+- Busca de escopo: nenhum resultado.
+
+Envia para QA.
+
+### 3. QA
+
+Validação feita:
+- Subagente QA validou wiring da `TodayViewModel`, `DietTrackerApp`, `TodayScreen` state-only, factory mínima e ausência de navegação/seções novas.
+- Imagens de referência continuam untracked na raiz e foram mantidas fora do ciclo.
+
+Decisão:
+- APROVADO
+
+### Próxima tarefa aberta pelo Arquiteto
+
+Nome:
+- Adicionar seção Alimentação inicial.
+
+Instrução para o próximo ciclo:
+- Adicionar somente a seção Alimentação com os quatro cards de refeição usando dados já disponíveis no estado, se necessário expandindo `TodayUiState` de forma mínima. Não criar navegação de detalhe ainda.

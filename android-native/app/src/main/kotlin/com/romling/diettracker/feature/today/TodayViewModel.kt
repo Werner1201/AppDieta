@@ -1,6 +1,7 @@
 package com.romling.diettracker.feature.today
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.romling.diettracker.data.local.entity.DiaryEntryEntity
 import com.romling.diettracker.data.repository.DiaryRepository
@@ -48,6 +49,15 @@ class TodayViewModel(
         dailyProtein = dailyProtein,
         remainingKcal = dailyKcal.roundToInt(),
     )
+}
+
+class TodayViewModelFactory(
+    private val diaryRepository: DiaryRepository,
+) : ViewModelProvider.Factory {
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        return TodayViewModel(diaryRepository) as T
+    }
 }
 
 data class TodayUiState(
