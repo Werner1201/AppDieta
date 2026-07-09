@@ -4068,3 +4068,94 @@ Checklist visual:
 
 Decisão:
 - APROVADO
+
+## Ciclo 41
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Lista e exclusão de alimentos customizados.
+
+Motivo:
+- Usuário podia criar alimentos customizados (Ciclo 39) mas não tinha como visualizá-los ou apagá-los.
+
+Arquivos prováveis:
+- `data/local/dao/Daos.kt` — `FoodDao.customFoods()` e `deleteById(id)`
+- `data/repository/FoodRepository.kt` — expor ambos
+- `feature/meal/AddFoodViewModel.kt` — `customFoods` StateFlow + `deleteCustomFood(id)`
+- `feature/meal/CustomFoodsScreen.kt` — novo
+- `feature/settings/SettingsScreen.kt` — botão "Meus alimentos" → `onOpenCustomFoods`
+- `DietTrackerApp.kt` — branch `showCustomFoods`
+- Testes fake: `FakeFoodDao` em 2 arquivos precisam implementar novos métodos
+
+Critérios de aceite funcionais:
+- Aba Perfil mostra "Meus alimentos" → abre `CustomFoodsScreen`.
+- Tela lista todos os alimentos com `isCustom = true`.
+- Botão − apaga o alimento do DB via `FoodDao.deleteById`.
+- Se lista vazia, mostra mensagem.
+- `gradlew.bat test` passa.
+- `gradlew.bat assembleDebug` passa.
+
+Critérios de aceite visuais:
+- Header ← consistente com outras telas.
+- Cada linha: nome + kcal/100g + botão −.
+
+Riscos:
+- Fakes de teste não implementam métodos novos → erro de compilação. Mitigação: atualizar ambas as classes `FakeFoodDao`.
+
+Instrução objetiva:
+- Query `WHERE is_custom = 1`, StateFlow em `AddFoodViewModel`, tela lista+delete, botão na tela de Configurações.
+
+### 2. DEV
+
+Implementação feita:
+- `FoodDao`: adicionado `customFoods(): Flow<List<FoodEntity>>` e `deleteById(id: Long)`.
+- `FoodRepository`: expõe `customFoods()` e `deleteById(id)`.
+- `AddFoodViewModel`: `customFoods: StateFlow<List<FoodSearchItem>>` via `Flow.map + stateIn`; `deleteCustomFood(id)` via `viewModelScope.launch`.
+- `CustomFoodsScreen.kt` criado: header ←, lista `AppCard` com nome/kcal + botão −, empty state.
+- `SettingsScreen.kt`: `onOpenCustomFoods: () -> Unit = {}` param; card "Meus alimentos" com → clicável.
+- `DietTrackerApp.kt`: `customFoods` coletado; `showCustomFoods` estado; branch `CustomFoodsScreen`; `onOpenCustomFoods = { showCustomFoods = true }` em SettingsScreen.
+- `AddFoodViewModelTest.kt` + `FoodSeedLoaderTest.kt`: `FakeFoodDao` atualizado com `customFoods()` e `deleteById()`.
+
+Arquivos alterados:
+- `MIGRATION_PLAN.md`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/data/local/dao/Daos.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/data/repository/FoodRepository.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/meal/AddFoodViewModel.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/meal/CustomFoodsScreen.kt` (novo)
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/settings/SettingsScreen.kt`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/DietTrackerApp.kt`
+- `android-native/app/src/test/kotlin/com/romling/diettracker/feature/meal/AddFoodViewModelTest.kt`
+- `android-native/app/src/test/kotlin/com/romling/diettracker/data/local/seed/FoodSeedLoaderTest.kt`
+
+Como testou:
+- `gradlew.bat test` — BUILD SUCCESSFUL (51 tasks).
+- `gradlew.bat assembleDebug` — BUILD SUCCESSFUL (37 tasks).
+
+### 3. QA
+
+Validação feita:
+- `FoodDao.customFoods()` filtra `WHERE is_custom = 1`. ✅
+- `deleteById` apaga por id sem afetar outros registros. ✅
+- `FakeFoodDao` em ambos os testes atualizado — sem erro de compilação. ✅
+- `CustomFoodsScreen` reusa `AppCard`, `AppColors`, `AppSpacing` existentes. ✅
+- Empty state renderiza quando lista vazia. ✅
+- Acesso via SettingsScreen (aba Perfil) — sem nova aba. ✅
+- Testes passam sem regressão. ✅
+
+Checklist funcional:
+- [x] `FoodDao.customFoods()` + `deleteById()`.
+- [x] `AddFoodViewModel.customFoods` StateFlow.
+- [x] `CustomFoodsScreen` criado.
+- [x] Botão "Meus alimentos" em SettingsScreen.
+- [x] Branch `showCustomFoods` em `DietTrackerApp`.
+- [x] `gradlew.bat test` passa.
+- [x] `gradlew.bat assembleDebug` passa.
+
+Checklist visual:
+- [x] Header ← consistente.
+- [x] Linha: nome + kcal/100g + botão −.
+- [x] Empty state com mensagem.
+
+Decisão:
+- APROVADO

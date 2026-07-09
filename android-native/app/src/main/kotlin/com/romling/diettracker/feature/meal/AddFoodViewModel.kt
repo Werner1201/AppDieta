@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -27,6 +28,18 @@ class AddFoodViewModel(
     private val selectedFoodId = MutableStateFlow<Long?>(null)
     private val detailFoodId = MutableStateFlow<Long?>(null)
     private val foods = query.flatMapLatest { foodRepository.search(it) }
+
+    val customFoods: StateFlow<List<FoodSearchItem>> = foodRepository.customFoods()
+        .map { list ->
+            list.map { food ->
+                FoodSearchItem(
+                    id = food.id, name = food.name, serving = food.defaultUnit,
+                    kcal = food.kcal100g, carbs = food.carbs100g, protein = food.protein100g,
+                    fat = food.fat100g, fiber = food.fiber100g, sugar = food.sugar100g,
+                    sodiumMg = food.sodiumMg100g, source = food.source,
+                )
+            }
+        }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
     private val portions = selectedFoodId.flatMapLatest { foodId ->
         if (foodId == null) flowOf(emptyList()) else foodRepository.portionsForFood(foodId)
     }
@@ -70,6 +83,10 @@ class AddFoodViewModel(
 
     fun closeFoodDetails() {
         detailFoodId.value = null
+    }
+
+    fun deleteCustomFood(id: Long) {
+        viewModelScope.launch { foodRepository.deleteById(id) }
     }
 
     fun createCustomFood(

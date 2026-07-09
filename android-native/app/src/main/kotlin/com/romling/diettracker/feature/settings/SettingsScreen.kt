@@ -1,7 +1,10 @@
 package com.romling.diettracker.feature.settings
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,6 +33,7 @@ import com.romling.diettracker.feature.today.TodayUiState
 fun SettingsScreen(
     state: TodayUiState,
     onSaveGoals: (GoalSettings) -> Unit,
+    onOpenCustomFoods: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     var kcal by remember { mutableStateOf(state.dailyKcal.toInt().toString()) }
@@ -56,6 +60,18 @@ fun SettingsScreen(
         verticalArrangement = Arrangement.spacedBy(24.dp),
     ) {
         Text(text = "Configurações", style = MaterialTheme.typography.headlineMedium)
+        AppCard {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(onClick = onOpenCustomFoods),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(text = "Meus alimentos", style = MaterialTheme.typography.bodyLarge)
+                Text(text = "→", style = MaterialTheme.typography.bodyLarge, color = AppColors.Accent)
+            }
+        }
         AppCard {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 GoalInput("Calorias", kcal, "kcal") { kcal = it }

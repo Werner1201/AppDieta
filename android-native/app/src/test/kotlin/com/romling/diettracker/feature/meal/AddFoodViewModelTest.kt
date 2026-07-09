@@ -133,11 +133,13 @@ private class FakeFoodDao : FoodDao {
         return flowOf(foods.filter { normalized.isBlank() || it.name.lowercase().contains(normalized) })
     }
 
+    override fun customFoods(): Flow<List<FoodEntity>> = flowOf(foods.filter { it.isCustom })
     override suspend fun getById(id: Long): FoodEntity? = foods.firstOrNull { it.id == id }
     override suspend fun count(): Int = foods.size
     override suspend fun insert(food: FoodEntity): Long = food.id
     override suspend fun insertAll(foods: List<FoodEntity>): List<Long> = foods.map { it.id }
     override suspend fun update(food: FoodEntity) = Unit
+    override suspend fun deleteById(id: Long) = Unit
 }
 
 private class FakeFoodPortionDao : FoodPortionDao {

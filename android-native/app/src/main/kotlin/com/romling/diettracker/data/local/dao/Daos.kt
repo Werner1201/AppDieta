@@ -34,6 +34,12 @@ interface FoodDao {
     @Query("SELECT COUNT(*) FROM foods")
     suspend fun count(): Int
 
+    @Query("SELECT * FROM foods WHERE is_custom = 1 ORDER BY name")
+    fun customFoods(): Flow<List<FoodEntity>>
+
+    @Query("DELETE FROM foods WHERE id = :id")
+    suspend fun deleteById(id: Long)
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(food: FoodEntity): Long
 

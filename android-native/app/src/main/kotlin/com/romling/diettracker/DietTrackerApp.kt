@@ -26,6 +26,7 @@ import com.romling.diettracker.core.ui.theme.AppColors
 import com.romling.diettracker.core.ui.theme.DietTrackerTheme
 import com.romling.diettracker.feature.meal.AddFoodScreen
 import com.romling.diettracker.feature.meal.AddFoodViewModel
+import com.romling.diettracker.feature.meal.CustomFoodsScreen
 import com.romling.diettracker.feature.meal.MealDetailScreen
 import com.romling.diettracker.feature.settings.SettingsScreen
 import com.romling.diettracker.feature.today.CalendarScreen
@@ -49,15 +50,23 @@ fun DietTrackerApp(todayViewModel: TodayViewModel, addFoodViewModel: AddFoodView
     val currentDate by todayViewModel.currentDate.collectAsState()
     val calendarGreenDays by todayViewModel.calendarGreenDays.collectAsState()
     val addFoodState by addFoodViewModel.state.collectAsState()
+    val customFoods by addFoodViewModel.customFoods.collectAsState()
     var addMeal by remember { mutableStateOf<TodayMealSummary?>(null) }
     var detailMeal by remember { mutableStateOf<TodayMealSummary?>(null) }
     var showCalendar by remember { mutableStateOf(false) }
     var showStreak by remember { mutableStateOf(false) }
     var showWeight by remember { mutableStateOf(false) }
+    var showCustomFoods by remember { mutableStateOf(false) }
     var selectedTab by remember { mutableStateOf(AppTab.DIARY) }
 
     DietTrackerTheme {
-        if (showWeight) {
+        if (showCustomFoods) {
+            CustomFoodsScreen(
+                foods = customFoods,
+                onDelete = addFoodViewModel::deleteCustomFood,
+                onClose = { showCustomFoods = false },
+            )
+        } else if (showWeight) {
             WeightScreen(
                 weight = state.weight,
                 history = state.weightHistory,
@@ -117,7 +126,7 @@ fun DietTrackerApp(todayViewModel: TodayViewModel, addFoodViewModel: AddFoodView
                             onOpenCalendar = { showCalendar = true },
                             onOpenStreak = { showStreak = true },
                         )
-                        AppTab.PROFILE -> SettingsScreen(state = state, onSaveGoals = todayViewModel::saveGoals)
+                        AppTab.PROFILE -> SettingsScreen(state = state, onSaveGoals = todayViewModel::saveGoals, onOpenCustomFoods = { showCustomFoods = true })
                         else -> TabPlaceholder(selectedTab)
                     }
                 }
