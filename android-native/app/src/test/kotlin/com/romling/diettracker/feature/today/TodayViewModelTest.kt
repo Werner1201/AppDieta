@@ -218,6 +218,25 @@ class TodayViewModelTest {
     }
 
     @Test
+    fun mealGoalsScaleProportionallyWithDailyKcal() = runTest(dispatcher) {
+        val viewModel = TodayViewModel(
+            diaryRepository = DiaryRepository(FakeDiaryEntryDao(emptyList())),
+            waterRepository = WaterRepository(FakeWaterEntryDao()),
+            weightRepository = WeightRepository(FakeWeightEntryDao()),
+            dateProvider = { LocalDate.parse("2026-07-01") },
+            dailyKcal = 2000.0,
+        )
+
+        advanceUntilIdle()
+
+        val meals = viewModel.state.value.meals
+        assertEquals(632, meals.single { it.key == "breakfast" }.goalKcal)
+        assertEquals(632, meals.single { it.key == "lunch" }.goalKcal)
+        assertEquals(542, meals.single { it.key == "dinner" }.goalKcal)
+        assertEquals(194, meals.single { it.key == "snack" }.goalKcal)
+    }
+
+    @Test
     fun goToDateChangesDateAndRestoresIsToday() = runTest(dispatcher) {
         val today = LocalDate.parse("2026-07-09")
         val viewModel = TodayViewModel(

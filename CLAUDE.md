@@ -45,18 +45,19 @@ Ignore imagens untracked na raiz. Responda com APROVADO ou REPROVADO e achados o
 ## Estado atual
 
 Últimos ciclos concluídos e enviados:
-- Ciclo 24: revisão de acentos (nenhum mojibake encontrado).
-- Ciclo 25: monitor de água na tela Hoje.
-- Ciclo 26: card de valores corporais (peso) na tela Hoje.
-- Ciclo 27: navegação inferior visual com cinco abas (Diário funcional, demais placeholders).
 - Ciclo 28: correção de bugs de layout na TodayScreen (tela estreita 322 dp).
 - Ciclo 29: sistema de dimensões responsivas `AppDimensions` via `CompositionLocal`.
 - Ciclo 30: correção de bugs visuais críticos na tela AddFood (título e nomes de alimentos).
 - Ciclo 31: calendário de dias verdes com navegação por swipe e tap em dias.
+- Ciclo 32: streak atual no header da tela Hoje.
+- Ciclo 33: tela simples de sequência.
+- Ciclo 34: tela de configurações somente leitura.
+- Ciclo 35: edição persistida de metas via SharedPreferences.
+- Ciclo 36: metas por refeição proporcionais à meta calórica diária.
 
 Ciclo em andamento:
-- Nenhum ciclo de código aberto após o Ciclo 31.
-- Próximo ciclo sugerido: streak, configurações de meta ou tela de detalhe de refeição.
+- Nenhum ciclo aberto após o Ciclo 36.
+- Próximo ciclo sugerido: tela de detalhe de refeição (MealDetailScreen) com itens, totais e botão Adicionar.
 
 ## Estilo de implementação
 

@@ -3645,3 +3645,86 @@ Nome:
 
 Instrução para o próximo ciclo:
 - Fazer as metas de cada refeição seguirem a meta calórica diária ou permitir configuração explícita por refeição, mantendo o app simples.
+
+---
+
+## Ciclo 36
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Metas por refeição proporcionais à meta calórica diária.
+
+Motivo:
+- `defaultMeals()` retornava goalKcal fixo (816/816/700/250 = 2582 total). Quando usuário altera meta diária em Configurações, as metas das refeições permaneciam inalteradas — incoerente com a nova meta.
+
+Arquivos prováveis:
+- `feature/today/TodayViewModel.kt`
+- `feature/today/TodayViewModelTest.kt`
+
+Critérios de aceite funcionais:
+- `defaultMeals(dailyKcal)` computa metas proporcionais usando razões dos defaults originais (soma base = 2582).
+- `emptyState()` e `toTodayState()` passam `settings.dailyKcal` para `defaultMeals`.
+- Sem args, `defaultMeals()` usa `dailyKcal = 2333.0`.
+- Teste verifica que 2000 kcal → breakfast 632, lunch 632, dinner 542, snack 194.
+- `gradlew.bat test` passa.
+- `gradlew.bat assembleDebug` passa.
+
+Critérios de aceite visuais:
+- Nenhum campo novo na UI.
+- Cards de refeição na tela Hoje refletem metas escaladas após salvar nova meta calórica.
+
+Riscos:
+- Valores proporcionais diferem dos hardcoded originais (816/816/700/250). Aceitável — valores originais não somavam à meta diária padrão de 2333.
+
+Instrução objetiva para o Dev:
+- Alterar somente `defaultMeals`, `emptyState`, `toTodayState` e adicionar teste. Nenhum campo novo na UI ou em `GoalSettings`.
+
+### 2. DEV
+
+Implementação feita:
+- `defaultMeals(dailyKcal: Double = 2333.0)` com `MEAL_SHARE_TOTAL = 2582.0` e proporções calculadas por `roundToInt`.
+- `emptyState()` adiciona `meals = defaultMeals(settings.dailyKcal)`.
+- `toTodayState()` usa `defaultMeals(settings.dailyKcal).map { ... }`.
+- Teste `mealGoalsScaleProportionallyWithDailyKcal` adicionado: 2000 kcal → 632/632/542/194.
+
+Arquivos alterados:
+- `MIGRATION_PLAN.md`
+- `android-native/app/src/main/kotlin/com/romling/diettracker/feature/today/TodayViewModel.kt`
+- `android-native/app/src/test/kotlin/com/romling/diettracker/feature/today/TodayViewModelTest.kt`
+
+Como testou:
+- `gradlew.bat test` — BUILD SUCCESSFUL (11 testes passando).
+- `gradlew.bat assembleDebug` — BUILD SUCCESSFUL.
+
+### 3. QA
+
+Validação feita:
+- `defaultMeals(2000.0)` retorna breakfast 632, lunch 632, dinner 542, snack 194. ✅
+- `emptyState` e `toTodayState` propagam `settings.dailyKcal`. ✅
+- Sem campos novos em `GoalSettings` ou na tela. ✅
+- `gradlew.bat test` BUILD SUCCESSFUL (11 testes, incluindo 1 novo). ✅
+- `gradlew.bat assembleDebug` BUILD SUCCESSFUL. ✅
+
+Checklist funcional:
+- [x] `defaultMeals` com parâmetro `dailyKcal`.
+- [x] `emptyState` usa `defaultMeals(settings.dailyKcal)`.
+- [x] `toTodayState` usa `defaultMeals(settings.dailyKcal)`.
+- [x] Teste de escala adicionado.
+- [x] `gradlew.bat test` passa.
+- [x] `gradlew.bat assembleDebug` passa.
+
+Checklist visual:
+- [x] Sem campo novo na UI.
+- [x] Metas de refeição escalam com dailyKcal.
+
+Decisão:
+- APROVADO
+
+### Próxima tarefa aberta pelo Arquiteto
+
+Nome:
+- Tela de detalhe de refeição (MealDetailScreen).
+
+Instrução para o próximo ciclo:
+- Criar tela que mostra os itens registrados em uma refeição, com totais de kcal/macros e botão para adicionar mais alimentos. Reaproveitar `DiaryRepository` e `TodayViewModel` já existentes.

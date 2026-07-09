@@ -129,7 +129,7 @@ class TodayViewModel(
             entries = map {
                 TodayEntrySummary(id = it.id, mealType = it.mealType, name = it.foodNameSnapshot, kcal = it.kcal)
             },
-            meals = defaultMeals().map { meal ->
+            meals = defaultMeals(settings.dailyKcal).map { meal ->
                 val mealEntries = filter { it.mealType == meal.key }
                 meal.copy(
                     kcal = mealEntries.sumOf { it.kcal },
@@ -152,6 +152,7 @@ class TodayViewModel(
         dailyCarbs = settings.dailyCarbs,
         dailyProtein = settings.dailyProtein,
         dailyFat = settings.dailyFat,
+        meals = defaultMeals(settings.dailyKcal),
         water = TodayWaterSummary(goalMl = settings.dailyWaterMl),
         weight = TodayWeightSummary(currentKg = settings.defaultWeightKg, goalKg = settings.weightGoalKg),
         remainingKcal = settings.dailyKcal.roundToInt(),
@@ -229,9 +230,14 @@ data class TodayMealSummary(
     val items: String = "",
 )
 
-fun defaultMeals() = listOf(
-    TodayMealSummary(key = "breakfast", label = "Café da manhã", icon = "☕", goalKcal = 816),
-    TodayMealSummary(key = "lunch", label = "Almoço", icon = "🍲", goalKcal = 816),
-    TodayMealSummary(key = "dinner", label = "Jantar", icon = "🥗", goalKcal = 700),
-    TodayMealSummary(key = "snack", label = "Lanches", icon = "⌛", goalKcal = 250),
-)
+private const val MEAL_SHARE_TOTAL = 2582.0
+
+fun defaultMeals(dailyKcal: Double = 2333.0): List<TodayMealSummary> {
+    fun share(portion: Int) = (dailyKcal * portion / MEAL_SHARE_TOTAL).roundToInt()
+    return listOf(
+        TodayMealSummary(key = "breakfast", label = "Café da manhã", icon = "☕", goalKcal = share(816)),
+        TodayMealSummary(key = "lunch", label = "Almoço", icon = "🍲", goalKcal = share(816)),
+        TodayMealSummary(key = "dinner", label = "Jantar", icon = "🥗", goalKcal = share(700)),
+        TodayMealSummary(key = "snack", label = "Lanches", icon = "⌛", goalKcal = share(250)),
+    )
+}
