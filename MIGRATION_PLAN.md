@@ -2608,3 +2608,77 @@ Nome:
 
 Instrução para o próximo ciclo:
 - Corrigir textos com mojibake visível no código Android nativo, começando pelas telas já migradas. Não mexer em lógica de dados neste ciclo.
+
+## Ciclo 24
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Revisar acentos no Android nativo.
+
+Motivo:
+- Garantir que textos das telas migradas não tenham mojibake ou falta de acentos.
+
+Tela ou funcionalidade original analisada:
+- Telas Android nativas migradas.
+- Testes Kotlin com strings visíveis.
+
+Arquivos prováveis:
+- `android-native/app/src/main/kotlin`.
+- `android-native/app/src/test/kotlin`.
+
+Critérios de aceite funcionais:
+- Buscar mojibake real nos arquivos Kotlin do Android.
+- Não alterar lógica de dados.
+- Não alterar arquivos se a busca mostrar que as strings já estão corretas.
+
+Critérios de aceite visuais:
+- Textos Kotlin permanecem acentuados corretamente.
+
+Riscos:
+- Corrigir falso positivo causado apenas por encoding do terminal. Mitigação: usar busca específica por caracteres mojibake.
+
+Instrução objetiva para o Dev:
+- Rodar busca específica por `Ã`, `â`, `ð`, `ï` e `Â` nos Kotlin do Android. Corrigir só ocorrências reais.
+
+### 2. DEV
+
+Implementação feita:
+- Executada busca específica por mojibake em `android-native/app/src/main/kotlin` e `android-native/app/src/test/kotlin`.
+- Nenhuma ocorrência real foi encontrada.
+- Nenhuma alteração de código foi necessária.
+
+Arquivos alterados:
+- `MIGRATION_PLAN.md`.
+
+Como preservou o app original:
+- Não mudou código, estado ou UI.
+
+Como testou:
+- Busca estática por mojibake real.
+
+Comando executado:
+- `rg -n "Ã|â|ð|ï|Â" android-native/app/src/main/kotlin android-native/app/src/test/kotlin`.
+
+Resultado:
+- Nenhuma ocorrência encontrada.
+
+Envia para QA.
+
+### 3. QA
+
+Validação feita:
+- Subagente QA repetiu a busca por mojibake real nos diretórios Kotlin do Android e não encontrou ocorrências.
+- Subagente QA confirmou que não houve alteração nos arquivos Kotlin e que a única alteração versionada do ciclo é este registro no `MIGRATION_PLAN.md`.
+- Imagens de referência continuam untracked na raiz e foram mantidas fora do ciclo.
+
+Decisão:
+- APROVADO
+
+### Próxima tarefa aberta pelo Arquiteto
+
+Nome:
+- Escolher próxima fatia da migração.
+
+Instrução para o próximo ciclo:
+- Ler o topo do `MIGRATION_PLAN.md` e escolher a próxima menor funcionalidade ainda pendente, sem mexer em importação, câmera ou código de barras sem critério explícito do ciclo.
