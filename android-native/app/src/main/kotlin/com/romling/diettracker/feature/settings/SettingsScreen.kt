@@ -39,6 +39,7 @@ fun SettingsScreen(
     onSaveGoals: (GoalSettings) -> Unit,
     onOpenCustomFoods: () -> Unit = {},
     onExportDiary: () -> Unit = {},
+    onImportDiary: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     var kcal by remember { mutableStateOf(state.dailyKcal.toInt().toString()) }
@@ -80,6 +81,18 @@ fun SettingsScreen(
             ) {
                 Text(text = "Meus alimentos", style = MaterialTheme.typography.bodyLarge)
                 Text(text = "→", style = MaterialTheme.typography.bodyLarge, color = AppColors.Accent)
+            }
+        }
+        AppCard {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(onClick = onImportDiary),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(text = "Importar diário (JSON)", style = MaterialTheme.typography.bodyLarge)
+                Text(text = "↓", style = MaterialTheme.typography.bodyLarge, color = AppColors.Accent)
             }
         }
         AppCard {

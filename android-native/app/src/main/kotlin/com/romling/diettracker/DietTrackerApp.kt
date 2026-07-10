@@ -40,6 +40,7 @@ import com.romling.diettracker.feature.recipes.RecipesScreen
 import com.romling.diettracker.feature.recipes.RecipesViewModel
 import com.romling.diettracker.feature.meal.MealDetailScreen
 import com.romling.diettracker.feature.settings.SettingsScreen
+import com.romling.diettracker.feature.settings.BackupImportScreen
 import com.romling.diettracker.feature.today.CalendarScreen
 import com.romling.diettracker.feature.today.StreakScreen
 import com.romling.diettracker.feature.today.TodayMealSummary
@@ -81,6 +82,7 @@ fun DietTrackerApp(
     var showWeight by remember { mutableStateOf(false) }
     var showCustomFoods by remember { mutableStateOf(false) }
     var showImport by remember { mutableStateOf(false) }
+    var showBackupImport by remember { mutableStateOf(false) }
     var selectedTab by remember { mutableStateOf(AppTab.DIARY) }
 
     LaunchedEffect(importState.externalRequestId) {
@@ -115,6 +117,11 @@ fun DietTrackerApp(
                 onParse = chatGptImportViewModel::parse,
                 onSaveAll = { chatGptImportViewModel.saveAll(state.date) { showImport = false } },
                 onClose = { chatGptImportViewModel.reset(); showImport = false },
+            )
+        } else if (showBackupImport) {
+            BackupImportScreen(
+                onSave = { entries -> todayViewModel.importBackup(entries) { showBackupImport = false } },
+                onClose = { showBackupImport = false },
             )
         } else if (showCustomFoods) {
             CustomFoodsScreen(
@@ -188,6 +195,7 @@ fun DietTrackerApp(
                             state = state,
                             onSaveGoals = todayViewModel::saveGoals,
                             onOpenCustomFoods = { showCustomFoods = true },
+                            onImportDiary = { showBackupImport = true },
                             onExportDiary = {
                                 scope.launch {
                                     val json = todayViewModel.exportJson()

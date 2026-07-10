@@ -259,7 +259,7 @@ class TodayViewModelTest {
     @Test
     fun exportJsonEscapesSpecialChars() = runTest(dispatcher) {
         val nameWithQuotes = """Café "duplo" \ test"""
-        val dao = FakeDiaryEntryDao(listOf(entry(kcal = 200.0, protein = 10.0).copy(foodNameSnapshot = nameWithQuotes)))
+        val dao = FakeDiaryEntryDao(listOf(entry(kcal = 200.0, protein = 10.0).copy(foodNameSnapshot = nameWithQuotes, gramsTotal = 0.5)))
         val viewModel = TodayViewModel(
             diaryRepository = DiaryRepository(dao),
             waterRepository = WaterRepository(FakeWaterEntryDao()),
@@ -271,6 +271,7 @@ class TodayViewModelTest {
         val parsed = JSONObject(json)
         val firstName = parsed.getJSONArray("entries").getJSONObject(0).getString("name")
         assertEquals(nameWithQuotes, firstName)
+        assertEquals(0.5, parsed.getJSONArray("entries").getJSONObject(0).getDouble("grams"))
     }
 
     @Test

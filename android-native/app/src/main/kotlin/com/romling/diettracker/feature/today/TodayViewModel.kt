@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.romling.diettracker.data.local.entity.DiaryEntryEntity
 import com.romling.diettracker.data.local.entity.WeightEntryEntity
 import com.romling.diettracker.data.repository.DiaryRepository
+import com.romling.diettracker.data.repository.DiaryBackupEntry
 import com.romling.diettracker.data.repository.DEFAULT_CHAT_GPT_PROMPT
 import com.romling.diettracker.data.repository.DEFAULT_CHAT_GPT_URL
 import com.romling.diettracker.data.repository.GoalSettings
@@ -119,6 +120,14 @@ class TodayViewModel(
         settingsRepository?.save(settings)
     }
 
+    fun importBackup(entries: List<DiaryBackupEntry>, onDone: () -> Unit) {
+        if (entries.isEmpty()) return
+        viewModelScope.launch {
+            diaryRepository.importBackup(entries)
+            onDone()
+        }
+    }
+
     suspend fun exportJson(): String {
         val entries = diaryRepository.allEntries()
         val array = org.json.JSONArray()
@@ -128,7 +137,7 @@ class TodayViewModel(
                     .put("date", e.date)
                     .put("meal", e.mealType)
                     .put("name", e.foodNameSnapshot)
-                    .put("grams", e.gramsTotal.toInt())
+                    .put("grams", e.gramsTotal)
                     .put("kcal", e.kcal.toInt())
                     .put("carbs", e.carbs)
                     .put("protein", e.protein)

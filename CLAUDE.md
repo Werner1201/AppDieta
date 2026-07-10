@@ -70,10 +70,11 @@ Ignore imagens untracked na raiz. Responda com APROVADO ou REPROVADO e achados o
 - Ciclo 50: importador ChatGPT robusto para JSON/Markdown/base64url/link, compatível com o schema web e API 26.
 - Ciclo 51: deep link `romlingdiet://`, importação explícita do clipboard e abertura do GPT personalizado.
 - Ciclo 52: URL e prompt do GPT persistentes e editáveis nas Configurações.
+- Ciclo 53: importação aditiva do backup JSON com validação, prévia e confirmação.
 
 Ciclo em andamento:
-- Nenhum ciclo aberto após o Ciclo 52.
-- Próximo ciclo sugerido: importar o backup JSON gerado por `TodayViewModel.exportJson`, com prévia e confirmação antes de gravar.
+- Nenhum ciclo aberto após o Ciclo 53.
+- Próximo ciclo sugerido: completar cadastro de alimento personalizado com categoria, aliases, fibras, açúcar, sódio, unidade e fonte.
 
 ## Estilo de implementação
 

@@ -4995,3 +4995,99 @@ Decisão:
 
 Nome:
 - Importar backup JSON exportado pelo app.
+
+## Ciclo 53
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Importação confirmada do backup JSON do diário.
+
+Motivo:
+- O app exporta o diário, mas ainda não consegue restaurá-lo. A migração de dados exige o caminho inverso sem salvar conteúdo não revisado.
+
+Tela ou funcionalidade original analisada:
+- `TodayViewModel.exportJson`, `DiaryRepository`, `SettingsScreen` e o padrão de prévia do importador ChatGPT.
+
+Arquivos prováveis:
+- `feature/settings/BackupImportScreen.kt` (novo)
+- `data/repository/DiaryRepository.kt`
+- `feature/today/TodayViewModel.kt`
+- `feature/settings/SettingsScreen.kt`
+- `DietTrackerApp.kt`
+- teste unitário do parser
+
+Critérios de aceite funcionais:
+- Aceitar o objeto JSON produzido por `exportJson`.
+- Validar data, refeição, nome, porção e nutrientes antes da prévia.
+- Limitar tamanho da entrada e quantidade de registros.
+- Mostrar prévia com quantidade e registros antes de salvar.
+- Importar somente após confirmação explícita.
+- Manter os dados atuais e adicionar os registros do backup.
+
+Critérios de aceite visuais:
+- Acesso pela tela Configurações junto à exportação.
+- Tela dedicada em tema escuro, com campo grande, card de prévia e botão fixo de confirmação.
+
+Riscos:
+- Backup repetido duplicar registros. Mitigação: texto explícito de importação aditiva na prévia; deduplicação fica fora deste ciclo.
+- Arquivo excessivo consumir memória. Mitigação: limites de caracteres e registros.
+
+Instrução objetiva para o Dev:
+- Reutilizar `DiaryRepository.addImportedFood`; não alterar schema Room nem apagar dados existentes.
+
+### 2. DEV
+
+Implementação feita:
+- Tela dedicada acessível por "Importar diário (JSON)" nas Configurações.
+- Parser aceita o objeto produzido por `TodayViewModel.exportJson` e aliases básicos do legado.
+- Data, refeição, nome, gramas e nutrientes são validados antes da prévia.
+- Entrada limitada a 2 milhões de caracteres e 5 mil registros.
+- Prévia mostra até 20 itens e informa que a importação é aditiva.
+- Confirmação grava pelo `DiaryRepository` sem apagar dados atuais e bloqueia toque repetido.
+- Exportação preserva gramas fracionárias para garantir round-trip.
+
+Arquivos criados/alterados:
+- `feature/settings/BackupImportScreen.kt`
+- `data/repository/DiaryRepository.kt`
+- `feature/today/TodayViewModel.kt`
+- `feature/settings/SettingsScreen.kt`
+- `DietTrackerApp.kt`
+- `feature/settings/BackupImportParserTest.kt`
+- `feature/today/TodayViewModelTest.kt`
+
+Como preservou a UI original:
+- Tela usa tema escuro, `AppCard`, campo grande, prévia e `BottomPrimaryButton`.
+- Gramas fracionárias usam formatação local na prévia.
+
+Como testou:
+- `gradlew.bat lintDebug test assembleDebug` — BUILD SUCCESSFUL.
+- Testes cobrem round-trip, gramas fracionárias e rejeição de data/refeição/porção inválidas.
+
+### 3. QA
+
+Primeira rodada:
+- REPROVADO: exportação arredondava menos de 1 g para zero e botão permitia importações repetidas.
+
+Segunda rodada:
+- REPROVADO: prévia ainda exibia 0,5 g como 0 g.
+
+Correções:
+- Exportação preserva `Double`, confirmação possui trava e prévia usa `NumberFormat`.
+
+Checklist final:
+- [x] Formato exportado pelo app é aceito.
+- [x] Conteúdo inválido é rejeitado antes da prévia.
+- [x] Prévia e confirmação explícita obrigatórias.
+- [x] Importação aditiva não apaga registros.
+- [x] Toque repetido não duplica a operação.
+- [x] Gramas fracionárias preservadas e exibidas corretamente.
+- [x] Lint, testes e APK debug passam.
+
+Decisão:
+- APROVADO
+
+### Próxima tarefa aberta pelo Arquiteto
+
+Nome:
+- Completar os campos do alimento personalizado.

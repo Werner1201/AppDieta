@@ -6,6 +6,17 @@ import com.romling.diettracker.data.local.entity.FoodEntity
 import java.time.Instant
 import kotlin.math.round
 
+data class DiaryBackupEntry(
+    val date: String,
+    val mealType: String,
+    val name: String,
+    val grams: Double,
+    val kcal: Double,
+    val carbs: Double,
+    val protein: Double,
+    val fat: Double,
+)
+
 class DiaryRepository(
     private val diaryEntryDao: DiaryEntryDao,
     private val now: () -> String = { Instant.now().toString() },
@@ -17,6 +28,21 @@ class DiaryRepository(
     fun activeDates() = diaryEntryDao.activeDates()
     suspend fun delete(entry: DiaryEntryEntity) = diaryEntryDao.delete(entry)
     suspend fun deleteById(entryId: Long) = diaryEntryDao.deleteById(entryId)
+
+    suspend fun importBackup(entries: List<DiaryBackupEntry>) {
+        entries.forEach { entry ->
+            addImportedFood(
+                date = entry.date,
+                mealType = entry.mealType,
+                name = entry.name,
+                kcal = entry.kcal,
+                carbs = entry.carbs,
+                protein = entry.protein,
+                fat = entry.fat,
+                gramsTotal = entry.grams,
+            )
+        }
+    }
 
     suspend fun updateEntryGrams(entryId: Long, newGrams: Double) {
         require(newGrams > 0) { "Grams must be positive." }
