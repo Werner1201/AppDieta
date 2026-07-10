@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.json.JSONArray
 
 class ChatGptImportViewModel(
     private val diaryRepository: DiaryRepository,
@@ -24,43 +23,10 @@ class ChatGptImportViewModel(
 
     fun parse() {
         val raw = _state.value.json.trim()
-        if (raw.isBlank()) {
-            _state.update { it.copy(parseError = "Cole o JSON do ChatGPT acima.", preview = emptyList()) }
-            return
-        }
         try {
-            val array = JSONArray(raw)
-            val items = (0 until array.length()).mapNotNull { i ->
-                val obj = array.getJSONObject(i)
-                val name = obj.optString("nome").ifBlank {
-                    obj.optString("name").ifBlank {
-                        obj.optString("alimento").ifBlank { null }
-                    }
-                } ?: return@mapNotNull null
-                val grams = obj.optDouble("porcao_g", obj.optDouble("porcao", obj.optDouble("grams", obj.optDouble("gramas", 100.0))))
-                val meal = parseMeal(obj.optString("refeicao").ifBlank { obj.optString("meal").ifBlank { obj.optString("refeição") } })
-                val kcal = obj.optDouble("kcal", obj.optDouble("calorias", obj.optDouble("calories", 0.0)))
-                val carbs = obj.optDouble("carbs", obj.optDouble("carboidratos", obj.optDouble("carbo", 0.0)))
-                val protein = obj.optDouble("proteina", obj.optDouble("protein", obj.optDouble("proteína", 0.0)))
-                val fat = obj.optDouble("gordura", obj.optDouble("fat", obj.optDouble("gorduras", 0.0)))
-                ImportItem(
-                    name = name,
-                    mealType = meal,
-                    mealLabel = mealLabel(meal),
-                    kcal = kcal,
-                    carbs = carbs,
-                    protein = protein,
-                    fat = fat,
-                    gramsTotal = grams,
-                )
-            }
-            if (items.isEmpty()) {
-                _state.update { it.copy(parseError = "Nenhum item encontrado. Verifique o formato JSON.", preview = emptyList()) }
-            } else {
-                _state.update { it.copy(preview = items, parseError = null) }
-            }
+            _state.update { it.copy(preview = ChatGptImportParser.parse(raw), parseError = null) }
         } catch (e: Exception) {
-            _state.update { it.copy(parseError = "JSON inválido: ${e.message?.take(120)}", preview = emptyList()) }
+            _state.update { it.copy(parseError = e.message?.take(160) ?: "Importação inválida.", preview = emptyList()) }
         }
     }
 
@@ -91,25 +57,6 @@ class ChatGptImportViewModel(
     }
 }
 
-private fun parseMeal(raw: String): String {
-    val s = raw.lowercase().trim()
-    return when {
-        s.contains("almoco") || s.contains("almoço") || s == "lunch" -> "lunch"
-        s.contains("cafe") || s.contains("café") || s == "breakfast" -> "breakfast"
-        s.contains("jantar") || s == "dinner" -> "dinner"
-        s.contains("lanche") || s == "snack" -> "snack"
-        else -> "lunch"
-    }
-}
-
-private fun mealLabel(mealType: String) = when (mealType) {
-    "breakfast" -> "Café da manhã"
-    "lunch" -> "Almoço"
-    "dinner" -> "Jantar"
-    "snack" -> "Lanche"
-    else -> mealType
-}
-
 class ChatGptImportViewModelFactory(
     private val diaryRepository: DiaryRepository,
 ) : ViewModelProvider.Factory {
@@ -124,15 +71,4 @@ data class ChatGptImportUiState(
     val parseError: String? = null,
     val isSaving: Boolean = false,
     val savedCount: Int = 0,
-)
-
-data class ImportItem(
-    val name: String,
-    val mealType: String,
-    val mealLabel: String,
-    val kcal: Double,
-    val carbs: Double,
-    val protein: Double,
-    val fat: Double,
-    val gramsTotal: Double,
 )

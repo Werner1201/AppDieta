@@ -67,10 +67,11 @@ Ignore imagens untracked na raiz. Responda com APROVADO ou REPROVADO e achados o
 - Ciclo 47: tela Receitas funcional (tab RECIPES); `RecipeEntity`, `RecipeDao`, `MIGRATION_1_2` (v1→v2), `RecipeRepository`, `RecipesViewModel`, `RecipesScreen` com lista e AlertDialog de criação.
 - Ciclo 48: ingredientes em receitas; `RecipeIngredientEntity`, `RecipeIngredientDao`, `MIGRATION_2_3` (v2→v3); `RecipeDetailScreen` com busca 2 passos, lista de ingredientes e totais macro.
 - Ciclo 49: receita adicionada ao diário com escolha da refeição e totais agregados.
+- Ciclo 50: importador ChatGPT robusto para JSON/Markdown/base64url/link, compatível com o schema web e API 26.
 
 Ciclo em andamento:
-- Nenhum ciclo aberto após o Ciclo 49.
-- Próximo ciclo sugerido: robustecer o importador ChatGPT para JSON em Markdown, links/payload base64url e rejeição de dados inválidos.
+- Nenhum ciclo aberto após o Ciclo 50.
+- Próximo ciclo sugerido: integrar deep link `romlingdiet://`, importação do clipboard e abertura do GPT configurado.
 
 ## Estilo de implementação
 

@@ -4726,3 +4726,93 @@ Decisão:
 
 Nome:
 - Tornar o importador ChatGPT robusto para Markdown, payload base64url e validações obrigatórias.
+
+## Ciclo 50
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Parser robusto para importação do ChatGPT.
+
+Motivo:
+- O importador atual aceita apenas um array JSON puro e aceita silenciosamente refeição inválida e números negativos. O fluxo original exige aceitar formatos comuns do ChatGPT sem arriscar dados incorretos no diário.
+
+Tela ou funcionalidade original analisada:
+- Tela `ChatGptImportScreen` e parser embutido em `ChatGptImportViewModel`.
+
+Arquivos prováveis:
+- `feature/chatgpt/ChatGptImportParser.kt` (novo)
+- `feature/chatgpt/ChatGptImportViewModel.kt`
+- `feature/chatgpt/ChatGptImportParserTest.kt` (novo)
+
+Critérios de aceite funcionais:
+- Aceitar array JSON puro e JSON dentro de bloco Markdown.
+- Aceitar payload base64url puro ou em link com parâmetro `payload`.
+- Rejeitar entrada ou payload excessivamente grande.
+- Rejeitar refeição inválida, porção não positiva e nutrientes negativos ou não finitos.
+- Não salvar automaticamente; manter prévia e confirmação existentes.
+- Ter testes unitários para formatos aceitos e rejeições principais.
+
+Critérios de aceite visuais:
+- Manter a tela, a prévia e o botão de confirmação atuais.
+- Exibir erro legível no card existente sem adicionar novo fluxo visual.
+
+Riscos:
+- Decodificar texto arbitrário como base64url. Mitigação: exigir JSON válido após decodificação.
+- Payload causar uso excessivo de memória. Mitigação: limitar entrada, bytes decodificados e quantidade de itens.
+
+Instrução objetiva para o Dev:
+- Extrair somente o parsing/validação para uma classe pequena, usando APIs padrão e `org.json`; não adicionar dependências.
+
+### 2. DEV
+
+Implementação feita:
+- Criado `ChatGptImportParser` para JSON puro, bloco Markdown, payload base64url puro e links com `payload`.
+- Compatibilidade mantida com o schema web: `meal_type` na raiz, `items` e `estimated_grams`.
+- Refeições são normalizadas entre português, inglês e slugs como `cafe_da_manha`.
+- Entrada, bytes decodificados e quantidade de itens possuem limites.
+- Porção, refeição e nutrientes inválidos são rejeitados antes da prévia.
+- `ChatGptImportViewModel` apenas publica a prévia ou a mensagem de erro; salvamento continua dependente de confirmação.
+
+Arquivos criados/alterados:
+- `feature/chatgpt/ChatGptImportParser.kt`
+- `feature/chatgpt/ChatGptImportViewModel.kt`
+- `feature/chatgpt/ChatGptImportParserTest.kt`
+
+Como preservou a UI original:
+- Nenhum componente visual ou fluxo de confirmação foi alterado.
+- Erros continuam aparecendo no espaço já existente da tela de importação.
+
+Como testou:
+- `gradlew.bat lintDebug test assembleDebug` — BUILD SUCCESSFUL.
+- Testes cobrem JSON, Markdown, base64url, link, schema web, limites e valores inválidos.
+
+### 3. QA
+
+Primeira rodada:
+- REPROVADO: faltavam `meal_type` raiz, `estimated_grams` e testes adicionais de limites.
+
+Segunda rodada:
+- REPROVADO: sobrecarga de `URLDecoder` exigia API 33 e faltava `cafe_da_manha`.
+
+Correções:
+- Schema web herdado pela lista de itens e `estimated_grams` aceito.
+- Limites de bytes/itens e não finitos testados.
+- `URLDecoder` compatível com API 26 e slug `cafe_da_manha` normalizado.
+
+Checklist final:
+- [x] JSON puro e Markdown aceitos.
+- [x] Base64url puro e link com payload aceitos.
+- [x] Schema web legado aceito.
+- [x] Limites de entrada, bytes e itens aplicados.
+- [x] Refeições, porções e nutrientes inválidos rejeitados.
+- [x] Prévia e confirmação preservadas.
+- [x] `lintDebug`, testes e APK debug passam.
+
+Decisão:
+- APROVADO
+
+### Próxima tarefa aberta pelo Arquiteto
+
+Nome:
+- Integrar deep link, clipboard e abertura do GPT ao fluxo nativo.
