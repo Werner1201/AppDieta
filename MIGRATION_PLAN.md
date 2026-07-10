@@ -4638,3 +4638,91 @@ Checklist funcional:
 
 Decisão:
 - APROVADO
+
+## Ciclo 49
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Adicionar receita ao diário.
+
+Motivo:
+- O Ciclo 48 permite montar receitas, mas ainda não fecha o fluxo principal de uso. A menor fatia útil é registrar a receita pronta em uma refeição do dia usando os totais já calculados.
+
+Tela original analisada:
+- Detalhe de receita do Android nativo e fluxo existente de inclusão no diário.
+
+Arquivos prováveis:
+- `feature/recipes/RecipeDetailScreen.kt`
+- `feature/recipes/RecipesViewModel.kt`
+- `DietTrackerApp.kt`
+- `MainActivity.kt`
+- teste unitário do cálculo agregado da receita
+
+Critérios de aceite funcionais:
+- Exibir ação "Adicionar ao diário" somente quando houver ingredientes.
+- Permitir escolher café da manhã, almoço, jantar ou lanche.
+- Salvar uma entrada no dia selecionado com nome da receita, peso e macros somados.
+- Fechar o detalhe após a gravação.
+- Manter adição e remoção de ingredientes funcionando.
+
+Critérios de aceite visuais:
+- Reutilizar o botão primário fixo e o diálogo Material já usados no app.
+- Manter tema escuro, hierarquia e espaçamentos do detalhe atual.
+- Não esconder a ação de adicionar ingrediente.
+
+Riscos:
+- Receita vazia gerar entrada sem nutrientes. Mitigação: não oferecer a ação sem ingredientes.
+- Soma divergente do card de macros. Mitigação: usar a mesma lista de ingredientes para ambos.
+
+Instrução objetiva para o Dev:
+- Reutilizar `DiaryRepository.addImportedFood`, sem nova entidade ou migração de banco.
+
+### 2. DEV
+
+Implementação feita:
+- A tela de receita oferece "Adicionar ao diário" quando possui ingredientes.
+- Um diálogo permite escolher café da manhã, almoço, jantar ou lanche.
+- `RecipesViewModel` soma peso e macros e grava uma entrada pelo `DiaryRepository` no dia selecionado.
+- Após salvar, o app retorna para a aba Diário.
+
+Arquivos criados/alterados:
+- `feature/recipes/RecipeDetailScreen.kt`
+- `feature/recipes/RecipesViewModel.kt`
+- `DietTrackerApp.kt`
+- `MainActivity.kt`
+- `feature/recipes/RecipesViewModelTest.kt`
+
+Como preservou a UI original:
+- Reutilizou `BottomPrimaryButton`, `AlertDialog`, tema escuro, espaçamentos e hierarquia existentes.
+- A ação de adicionar ingrediente permanece disponível.
+
+Como testou:
+- `gradlew.bat test assembleDebug` — BUILD SUCCESSFUL.
+- Teste `recipeTotalsSumAllIngredients` valida peso e macros agregados.
+
+### 3. QA
+
+Checklist funcional:
+- [x] Ação disponível somente com ingredientes.
+- [x] Quatro refeições selecionáveis.
+- [x] Peso e macros agregados e gravados no dia selecionado.
+- [x] Retorno à aba Diário somente após a gravação.
+- [x] Adição e remoção de ingredientes preservadas.
+
+Checklist visual:
+- [x] Botão primário e diálogo seguem os componentes existentes.
+- [x] Tema escuro, hierarquia e espaçamentos preservados.
+- [x] Ação de adicionar ingrediente continua visível.
+
+Comandos e resultado:
+- `git diff --check` — limpo.
+- `gradlew.bat test assembleDebug` — BUILD SUCCESSFUL.
+
+Decisão:
+- APROVADO
+
+### Próxima tarefa aberta pelo Arquiteto
+
+Nome:
+- Tornar o importador ChatGPT robusto para Markdown, payload base64url e validações obrigatórias.

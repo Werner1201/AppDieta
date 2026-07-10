@@ -56,17 +56,45 @@ fun RecipeDetailScreen(
     onClearFoodSearch: () -> Unit,
     onAddIngredient: (FoodSearchItem, Double) -> Unit,
     onRemoveIngredient: (Long) -> Unit,
+    onAddToDiary: (String) -> Unit,
     onClose: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var addStep by remember { mutableStateOf<AddStep?>(null) }
     var foodQuery by remember { mutableStateOf("") }
     var gramsText by remember { mutableStateOf("") }
+    var showMealPicker by remember { mutableStateOf(false) }
 
     val totalKcal = ingredients.sumOf { it.kcal }
     val totalCarbs = ingredients.sumOf { it.carbs }
     val totalProtein = ingredients.sumOf { it.protein }
     val totalFat = ingredients.sumOf { it.fat }
+
+    if (showMealPicker) {
+        AlertDialog(
+            onDismissRequest = { showMealPicker = false },
+            title = { Text("Adicionar ao diário") },
+            text = {
+                Column {
+                    listOf(
+                        "breakfast" to "Café da manhã",
+                        "lunch" to "Almoço",
+                        "dinner" to "Jantar",
+                        "snack" to "Lanche",
+                    ).forEach { (key, label) ->
+                        TextButton(
+                            onClick = { showMealPicker = false; onAddToDiary(key) },
+                            modifier = Modifier.fillMaxWidth(),
+                        ) { Text(label) }
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = { showMealPicker = false }) { Text("Cancelar") }
+            },
+        )
+    }
 
     when (val step = addStep) {
         AddStep.Search -> AlertDialog(
@@ -236,8 +264,19 @@ fun RecipeDetailScreen(
                 Spacer(modifier = Modifier.height(80.dp))
             }
 
-            Box(modifier = Modifier.padding(horizontal = AppSpacing.ScreenHorizontal, vertical = 12.dp)) {
-                BottomPrimaryButton(text = "+ Ingrediente", onClick = { addStep = AddStep.Search })
+            Column(
+                modifier = Modifier.padding(horizontal = AppSpacing.ScreenHorizontal, vertical = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                if (ingredients.isNotEmpty()) {
+                    TextButton(
+                        onClick = { addStep = AddStep.Search },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) { Text("+ Ingrediente") }
+                    BottomPrimaryButton(text = "Adicionar ao diário", onClick = { showMealPicker = true })
+                } else {
+                    BottomPrimaryButton(text = "+ Ingrediente", onClick = { addStep = AddStep.Search })
+                }
             }
         }
     }
@@ -278,4 +317,3 @@ private fun MacroCell(label: String, value: String) {
         Text(text = label, style = MaterialTheme.typography.labelSmall, color = AppColors.TextSecondary)
     }
 }
-

@@ -66,10 +66,11 @@ Ignore imagens untracked na raiz. Responda com APROVADO ou REPROVADO e achados o
 - Ciclo 46: edição de gramas de entrada no diário via `AlertDialog` em `MealDetailScreen`; nutrição recalculada proporcionalmente.
 - Ciclo 47: tela Receitas funcional (tab RECIPES); `RecipeEntity`, `RecipeDao`, `MIGRATION_1_2` (v1→v2), `RecipeRepository`, `RecipesViewModel`, `RecipesScreen` com lista e AlertDialog de criação.
 - Ciclo 48: ingredientes em receitas; `RecipeIngredientEntity`, `RecipeIngredientDao`, `MIGRATION_2_3` (v2→v3); `RecipeDetailScreen` com busca 2 passos, lista de ingredientes e totais macro.
+- Ciclo 49: receita adicionada ao diário com escolha da refeição e totais agregados.
 
 Ciclo em andamento:
-- Nenhum ciclo aberto após o Ciclo 48.
-- Próximo ciclo sugerido: adicionar receita ao diário (botão "Adicionar ao diário" em RecipeDetailScreen) ou tela Perfil.
+- Nenhum ciclo aberto após o Ciclo 49.
+- Próximo ciclo sugerido: robustecer o importador ChatGPT para JSON em Markdown, links/payload base64url e rejeição de dados inválidos.
 
 ## Estilo de implementação
 

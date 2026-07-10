@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.romling.diettracker.data.local.entity.RecipeEntity
 import com.romling.diettracker.data.local.entity.RecipeIngredientEntity
 import com.romling.diettracker.data.repository.FoodRepository
+import com.romling.diettracker.data.repository.DiaryRepository
 import com.romling.diettracker.data.repository.RecipeRepository
 import com.romling.diettracker.feature.meal.FoodSearchItem
 import kotlin.math.round
@@ -24,6 +25,7 @@ import kotlinx.coroutines.launch
 class RecipesViewModel(
     private val recipeRepository: RecipeRepository,
     private val foodRepository: FoodRepository,
+    private val diaryRepository: DiaryRepository,
 ) : ViewModel() {
     val recipes: StateFlow<List<RecipeEntity>> = recipeRepository.allRecipes()
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
@@ -91,16 +93,57 @@ class RecipesViewModel(
     fun removeIngredient(id: Long) {
         viewModelScope.launch { recipeRepository.removeIngredient(id) }
     }
+
+    fun addToDiary(
+        date: String,
+        mealType: String,
+        recipe: RecipeEntity,
+        ingredients: List<RecipeIngredientEntity>,
+        onDone: () -> Unit,
+    ) {
+        if (ingredients.isEmpty()) return
+        val totals = recipeTotals(ingredients)
+        viewModelScope.launch {
+            diaryRepository.addImportedFood(
+                date = date,
+                mealType = mealType,
+                name = recipe.name,
+                kcal = totals.kcal,
+                carbs = totals.carbs,
+                protein = totals.protein,
+                fat = totals.fat,
+                gramsTotal = totals.grams,
+            )
+            onDone()
+        }
+    }
 }
 
 private fun round1(value: Double) = round(value * 10.0) / 10.0
 
+internal data class RecipeTotals(
+    val grams: Double,
+    val kcal: Double,
+    val carbs: Double,
+    val protein: Double,
+    val fat: Double,
+)
+
+internal fun recipeTotals(ingredients: List<RecipeIngredientEntity>) = RecipeTotals(
+    grams = ingredients.sumOf { it.grams },
+    kcal = ingredients.sumOf { it.kcal },
+    carbs = ingredients.sumOf { it.carbs },
+    protein = ingredients.sumOf { it.protein },
+    fat = ingredients.sumOf { it.fat },
+)
+
 class RecipesViewModelFactory(
     private val recipeRepository: RecipeRepository,
     private val foodRepository: FoodRepository,
+    private val diaryRepository: DiaryRepository,
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         @Suppress("UNCHECKED_CAST")
-        return RecipesViewModel(recipeRepository, foodRepository) as T
+        return RecipesViewModel(recipeRepository, foodRepository, diaryRepository) as T
     }
 }

@@ -92,6 +92,13 @@ fun DietTrackerApp(
                 onClearFoodSearch = recipesViewModel::clearFoodSearch,
                 onAddIngredient = { food, grams -> recipesViewModel.addIngredientFromFood(detailRecipe!!.id, food, grams) },
                 onRemoveIngredient = recipesViewModel::removeIngredient,
+                onAddToDiary = { mealType ->
+                    recipesViewModel.addToDiary(state.date, mealType, detailRecipe!!, selectedIngredients) {
+                        detailRecipe = null
+                        recipesViewModel.clearRecipe()
+                        selectedTab = AppTab.DIARY
+                    }
+                },
                 onClose = { detailRecipe = null; recipesViewModel.clearRecipe() },
             )
         } else if (showImport) {
