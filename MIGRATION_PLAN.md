@@ -4816,3 +4816,91 @@ Decisão:
 
 Nome:
 - Integrar deep link, clipboard e abertura do GPT ao fluxo nativo.
+
+## Ciclo 51
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Deep link, clipboard e abertura do GPT personalizado.
+
+Motivo:
+- O parser já aceita links e payloads, mas o Android ainda não recebe o scheme próprio nem oferece as ações práticas previstas no fluxo original.
+
+Tela ou funcionalidade original analisada:
+- `ChatGptImportScreen`, `MainActivity`, manifesto Android e fluxo web `/import/chatgpt?payload=`.
+
+Arquivos prováveis:
+- `AndroidManifest.xml`
+- `MainActivity.kt`
+- `DietTrackerApp.kt`
+- `feature/chatgpt/ChatGptImportViewModel.kt`
+- `feature/chatgpt/ChatGptImportScreen.kt`
+
+Critérios de aceite funcionais:
+- Registrar `romlingdiet://import/chatgpt?payload=...` no manifesto.
+- Receber o link com o app fechado ou já aberto.
+- Abrir automaticamente a tela de importação sem salvar dados.
+- Oferecer ação explícita para importar o conteúdo do clipboard.
+- Oferecer ação para abrir o GPT personalizado fornecido pelo usuário.
+- Preservar prévia e confirmação antes do salvamento.
+
+Critérios de aceite visuais:
+- Reutilizar os cards, botões e cores atuais da tela de importação.
+- Manter as ações em ordem clara: abrir/copiar, importar, revisar e salvar.
+
+Riscos:
+- Novo intent não atualizar uma Activity existente. Mitigação: `singleTop` e `onNewIntent`.
+- Clipboard vazio. Mitigação: encaminhar ao parser para exibir a mensagem existente.
+
+Instrução objetiva para o Dev:
+- Usar intents e clipboard nativos, sem dependência nova e sem implementar configuração editável da URL neste ciclo.
+
+### 2. DEV
+
+Implementação feita:
+- Manifesto registra `romlingdiet://import/chatgpt` e usa `singleTop`.
+- `MainActivity` trata o intent inicial e `onNewIntent`.
+- O conteúdo externo é analisado pelo parser aprovado e abre a tela de importação sem salvar.
+- A tela ganhou ações para abrir o GPT personalizado e importar explicitamente do clipboard.
+- Prévia e confirmação continuam obrigatórias.
+
+Arquivos alterados:
+- `AndroidManifest.xml`
+- `MainActivity.kt`
+- `DietTrackerApp.kt`
+- `feature/chatgpt/ChatGptImportViewModel.kt`
+- `feature/chatgpt/ChatGptImportScreen.kt`
+
+Como preservou a UI original:
+- As novas ações reutilizam `AppCard`, `Surface`, cores, formas e alturas existentes.
+- O fluxo permanece abrir/copiar, importar, revisar e confirmar.
+
+Como testou:
+- `gradlew.bat lintDebug test assembleDebug` — BUILD SUCCESSFUL.
+
+### 3. QA
+
+Primeira rodada:
+- REPROVADO: detalhe de receita tinha prioridade visual sobre importação recebida por deep link.
+
+Correção:
+- A condição raiz de navegação passou a dar precedência a `showImport`.
+
+Checklist final:
+- [x] Scheme `romlingdiet://import/chatgpt` registrado.
+- [x] Intent inicial e `onNewIntent` tratados.
+- [x] Deep link abre o importador mesmo sobre outra tela.
+- [x] Nenhum dado é salvo automaticamente.
+- [x] Clipboard exige ação explícita.
+- [x] GPT personalizado abre pelo navegador/app disponível.
+- [x] Prévia e confirmação preservadas.
+- [x] Lint, testes e APK debug passam.
+
+Decisão:
+- APROVADO
+
+### Próxima tarefa aberta pelo Arquiteto
+
+Nome:
+- Tornar URL e prompt do GPT editáveis nas Configurações.

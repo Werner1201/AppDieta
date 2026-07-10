@@ -30,6 +30,18 @@ class ChatGptImportViewModel(
         }
     }
 
+    fun loadExternalContent(text: String) {
+        _state.update {
+            it.copy(
+                json = text,
+                parseError = null,
+                savedCount = 0,
+                externalRequestId = it.externalRequestId + 1,
+            )
+        }
+        parse()
+    }
+
     fun saveAll(date: String, onDone: () -> Unit = {}) {
         val items = _state.value.preview
         if (items.isEmpty()) return
@@ -71,4 +83,5 @@ data class ChatGptImportUiState(
     val parseError: String? = null,
     val isSaving: Boolean = false,
     val savedCount: Int = 0,
+    val externalRequestId: Int = 0,
 )

@@ -1,5 +1,7 @@
 package com.romling.diettracker.feature.chatgpt
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.clickable
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -46,6 +49,7 @@ fun ChatGptImportScreen(
     modifier: Modifier = Modifier,
 ) {
     val clipboard = LocalClipboardManager.current
+    val context = LocalContext.current
     var copied by remember { mutableStateOf(false) }
 
     Box(
@@ -109,6 +113,26 @@ fun ChatGptImportScreen(
                                 )
                             }
                         }
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(44.dp)
+                                .clickable {
+                                    runCatching {
+                                        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(CUSTOM_GPT_URL)))
+                                    }
+                                },
+                            shape = AppShapes.Button,
+                            color = AppColors.Panel,
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Text(
+                                    text = "Abrir GPT personalizado",
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = AppColors.Accent,
+                                )
+                            }
+                        }
                     }
                 }
 
@@ -119,6 +143,25 @@ fun ChatGptImportScreen(
                             style = MaterialTheme.typography.labelMedium,
                             color = AppColors.TextSecondary,
                         )
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(44.dp)
+                                .clickable {
+                                    onJsonChange(clipboard.getText()?.text.orEmpty())
+                                    onParse()
+                                },
+                            shape = AppShapes.Button,
+                            color = AppColors.Panel,
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Text(
+                                    text = "Importar do clipboard",
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = AppColors.Accent,
+                                )
+                            }
+                        }
                         OutlinedTextField(
                             value = state.json,
                             onValueChange = onJsonChange,
@@ -195,6 +238,8 @@ fun ChatGptImportScreen(
         }
     }
 }
+
+private const val CUSTOM_GPT_URL = "https://chatgpt.com/g/g-6a4594e4a6c88191b132ffc25a95ff0d-importador-de-refeicoes-para-app-local"
 
 private const val CHATGPT_PROMPT = """Me dê o JSON com todas as refeições de hoje no formato abaixo. Responda APENAS com o JSON, sem explicações.
 

@@ -68,10 +68,11 @@ Ignore imagens untracked na raiz. Responda com APROVADO ou REPROVADO e achados o
 - Ciclo 48: ingredientes em receitas; `RecipeIngredientEntity`, `RecipeIngredientDao`, `MIGRATION_2_3` (v2→v3); `RecipeDetailScreen` com busca 2 passos, lista de ingredientes e totais macro.
 - Ciclo 49: receita adicionada ao diário com escolha da refeição e totais agregados.
 - Ciclo 50: importador ChatGPT robusto para JSON/Markdown/base64url/link, compatível com o schema web e API 26.
+- Ciclo 51: deep link `romlingdiet://`, importação explícita do clipboard e abertura do GPT personalizado.
 
 Ciclo em andamento:
-- Nenhum ciclo aberto após o Ciclo 50.
-- Próximo ciclo sugerido: integrar deep link `romlingdiet://`, importação do clipboard e abertura do GPT configurado.
+- Nenhum ciclo aberto após o Ciclo 51.
+- Próximo ciclo sugerido: tornar URL e prompt do GPT editáveis nas Configurações e remover as constantes da tela de importação.
 
 ## Estilo de implementação
 
