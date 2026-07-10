@@ -42,6 +42,8 @@ import com.romling.diettracker.core.ui.theme.AppSpacing
 @Composable
 fun ChatGptImportScreen(
     state: ChatGptImportUiState,
+    chatGptUrl: String,
+    chatGptPrompt: String,
     onJsonChange: (String) -> Unit,
     onParse: () -> Unit,
     onSaveAll: () -> Unit,
@@ -90,7 +92,7 @@ fun ChatGptImportScreen(
                             color = AppColors.TextSecondary,
                         )
                         Text(
-                            text = CHATGPT_PROMPT,
+                            text = chatGptPrompt,
                             style = MaterialTheme.typography.bodySmall,
                             color = AppColors.TextPrimary,
                         )
@@ -99,7 +101,7 @@ fun ChatGptImportScreen(
                                 .fillMaxWidth()
                                 .height(44.dp)
                                 .clickable {
-                                    clipboard.setText(AnnotatedString(CHATGPT_PROMPT))
+                                    clipboard.setText(AnnotatedString(chatGptPrompt))
                                     copied = true
                                 },
                             shape = AppShapes.Button,
@@ -119,7 +121,7 @@ fun ChatGptImportScreen(
                                 .height(44.dp)
                                 .clickable {
                                     runCatching {
-                                        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(CUSTOM_GPT_URL)))
+                                        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(chatGptUrl)))
                                     }
                                 },
                             shape = AppShapes.Button,
@@ -238,18 +240,6 @@ fun ChatGptImportScreen(
         }
     }
 }
-
-private const val CUSTOM_GPT_URL = "https://chatgpt.com/g/g-6a4594e4a6c88191b132ffc25a95ff0d-importador-de-refeicoes-para-app-local"
-
-private const val CHATGPT_PROMPT = """Me dê o JSON com todas as refeições de hoje no formato abaixo. Responda APENAS com o JSON, sem explicações.
-
-Formato:
-[{"nome": "nome do alimento", "porcao_g": 100, "refeicao": "almoco", "kcal": 200, "proteina": 15, "carbs": 20, "gordura": 5}]
-
-Valores de refeicao: "cafe" (café da manhã), "almoco" (almoço), "jantar", "lanche"
-
-Refeições de hoje:
-"""
 
 @Composable
 private fun PreviewRow(item: ImportItem) {

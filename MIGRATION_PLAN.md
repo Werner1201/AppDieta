@@ -4904,3 +4904,94 @@ Decisão:
 
 Nome:
 - Tornar URL e prompt do GPT editáveis nas Configurações.
+
+## Ciclo 52
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Configuração persistente da URL e do prompt do GPT.
+
+Motivo:
+- O Ciclo 51 usa valores fixos na tela de importação. O escopo original exige que ambos possam ser alterados sem recompilar o app.
+
+Tela ou funcionalidade original analisada:
+- `SettingsScreen`, `SettingsRepository`, estado da tela Hoje e `ChatGptImportScreen`.
+
+Arquivos prováveis:
+- `data/repository/SettingsRepository.kt`
+- `feature/today/TodayViewModel.kt`
+- `feature/settings/SettingsScreen.kt`
+- `feature/chatgpt/ChatGptImportScreen.kt`
+- `DietTrackerApp.kt`
+
+Critérios de aceite funcionais:
+- Persistir URL e prompt junto às configurações atuais.
+- Exibir os valores salvos na tela Configurações.
+- Impedir URL fora de HTTP/HTTPS e prompt vazio de substituir valores válidos.
+- Usar imediatamente URL e prompt salvos na tela de importação.
+- Preservar metas existentes ao salvar.
+
+Critérios de aceite visuais:
+- Manter cards, campos e botão existentes.
+- Permitir rolagem da tela com os novos campos.
+- Usar campo multilinha para o prompt.
+
+Riscos:
+- Configuração inválida impedir abertura do GPT. Mitigação: manter o último valor válido.
+- Tela exceder a altura disponível. Mitigação: rolagem vertical.
+
+Instrução objetiva para o Dev:
+- Ampliar `GoalSettings` e o fluxo atual; não criar novo repositório nem adicionar dependência.
+
+### 2. DEV
+
+Implementação feita:
+- `GoalSettings` passou a incluir URL e prompt do GPT com defaults compatíveis com instalações antigas.
+- `SettingsRepository` persiste e publica as duas novas configurações no fluxo existente.
+- `TodayUiState` entrega os valores reativamente à tela de importação.
+- `SettingsScreen` ganhou rolagem, campo de URL, prompt multilinha e salvamento conjunto.
+- `ChatGptImportScreen` deixou de usar constantes locais.
+- URL é aceita apenas com scheme HTTP/HTTPS e host válido; prompt vazio preserva o valor anterior.
+
+Arquivos criados/alterados:
+- `data/repository/SettingsRepository.kt`
+- `feature/today/TodayViewModel.kt`
+- `feature/settings/SettingsScreen.kt`
+- `feature/chatgpt/ChatGptImportScreen.kt`
+- `DietTrackerApp.kt`
+- `feature/settings/SettingsScreenTest.kt`
+
+Como preservou a UI original:
+- Campos foram adicionados ao card existente, com o mesmo estilo Material e botão único.
+- A tela passou a rolar para manter todos os controles acessíveis.
+
+Como testou:
+- `gradlew.bat lintDebug test assembleDebug` — BUILD SUCCESSFUL.
+- Teste valida URL HTTP/HTTPS e rejeita scheme inseguro ou URL incompleta.
+
+### 3. QA
+
+Checklist funcional:
+- [x] URL e prompt persistidos com as metas.
+- [x] Instalações antigas recebem defaults.
+- [x] Metas existentes são preservadas ao salvar.
+- [x] URL inválida e prompt vazio não substituem valores válidos.
+- [x] Importador usa imediatamente os valores salvos.
+- [x] Constantes locais removidas da tela de importação.
+
+Checklist visual:
+- [x] Tela de Configurações rolável.
+- [x] URL em campo de linha única e prompt multilinha.
+- [x] Cards, espaçamentos e botão existentes preservados.
+
+Comandos e resultado:
+- `gradlew.bat lintDebug test assembleDebug` — BUILD SUCCESSFUL.
+
+Decisão:
+- APROVADO
+
+### Próxima tarefa aberta pelo Arquiteto
+
+Nome:
+- Importar backup JSON exportado pelo app.

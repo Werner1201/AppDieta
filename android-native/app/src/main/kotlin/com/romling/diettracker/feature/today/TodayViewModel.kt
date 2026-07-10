@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.romling.diettracker.data.local.entity.DiaryEntryEntity
 import com.romling.diettracker.data.local.entity.WeightEntryEntity
 import com.romling.diettracker.data.repository.DiaryRepository
+import com.romling.diettracker.data.repository.DEFAULT_CHAT_GPT_PROMPT
+import com.romling.diettracker.data.repository.DEFAULT_CHAT_GPT_URL
 import com.romling.diettracker.data.repository.GoalSettings
 import com.romling.diettracker.data.repository.SettingsRepository
 import com.romling.diettracker.data.repository.WaterRepository
@@ -193,6 +195,8 @@ class TodayViewModel(
         dailyCarbs = settings.dailyCarbs,
         dailyProtein = settings.dailyProtein,
         dailyFat = settings.dailyFat,
+        chatGptUrl = settings.chatGptUrl,
+        chatGptPrompt = settings.chatGptPrompt,
         meals = defaultMeals(settings.dailyKcal),
         water = TodayWaterSummary(goalMl = settings.dailyWaterMl),
         weight = TodayWeightSummary(currentKg = settings.defaultWeightKg, goalKg = settings.weightGoalKg),
@@ -219,6 +223,8 @@ data class TodayUiState(
     val dailyCarbs: Double = 284.0,
     val dailyProtein: Double,
     val dailyFat: Double = 75.0,
+    val chatGptUrl: String = DEFAULT_CHAT_GPT_URL,
+    val chatGptPrompt: String = DEFAULT_CHAT_GPT_PROMPT,
     val totals: TodayNutritionTotals = TodayNutritionTotals(),
     val entries: List<TodayEntrySummary> = emptyList(),
     val meals: List<TodayMealSummary> = defaultMeals(),

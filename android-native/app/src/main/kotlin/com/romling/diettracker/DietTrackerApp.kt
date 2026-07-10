@@ -109,6 +109,8 @@ fun DietTrackerApp(
         } else if (showImport) {
             ChatGptImportScreen(
                 state = importState,
+                chatGptUrl = state.chatGptUrl,
+                chatGptPrompt = state.chatGptPrompt,
                 onJsonChange = chatGptImportViewModel::updateJson,
                 onParse = chatGptImportViewModel::parse,
                 onSaveAll = { chatGptImportViewModel.saveAll(state.date) { showImport = false } },

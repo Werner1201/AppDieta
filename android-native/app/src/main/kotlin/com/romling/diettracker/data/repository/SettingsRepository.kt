@@ -5,6 +5,17 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
+const val DEFAULT_CHAT_GPT_URL = "https://chatgpt.com/g/g-6a4594e4a6c88191b132ffc25a95ff0d-importador-de-refeicoes-para-app-local"
+const val DEFAULT_CHAT_GPT_PROMPT = """Me dê o JSON com todas as refeições de hoje no formato abaixo. Responda APENAS com o JSON, sem explicações.
+
+Formato:
+[{"nome": "nome do alimento", "porcao_g": 100, "refeicao": "almoco", "kcal": 200, "proteina": 15, "carbs": 20, "gordura": 5}]
+
+Valores de refeicao: "cafe" (café da manhã), "almoco" (almoço), "jantar", "lanche"
+
+Refeições de hoje:
+"""
+
 data class GoalSettings(
     val dailyKcal: Double = 2333.0,
     val dailyCarbs: Double = 284.0,
@@ -13,6 +24,8 @@ data class GoalSettings(
     val dailyWaterMl: Int = 2000,
     val defaultWeightKg: Double = 108.0,
     val weightGoalKg: Double = 80.0,
+    val chatGptUrl: String = DEFAULT_CHAT_GPT_URL,
+    val chatGptPrompt: String = DEFAULT_CHAT_GPT_PROMPT,
 )
 
 class SettingsRepository(private val preferences: SharedPreferences) {
@@ -28,6 +41,8 @@ class SettingsRepository(private val preferences: SharedPreferences) {
             .putInt(KEY_WATER, settings.dailyWaterMl)
             .putFloat(KEY_DEFAULT_WEIGHT, settings.defaultWeightKg.toFloat())
             .putFloat(KEY_WEIGHT_GOAL, settings.weightGoalKg.toFloat())
+            .putString(KEY_CHAT_GPT_URL, settings.chatGptUrl)
+            .putString(KEY_CHAT_GPT_PROMPT, settings.chatGptPrompt)
             .apply()
         _settings.value = settings
     }
@@ -40,6 +55,8 @@ class SettingsRepository(private val preferences: SharedPreferences) {
         dailyWaterMl = preferences.getInt(KEY_WATER, 2000),
         defaultWeightKg = preferences.getFloat(KEY_DEFAULT_WEIGHT, 108f).toDouble(),
         weightGoalKg = preferences.getFloat(KEY_WEIGHT_GOAL, 80f).toDouble(),
+        chatGptUrl = preferences.getString(KEY_CHAT_GPT_URL, DEFAULT_CHAT_GPT_URL) ?: DEFAULT_CHAT_GPT_URL,
+        chatGptPrompt = preferences.getString(KEY_CHAT_GPT_PROMPT, DEFAULT_CHAT_GPT_PROMPT) ?: DEFAULT_CHAT_GPT_PROMPT,
     )
 
     private companion object {
@@ -50,5 +67,7 @@ class SettingsRepository(private val preferences: SharedPreferences) {
         const val KEY_WATER = "daily_water_ml"
         const val KEY_DEFAULT_WEIGHT = "default_weight_kg"
         const val KEY_WEIGHT_GOAL = "weight_goal_kg"
+        const val KEY_CHAT_GPT_URL = "chat_gpt_url"
+        const val KEY_CHAT_GPT_PROMPT = "chat_gpt_prompt"
     }
 }
