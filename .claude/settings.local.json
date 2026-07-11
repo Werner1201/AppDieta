@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(./gradlew test *)",
+      "Bash(find /usr/lib/jvm -name \"java\" -type f 2>/dev/null | head -5; which java 2>/dev/null || true; ls /usr/lib/jvm 2>/dev/null | head -5)",
+      "Bash(adb devices *)",
+      "Read(//home/werner/Android/Sdk/emulator/**)",
+      "Bash(~/Android/Sdk/emulator/emulator -list-avds)",
+      "Bash(~/Android/Sdk/emulator/emulator -avd Galaxy_Z_Fold_6 -no-snapshot-load)",
+      "Bash(echo \"Emulador iniciando em background \\(PID $!\\)\")",
+      "Bash(~/Android/Sdk/platform-tools/adb shell *)",
+      "Bash(~/Android/Sdk/platform-tools/adb install *)",
+      "Bash(sleep 3 && ~/Android/Sdk/platform-tools/adb exec-out screencap -p > /tmp/app_screen.png 2>&1 && echo \"Screenshot salvo\")",
+      "Bash(~/Android/Sdk/platform-tools/adb exec-out *)"
+    ]
+  }
+}
