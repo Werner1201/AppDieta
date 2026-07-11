@@ -30,19 +30,49 @@ import com.romling.diettracker.core.ui.components.BottomPrimaryButton
 import com.romling.diettracker.core.ui.theme.AppColors
 import com.romling.diettracker.core.ui.theme.AppSpacing
 
+data class CustomFoodInput(
+    val name: String,
+    val category: String,
+    val aliases: String,
+    val kcal100g: Double,
+    val carbs100g: Double,
+    val protein100g: Double,
+    val fat100g: Double,
+    val fiber100g: Double,
+    val sugar100g: Double,
+    val sodiumMg100g: Double,
+    val defaultUnit: String,
+    val gramsPerDefaultUnit: Double,
+    val source: String,
+)
+
 @Composable
 fun CreateFoodScreen(
     onClose: () -> Unit,
-    onSave: (name: String, kcal: Double, carbs: Double, protein: Double, fat: Double) -> Unit,
+    onSave: (CustomFoodInput) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var name by remember { mutableStateOf("") }
+    var category by remember { mutableStateOf("") }
+    var aliases by remember { mutableStateOf("") }
     var kcal by remember { mutableStateOf("") }
     var carbs by remember { mutableStateOf("") }
     var protein by remember { mutableStateOf("") }
     var fat by remember { mutableStateOf("") }
+    var fiber by remember { mutableStateOf("") }
+    var sugar by remember { mutableStateOf("") }
+    var sodium by remember { mutableStateOf("") }
+    var defaultUnit by remember { mutableStateOf("100 g") }
+    var gramsPerUnit by remember { mutableStateOf("100") }
+    var source by remember { mutableStateOf("Cadastro manual") }
 
-    val canSave = name.isNotBlank() && kcal.toDoubleOrNullPositive() != null
+    val optionalNumbers = listOf(carbs, protein, fat, fiber, sugar, sodium)
+    val canSave = name.isNotBlank() &&
+        category.isNotBlank() &&
+        defaultUnit.isNotBlank() &&
+        kcal.toNonNegativeDouble() != null &&
+        gramsPerUnit.toPositiveDouble() != null &&
+        optionalNumbers.all { it.isBlank() || it.toNonNegativeDouble() != null }
 
     Box(
         modifier = modifier
@@ -79,10 +109,26 @@ fun CreateFoodScreen(
                 AppCard {
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         FoodTextField(label = "Nome", value = name, onValueChange = { name = it }, keyboardType = KeyboardType.Text)
+                        FoodTextField(label = "Categoria", value = category, onValueChange = { category = it }, keyboardType = KeyboardType.Text)
+                        FoodTextField(label = "Aliases", value = aliases, onValueChange = { aliases = it }, keyboardType = KeyboardType.Text)
+                    }
+                }
+                AppCard {
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         FoodTextField(label = "Calorias por 100 g", value = kcal, onValueChange = { kcal = it }, suffix = "kcal")
                         FoodTextField(label = "Carboidratos por 100 g", value = carbs, onValueChange = { carbs = it }, suffix = "g")
                         FoodTextField(label = "Proteína por 100 g", value = protein, onValueChange = { protein = it }, suffix = "g")
                         FoodTextField(label = "Gordura por 100 g", value = fat, onValueChange = { fat = it }, suffix = "g")
+                        FoodTextField(label = "Fibras por 100 g", value = fiber, onValueChange = { fiber = it }, suffix = "g")
+                        FoodTextField(label = "Açúcar por 100 g", value = sugar, onValueChange = { sugar = it }, suffix = "g")
+                        FoodTextField(label = "Sódio por 100 g", value = sodium, onValueChange = { sodium = it }, suffix = "mg")
+                    }
+                }
+                AppCard {
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        FoodTextField(label = "Unidade padrão", value = defaultUnit, onValueChange = { defaultUnit = it }, keyboardType = KeyboardType.Text)
+                        FoodTextField(label = "Gramas por unidade", value = gramsPerUnit, onValueChange = { gramsPerUnit = it }, suffix = "g")
+                        FoodTextField(label = "Fonte ou observação", value = source, onValueChange = { source = it }, keyboardType = KeyboardType.Text)
                     }
                 }
             }
@@ -93,11 +139,21 @@ fun CreateFoodScreen(
                     onClick = {
                         if (canSave) {
                             onSave(
-                                name,
-                                kcal.toDoubleOrNullPositive() ?: 0.0,
-                                carbs.toDoubleOrNullPositive() ?: 0.0,
-                                protein.toDoubleOrNullPositive() ?: 0.0,
-                                fat.toDoubleOrNullPositive() ?: 0.0,
+                                CustomFoodInput(
+                                    name = name.trim(),
+                                    category = category.trim(),
+                                    aliases = aliases.trim(),
+                                    kcal100g = kcal.toNonNegativeDouble() ?: 0.0,
+                                    carbs100g = carbs.toNonNegativeDouble() ?: 0.0,
+                                    protein100g = protein.toNonNegativeDouble() ?: 0.0,
+                                    fat100g = fat.toNonNegativeDouble() ?: 0.0,
+                                    fiber100g = fiber.toNonNegativeDouble() ?: 0.0,
+                                    sugar100g = sugar.toNonNegativeDouble() ?: 0.0,
+                                    sodiumMg100g = sodium.toNonNegativeDouble() ?: 0.0,
+                                    defaultUnit = defaultUnit.trim(),
+                                    gramsPerDefaultUnit = gramsPerUnit.toPositiveDouble() ?: 100.0,
+                                    source = source.trim().ifBlank { "Cadastro manual" },
+                                ),
                             )
                         }
                     },
@@ -126,5 +182,8 @@ private fun FoodTextField(
     )
 }
 
-private fun String.toDoubleOrNullPositive(): Double? =
-    replace(',', '.').toDoubleOrNull()?.takeIf { it >= 0 }
+private fun String.toNonNegativeDouble(): Double? =
+    replace(',', '.').toDoubleOrNull()?.takeIf { it.isFinite() && it >= 0 }
+
+private fun String.toPositiveDouble(): Double? =
+    replace(',', '.').toDoubleOrNull()?.takeIf { it.isFinite() && it > 0 }

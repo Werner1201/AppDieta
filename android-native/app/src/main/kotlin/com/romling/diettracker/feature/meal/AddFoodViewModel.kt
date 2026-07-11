@@ -89,27 +89,27 @@ class AddFoodViewModel(
         viewModelScope.launch { foodRepository.deleteById(id) }
     }
 
-    fun createCustomFood(
-        name: String,
-        kcal100g: Double,
-        carbs100g: Double,
-        protein100g: Double,
-        fat100g: Double,
-        onCreated: () -> Unit = {},
-    ) {
+    fun createCustomFood(input: CustomFoodInput, onCreated: () -> Unit = {}) {
         viewModelScope.launch {
             foodRepository.add(
                 FoodEntity(
-                    name = name.trim(),
-                    category = "customizado",
-                    kcal100g = kcal100g,
-                    carbs100g = carbs100g,
-                    protein100g = protein100g,
-                    fat100g = fat100g,
+                    name = input.name,
+                    category = input.category,
+                    aliases = input.aliases,
+                    kcal100g = input.kcal100g,
+                    carbs100g = input.carbs100g,
+                    protein100g = input.protein100g,
+                    fat100g = input.fat100g,
+                    fiber100g = input.fiber100g,
+                    sugar100g = input.sugar100g,
+                    sodiumMg100g = input.sodiumMg100g,
+                    defaultUnit = input.defaultUnit,
+                    gramsPerDefaultUnit = input.gramsPerDefaultUnit,
+                    source = input.source,
                     isCustom = true,
                 ),
             )
-            query.value = name.trim()
+            query.value = input.name
             onCreated()
         }
     }

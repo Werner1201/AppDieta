@@ -167,9 +167,7 @@ fun DietTrackerApp(
                 onOpenFoodDetails = addFoodViewModel::openFoodDetails,
                 onCloseFoodDetails = addFoodViewModel::closeFoodDetails,
                 onAddFood = { food, portion -> addFoodViewModel.addFood(addMeal!!.key, food.id, portion) { addMeal = null } },
-                onCreateFood = { name, kcal, carbs, protein, fat ->
-                    addFoodViewModel.createCustomFood(name, kcal, carbs, protein, fat)
-                },
+                onCreateFood = { input -> addFoodViewModel.createCustomFood(input) },
                 onClose = { addMeal = null },
             )
         } else {

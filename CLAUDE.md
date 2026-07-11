@@ -71,10 +71,11 @@ Ignore imagens untracked na raiz. Responda com APROVADO ou REPROVADO e achados o
 - Ciclo 51: deep link `romlingdiet://`, importação explícita do clipboard e abertura do GPT personalizado.
 - Ciclo 52: URL e prompt do GPT persistentes e editáveis nas Configurações.
 - Ciclo 53: importação aditiva do backup JSON com validação, prévia e confirmação.
+- Ciclo 54: cadastro completo de alimento personalizado usando todos os campos de `FoodEntity`.
 
 Ciclo em andamento:
-- Nenhum ciclo aberto após o Ciclo 53.
-- Próximo ciclo sugerido: completar cadastro de alimento personalizado com categoria, aliases, fibras, açúcar, sódio, unidade e fonte.
+- Nenhum ciclo aberto após o Ciclo 54.
+- Próximo ciclo sugerido: validar metas e impedir valores zero, negativos ou não finitos antes de persistir.
 
 ## Estilo de implementação
 

@@ -120,9 +120,48 @@ class AddFoodViewModelTest {
         assertEquals("1 xícara", diaryDao.entries.single().unitLabel)
         assertEquals(237.0, diaryDao.entries.single().gramsTotal)
     }
+
+    @Test
+    fun createCustomFoodPersistsAllFields() = runTest(dispatcher) {
+        val foodDao = FakeFoodDao()
+        val viewModel = AddFoodViewModel(
+            foodRepository = FoodRepository(foodDao, FakeFoodPortionDao()),
+            diaryRepository = DiaryRepository(FakeDiaryEntryDao()),
+        )
+
+        viewModel.createCustomFood(
+            CustomFoodInput(
+                name = "Iogurte caseiro",
+                category = "Laticínios",
+                aliases = "iogurte natural",
+                kcal100g = 61.0,
+                carbs100g = 4.7,
+                protein100g = 3.5,
+                fat100g = 3.3,
+                fiber100g = 0.0,
+                sugar100g = 4.7,
+                sodiumMg100g = 46.0,
+                defaultUnit = "1 pote",
+                gramsPerDefaultUnit = 170.0,
+                source = "Receita de casa",
+            ),
+        )
+        advanceUntilIdle()
+
+        val saved = foodDao.lastInserted ?: error("Food not inserted")
+        assertEquals("Laticínios", saved.category)
+        assertEquals("iogurte natural", saved.aliases)
+        assertEquals(4.7, saved.sugar100g)
+        assertEquals(46.0, saved.sodiumMg100g)
+        assertEquals("1 pote", saved.defaultUnit)
+        assertEquals(170.0, saved.gramsPerDefaultUnit)
+        assertEquals("Receita de casa", saved.source)
+        assertEquals(true, saved.isCustom)
+    }
 }
 
 private class FakeFoodDao : FoodDao {
+    var lastInserted: FoodEntity? = null
     private val foods = listOf(
         FoodEntity(id = 1, name = "Café", category = "Bebidas", kcal100g = 2.0, carbs100g = 0.0, protein100g = 0.3, fat100g = 0.0),
         FoodEntity(id = 2, name = "Arroz branco", category = "Básicos", kcal100g = 130.0, carbs100g = 28.0, protein100g = 2.5, fat100g = 0.3),
@@ -136,7 +175,10 @@ private class FakeFoodDao : FoodDao {
     override fun customFoods(): Flow<List<FoodEntity>> = flowOf(foods.filter { it.isCustom })
     override suspend fun getById(id: Long): FoodEntity? = foods.firstOrNull { it.id == id }
     override suspend fun count(): Int = foods.size
-    override suspend fun insert(food: FoodEntity): Long = food.id
+    override suspend fun insert(food: FoodEntity): Long {
+        lastInserted = food
+        return food.id
+    }
     override suspend fun insertAll(foods: List<FoodEntity>): List<Long> = foods.map { it.id }
     override suspend fun update(food: FoodEntity) = Unit
     override suspend fun deleteById(id: Long) = Unit

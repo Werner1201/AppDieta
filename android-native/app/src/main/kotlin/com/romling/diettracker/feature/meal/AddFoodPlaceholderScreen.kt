@@ -42,7 +42,7 @@ fun AddFoodScreen(
     onOpenFoodDetails: (Long) -> Unit,
     onCloseFoodDetails: () -> Unit,
     onAddFood: (FoodSearchItem, FoodPortionItem?) -> Unit,
-    onCreateFood: (String, Double, Double, Double, Double) -> Unit,
+    onCreateFood: (CustomFoodInput) -> Unit,
     onClose: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -51,8 +51,8 @@ fun AddFoodScreen(
     if (showCreateFood) {
         CreateFoodScreen(
             onClose = { showCreateFood = false },
-            onSave = { name, kcal, carbs, protein, fat ->
-                onCreateFood(name, kcal, carbs, protein, fat)
+            onSave = { input ->
+                onCreateFood(input)
                 showCreateFood = false
             },
         )

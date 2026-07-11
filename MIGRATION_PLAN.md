@@ -5091,3 +5091,90 @@ Decisão:
 
 Nome:
 - Completar os campos do alimento personalizado.
+
+## Ciclo 54
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Cadastro completo de alimento personalizado.
+
+Motivo:
+- `FoodEntity` já suporta os campos do escopo original, mas a tela e o ViewModel salvam apenas nome e quatro macros.
+
+Tela ou funcionalidade original analisada:
+- `CreateFoodScreen`, fluxo `AddFoodScreen` → `AddFoodViewModel` e `FoodEntity`.
+
+Arquivos prováveis:
+- `feature/meal/CreateFoodScreen.kt`
+- `feature/meal/AddFoodPlaceholderScreen.kt`
+- `feature/meal/AddFoodViewModel.kt`
+- `DietTrackerApp.kt`
+- `feature/meal/AddFoodViewModelTest.kt`
+
+Critérios de aceite funcionais:
+- Permitir nome, categoria, aliases, kcal, carboidratos, proteína, gordura, fibras, açúcar e sódio.
+- Permitir unidade padrão, gramas por unidade e fonte/observação.
+- Rejeitar números negativos e gramas por unidade não positivas.
+- Persistir todos os campos em `FoodEntity` com `isCustom = true`.
+- Manter o alimento recém-criado pesquisável.
+
+Critérios de aceite visuais:
+- Tela rolável, dividida em cards de identificação, nutrição e porção/fonte.
+- Manter tema escuro, campos existentes e botão fixo de salvamento.
+
+Riscos:
+- Callback com muitos parâmetros ficar frágil. Mitigação: objeto `CustomFoodInput` tipado.
+- Campo inválido ser convertido silenciosamente em zero. Mitigação: botão só executa quando todos os campos preenchidos são válidos.
+
+Instrução objetiva para o Dev:
+- Reusar `FoodEntity` atual, sem migração Room e sem dependência nova.
+
+### 2. DEV
+
+Implementação feita:
+- `CustomFoodInput` substitui o callback de cinco parâmetros e reúne todos os campos.
+- Tela dividida em cards de identificação, nutrição e porção/fonte.
+- Campos adicionados: categoria, aliases, fibras, açúcar, sódio, unidade, gramas por unidade e fonte/observação.
+- Todos os valores são persistidos no `FoodEntity` existente com `isCustom = true`.
+- Números negativos/não finitos e gramas por unidade não positivas bloqueiam o salvamento.
+- A busca passa a usar o nome do alimento recém-criado.
+
+Arquivos alterados:
+- `feature/meal/CreateFoodScreen.kt`
+- `feature/meal/AddFoodPlaceholderScreen.kt`
+- `feature/meal/AddFoodViewModel.kt`
+- `DietTrackerApp.kt`
+- `feature/meal/AddFoodViewModelTest.kt`
+
+Como preservou a UI original:
+- Tema escuro, rolagem, `AppCard`, campos e botão fixo foram mantidos.
+- Os campos foram organizados em três cards sem criar novo fluxo.
+
+Como testou:
+- `gradlew.bat lintDebug test assembleDebug` — BUILD SUCCESSFUL.
+- Teste confirma persistência dos campos adicionais e `isCustom`.
+
+### 3. QA
+
+Checklist funcional:
+- [x] Todos os campos existentes em `FoodEntity` estão disponíveis no cadastro.
+- [x] Valores inválidos são rejeitados.
+- [x] Callback tipado evita perda ou troca de argumentos.
+- [x] Todos os campos são persistidos com `isCustom = true`.
+- [x] Nome e aliases continuam pesquisáveis pelo DAO existente.
+
+Checklist visual:
+- [x] Tela rolável e dividida em três cards.
+- [x] Tema, espaçamentos, campos e botão existentes preservados.
+
+Comandos e resultado:
+- `gradlew.bat lintDebug test assembleDebug` — BUILD SUCCESSFUL.
+
+Decisão:
+- APROVADO
+
+### Próxima tarefa aberta pelo Arquiteto
+
+Nome:
+- Validar metas e impedir valores zero, negativos ou não finitos.
