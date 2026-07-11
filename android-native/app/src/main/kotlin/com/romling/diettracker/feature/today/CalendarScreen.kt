@@ -56,7 +56,9 @@ fun CalendarScreen(
         ) {
             Text(
                 text = "×",
-                modifier = Modifier.clickable(onClick = onClose),
+                modifier = Modifier
+                    .clickable(onClick = onClose)
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
                 style = MaterialTheme.typography.headlineSmall,
                 color = AppColors.TextPrimary,
             )

@@ -14,5 +14,5 @@ object AppSpacing {
     @Deprecated("Use LocalAppDimensions.current.mealIconSize")
     val MealIconSize = 44.dp
     @Deprecated("Use LocalAppDimensions.current.mealActionSize")
-    val MealActionSize = 40.dp
+    val MealActionSize = 48.dp
 }

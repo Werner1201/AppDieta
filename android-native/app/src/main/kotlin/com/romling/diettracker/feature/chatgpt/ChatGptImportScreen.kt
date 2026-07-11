@@ -99,7 +99,7 @@ fun ChatGptImportScreen(
                         Surface(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(44.dp)
+                                .height(48.dp)
                                 .clickable {
                                     clipboard.setText(AnnotatedString(chatGptPrompt))
                                     copied = true
@@ -118,7 +118,7 @@ fun ChatGptImportScreen(
                         Surface(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(44.dp)
+                                .height(48.dp)
                                 .clickable {
                                     runCatching {
                                         context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(chatGptUrl)))
@@ -148,7 +148,7 @@ fun ChatGptImportScreen(
                         Surface(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(44.dp)
+                                .height(48.dp)
                                 .clickable {
                                     onJsonChange(clipboard.getText()?.text.orEmpty())
                                     onParse()

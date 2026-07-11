@@ -12,7 +12,7 @@ data class AppDimensions(
     val summaryRingCanvas: Dp = 64.dp,
     val summaryRingStroke: Dp = 8.dp,
     val mealIconSize: Dp = 44.dp,
-    val mealActionSize: Dp = 40.dp,
+    val mealActionSize: Dp = 48.dp,
     val mealRowHeight: Dp = 80.dp,
     val mealRowSpacing: Dp = 12.dp,
 )

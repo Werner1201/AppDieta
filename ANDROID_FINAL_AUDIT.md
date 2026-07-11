@@ -30,6 +30,9 @@ Validado no AVD Galaxy Z Fold 6, API 35, em 2026-07-11:
 - [x] Cabecalho da busca exibe fechar e nome da refeicao em cor legivel.
 - [x] Back percorre detalhe do alimento -> busca -> Hoje e importador -> busca.
 - [x] Acesso `Camera / ChatGPT` foi adicionado dentro da refeicao e abre o importador.
+- [x] Barra inferior informa semanticamente a aba selecionada e usa papel de tab.
+- [x] Acoes conhecidas de 36/44 dp foram elevadas ao minimo de 48 dp.
+- [x] Configuracoes permanece abaixo da barra de status durante a rolagem.
 - [ ] Demais achados P1/P2/P3 e o Ciclo F de atividades continuam abertos.
 
 ## Pontuacao

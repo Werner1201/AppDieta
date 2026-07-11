@@ -32,7 +32,13 @@ fun StreakScreen(streak: TodayStreakSummary, onClose: () -> Unit, modifier: Modi
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            Text(text = "×", modifier = Modifier.clickable(onClick = onClose), style = MaterialTheme.typography.headlineSmall)
+            Text(
+                text = "×",
+                modifier = Modifier
+                    .clickable(onClick = onClose)
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                style = MaterialTheme.typography.headlineSmall,
+            )
             Text(text = "Sequência", style = MaterialTheme.typography.headlineSmall)
         }
         AppCard {

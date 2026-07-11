@@ -116,7 +116,7 @@ private fun CustomFoodRow(food: FoodSearchItem, onDelete: () -> Unit) {
         }
         Surface(
             modifier = Modifier
-                .size(36.dp)
+                .size(48.dp)
                 .clickable(onClick = onDelete),
             shape = CircleShape,
             color = AppColors.Background,

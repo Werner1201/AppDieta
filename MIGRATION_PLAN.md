@@ -5319,3 +5319,63 @@ Decisao:
 
 Nome:
 - Continuar a auditoria pelos alvos de toque, semantica e insets antes de iniciar o Ciclo F de atividades.
+
+## Ciclo 57
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Corrigir alvos de toque, semantica da navegacao e inset da barra de status.
+
+Escopo:
+- Garantir minimo de 48 dp nos controles pequenos confirmados.
+- Expor papel e estado selecionado das abas inferiores.
+- Impedir que Configuracoes role sob a barra de status.
+
+Decisao de escopo:
+- Alterar apenas controles com tamanho conhecido abaixo do minimo.
+- Reusar `selectable`, `Role.Tab` e `statusBarsPadding` do Compose.
+
+### 2. DEV
+
+Implementacao feita:
+- Acao de refeicao compacta passou de 40 para 48 dp.
+- Remocao de alimento personalizado passou de 36 para 48 dp.
+- Acoes de copiar, abrir GPT e importar clipboard passaram de 44 para 48 dp.
+- Fechar calendario e sequencia ganhou area interna de toque.
+- Barra inferior usa `selectable` com `Role.Tab` e estado selecionado.
+- Configuracoes aplica inset da barra de status antes da rolagem.
+- Linhas de importar, exportar e meus alimentos garantem altura minima de 48 dp.
+
+Arquivos alterados:
+- `DietTrackerApp.kt`
+- `core/ui/theme/AppDimensions.kt`
+- `core/ui/theme/AppSpacing.kt`
+- `feature/settings/SettingsScreen.kt`
+- `feature/meal/CustomFoodsScreen.kt`
+- `feature/chatgpt/ChatGptImportScreen.kt`
+- `feature/today/CalendarScreen.kt`
+- `feature/today/StreakScreen.kt`
+
+Como testou:
+- `gradlew.bat lintDebug testDebugUnitTest assembleDebug` - BUILD SUCCESSFUL.
+- APK reinstalado no AVD Galaxy Z Fold 6 API 35.
+- UI Automator confirmou estado `selected` na barra inferior.
+- Rolagem de Configuracoes validada visualmente sem texto sob a barra de status.
+
+### 3. QA
+
+Checklist final:
+- [x] Controles mapeados possuem area minima de 48 dp.
+- [x] Aba ativa possui estado semantico selecionado.
+- [x] Papel de tab aplicado a navegacao inferior.
+- [x] Configuracoes respeita a barra de status ao rolar.
+- [x] Lint, testes e APK debug passam.
+
+Decisao:
+- APROVADO
+
+### Proxima tarefa aberta pelo Arquiteto
+
+Nome:
+- Migrar listas longas para `LazyColumn` sem alterar a aparencia.
