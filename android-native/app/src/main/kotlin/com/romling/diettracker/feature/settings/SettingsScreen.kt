@@ -50,6 +50,7 @@ fun SettingsScreen(
     var weightGoal by remember { mutableStateOf("%.1f".format(state.weight.goalKg)) }
     var chatGptUrl by remember { mutableStateOf(state.chatGptUrl) }
     var chatGptPrompt by remember { mutableStateOf(state.chatGptPrompt) }
+    val goalsAreValid = areGoalInputsValid(kcal, carbs, protein, fat, water, weightGoal)
 
     LaunchedEffect(state.dailyKcal, state.dailyCarbs, state.dailyProtein, state.dailyFat, state.water.goalMl, state.weight.goalKg, state.chatGptUrl, state.chatGptPrompt) {
         kcal = state.dailyKcal.toInt().toString()
@@ -133,16 +134,17 @@ fun SettingsScreen(
                 )
                 Button(
                     modifier = Modifier.fillMaxWidth(),
+                    enabled = goalsAreValid,
                     onClick = {
                         onSaveGoals(
                             GoalSettings(
-                                dailyKcal = kcal.toGoalDouble(state.dailyKcal),
-                                dailyCarbs = carbs.toGoalDouble(state.dailyCarbs),
-                                dailyProtein = protein.toGoalDouble(state.dailyProtein),
-                                dailyFat = fat.toGoalDouble(state.dailyFat),
-                                dailyWaterMl = water.toIntOrNull() ?: state.water.goalMl,
+                                dailyKcal = kcal.toPositiveGoalDouble() ?: state.dailyKcal,
+                                dailyCarbs = carbs.toPositiveGoalDouble() ?: state.dailyCarbs,
+                                dailyProtein = protein.toPositiveGoalDouble() ?: state.dailyProtein,
+                                dailyFat = fat.toPositiveGoalDouble() ?: state.dailyFat,
+                                dailyWaterMl = water.toIntOrNull()?.takeIf { it > 0 } ?: state.water.goalMl,
                                 defaultWeightKg = state.weight.currentKg,
-                                weightGoalKg = weightGoal.toGoalDouble(state.weight.goalKg),
+                                weightGoalKg = weightGoal.toPositiveGoalDouble() ?: state.weight.goalKg,
                                 chatGptUrl = validatedChatGptUrl(chatGptUrl, state.chatGptUrl),
                                 chatGptPrompt = chatGptPrompt.trim().ifBlank { state.chatGptPrompt },
                             ),
@@ -169,11 +171,21 @@ private fun GoalInput(label: String, value: String, suffix: String, onValueChang
     )
 }
 
-private fun String.toGoalDouble(fallback: Double): Double =
-    replace(',', '.').toDoubleOrNull() ?: fallback
+private fun String.toPositiveGoalDouble(): Double? =
+    replace(',', '.').toDoubleOrNull()?.takeIf { it.isFinite() && it > 0 }
 
 internal fun validatedChatGptUrl(value: String, fallback: String): String {
     val candidate = value.trim()
     val uri = runCatching { URI(candidate) }.getOrNull()
-    return candidate.takeIf { uri?.scheme in setOf("http", "https") && !uri?.host.isNullOrBlank() } ?: fallback
+    return candidate.takeIf { uri?.scheme?.lowercase() in setOf("http", "https") && !uri?.host.isNullOrBlank() } ?: fallback
 }
+
+internal fun areGoalInputsValid(
+    kcal: String,
+    carbs: String,
+    protein: String,
+    fat: String,
+    water: String,
+    weightGoal: String,
+): Boolean = listOf(kcal, carbs, protein, fat, weightGoal).all { it.toPositiveGoalDouble() != null } &&
+    water.toIntOrNull()?.let { it > 0 } == true

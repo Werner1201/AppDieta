@@ -5178,3 +5178,83 @@ Decisão:
 
 Nome:
 - Validar metas e impedir valores zero, negativos ou não finitos.
+
+## Ciclo 55
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Validação defensiva das configurações.
+
+Motivo:
+- A tela aceita zero, negativos e infinito nas metas, e o repositório persiste qualquer `GoalSettings` recebido.
+
+Tela ou funcionalidade original analisada:
+- `SettingsScreen`, `GoalSettings` e `SettingsRepository.save`.
+
+Arquivos prováveis:
+- `data/repository/SettingsRepository.kt`
+- `feature/settings/SettingsScreen.kt`
+- testes de configurações
+
+Critérios de aceite funcionais:
+- Exigir metas calóricas, macros, água e pesos positivos e finitos.
+- Exigir URL HTTP/HTTPS válida e prompt não vazio no repositório.
+- Desabilitar salvamento na UI quando uma meta estiver inválida.
+- Impedir persistência inválida mesmo se outro chamador ignorar a UI.
+- Manter configurações válidas funcionando sem mudança de schema.
+
+Critérios de aceite visuais:
+- Usar o estado desabilitado nativo do botão existente.
+- Não adicionar diálogo ou tela nova.
+
+Riscos:
+- Validação apenas na UI ser contornada. Mitigação: `require` no repositório.
+
+Instrução objetiva para o Dev:
+- Criar uma validação pura e pequena, coberta por teste, sem dependência nova.
+
+### 2. DEV
+
+Implementação feita:
+- `GoalSettings.isValid()` centraliza a validação de metas, água, pesos, URL e prompt.
+- `SettingsRepository.save` usa `require` antes de editar preferências.
+- O botão de salvar usa `areGoalInputsValid` e fica desabilitado com metas inválidas.
+- URL aceita HTTP/HTTPS sem diferenciar maiúsculas do scheme.
+
+Arquivos alterados:
+- `data/repository/SettingsRepository.kt`
+- `feature/settings/SettingsScreen.kt`
+- `feature/settings/SettingsScreenTest.kt`
+
+Como preservou a UI original:
+- Apenas o estado desabilitado nativo do botão foi usado; nenhuma tela ou diálogo foi adicionado.
+
+Como testou:
+- `gradlew.bat lintDebug test assembleDebug` — BUILD SUCCESSFUL.
+- Testes cobrem zero, negativo, infinito, água inválida, URL insegura, prompt vazio e HTTPS maiúsculo.
+
+### 3. QA
+
+Primeira rodada:
+- REPROVADO: UI tratava scheme da URL como case-sensitive e faltava cobertura da condição do botão.
+
+Correções:
+- Scheme normalizado com `lowercase()`.
+- Condição do botão extraída e testada diretamente.
+
+Checklist final:
+- [x] Metas e pesos exigem valores positivos e finitos.
+- [x] Água exige inteiro positivo.
+- [x] URL HTTP/HTTPS e prompt não vazio validados no repositório.
+- [x] UI desabilita salvamento inválido.
+- [x] Outro chamador não consegue contornar a validação.
+- [x] Lint, testes e APK debug passam.
+
+Decisão:
+- APROVADO
+
+### Próxima tarefa aberta pelo Arquiteto
+
+Nome:
+- Auditoria final visual/funcional e fechamento do README/checklist Android.

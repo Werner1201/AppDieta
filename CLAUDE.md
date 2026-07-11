@@ -72,10 +72,11 @@ Ignore imagens untracked na raiz. Responda com APROVADO ou REPROVADO e achados o
 - Ciclo 52: URL e prompt do GPT persistentes e editáveis nas Configurações.
 - Ciclo 53: importação aditiva do backup JSON com validação, prévia e confirmação.
 - Ciclo 54: cadastro completo de alimento personalizado usando todos os campos de `FoodEntity`.
+- Ciclo 55: validação defensiva das metas na UI e no `SettingsRepository`.
 
 Ciclo em andamento:
-- Nenhum ciclo aberto após o Ciclo 54.
-- Próximo ciclo sugerido: validar metas e impedir valores zero, negativos ou não finitos antes de persistir.
+- Nenhum ciclo aberto após o Ciclo 55.
+- Próximo ciclo sugerido: auditoria visual/funcional final em Android, README completo e atualização do checklist de entrega.
 
 ## Estilo de implementação
 

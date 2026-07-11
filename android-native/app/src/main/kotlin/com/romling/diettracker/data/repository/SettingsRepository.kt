@@ -1,6 +1,7 @@
 package com.romling.diettracker.data.repository
 
 import android.content.SharedPreferences
+import java.net.URI
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -28,11 +29,22 @@ data class GoalSettings(
     val chatGptPrompt: String = DEFAULT_CHAT_GPT_PROMPT,
 )
 
+internal fun GoalSettings.isValid(): Boolean {
+    val positiveDoubles = listOf(dailyKcal, dailyCarbs, dailyProtein, dailyFat, defaultWeightKg, weightGoalKg)
+    val uri = runCatching { URI(chatGptUrl.trim()) }.getOrNull()
+    return positiveDoubles.all { it.isFinite() && it > 0 } &&
+        dailyWaterMl > 0 &&
+        uri?.scheme?.lowercase() in setOf("http", "https") &&
+        !uri?.host.isNullOrBlank() &&
+        chatGptPrompt.isNotBlank()
+}
+
 class SettingsRepository(private val preferences: SharedPreferences) {
     private val _settings = MutableStateFlow(read())
     val settings: StateFlow<GoalSettings> = _settings.asStateFlow()
 
     fun save(settings: GoalSettings) {
+        require(settings.isValid()) { "Configurações inválidas." }
         preferences.edit()
             .putFloat(KEY_KCAL, settings.dailyKcal.toFloat())
             .putFloat(KEY_CARBS, settings.dailyCarbs.toFloat())
