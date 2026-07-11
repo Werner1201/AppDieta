@@ -5258,3 +5258,64 @@ Decisão:
 
 Nome:
 - Auditoria final visual/funcional e fechamento do README/checklist Android.
+
+## Ciclo 56
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Corrigir os P1 confirmados na auditoria visual do Android.
+
+Escopo:
+- Restaurar os rotulos invisiveis dos botoes primarios.
+- Corrigir o contraste do cabecalho da busca de alimentos.
+- Fazer Back retornar pelas subtelas antes de sair do app.
+- Expor o importador ChatGPT dentro da refeicao pelo acesso Camera.
+
+Decisao de escopo:
+- Nao criar controles inativos para Codigo ou Digitar.
+- Reusar o importador e os estados de navegacao existentes.
+
+### 2. DEV
+
+Implementacao feita:
+- `BottomPrimaryButton` define explicitamente a cor escura do rotulo sobre o fundo claro.
+- O cabecalho de `AddFoodScreen` define texto primario para fechar e nome da refeicao.
+- `BackHandler` central fecha cada overlay e preserva a tela anterior.
+- `AddFoodScreen` trata Back nos estados internos de criacao e detalhe.
+- O botao `Camera / ChatGPT` abre o importador sem perder a refeicao em andamento.
+
+Arquivos alterados:
+- `core/ui/components/BaseComponents.kt`
+- `DietTrackerApp.kt`
+- `feature/meal/AddFoodPlaceholderScreen.kt`
+
+Como testou:
+- `gradlew.bat testDebugUnitTest assembleDebug` - BUILD SUCCESSFUL.
+- APK reinstalado no AVD Galaxy Z Fold 6 API 35.
+- Validado visualmente o cabecalho, o acesso Camera/ChatGPT e o rotulo `Adicionar porcao padrao`.
+- Validado por UI Automator: Back retorna de detalhe para busca e de busca para Hoje.
+
+### 3. QA
+
+Primeira rodada:
+- REPROVADO: remover cores dos estilos tipograficos corrigiu botoes, mas deixou o filtro selecionado com texto escuro.
+
+Correcao:
+- Restauradas as cores tipograficas; a cor foi limitada ao rotulo do `BottomPrimaryButton`.
+
+Checklist final:
+- [x] Sem regressao no filtro `Todos`.
+- [x] Cabecalho da busca legivel.
+- [x] Camera/ChatGPT acessivel pela refeicao.
+- [x] Botao primario com rotulo visivel.
+- [x] Back preserva a hierarquia das subtelas.
+- [x] Testes unitarios e APK debug passam.
+
+Decisao:
+- APROVADO
+
+### Proxima tarefa aberta pelo Arquiteto
+
+Nome:
+- Continuar a auditoria pelos alvos de toque, semantica e insets antes de iniciar o Ciclo F de atividades.

@@ -1,5 +1,7 @@
 package com.romling.diettracker.feature.meal
 
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -25,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -43,10 +46,19 @@ fun AddFoodScreen(
     onCloseFoodDetails: () -> Unit,
     onAddFood: (FoodSearchItem, FoodPortionItem?) -> Unit,
     onCreateFood: (CustomFoodInput) -> Unit,
+    onOpenChatGptImport: () -> Unit,
     onClose: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var showCreateFood by remember { mutableStateOf(false) }
+
+    BackHandler {
+        when {
+            showCreateFood -> showCreateFood = false
+            state.detailFood != null -> onCloseFoodDetails()
+            else -> onClose()
+        }
+    }
 
     if (showCreateFood) {
         CreateFoodScreen(
@@ -90,11 +102,13 @@ fun AddFoodScreen(
                 text = "×",
                 modifier = Modifier.clickable(onClick = onClose),
                 style = MaterialTheme.typography.headlineSmall,
+                color = AppColors.TextPrimary,
             )
             Text(
                 text = meal.label,
                 modifier = Modifier.weight(1f),
                 style = MaterialTheme.typography.headlineSmall,
+                color = AppColors.TextPrimary,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -104,6 +118,26 @@ fun AddFoodScreen(
                 style = MaterialTheme.typography.labelLarge,
                 color = AppColors.Accent,
             )
+        }
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(52.dp)
+                .clickable(role = Role.Button, onClick = onOpenChatGptImport),
+            shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp),
+            color = AppColors.Panel,
+            border = BorderStroke(2.dp, AppColors.Line),
+        ) {
+            Box(
+                modifier = Modifier.padding(horizontal = 18.dp),
+                contentAlignment = Alignment.CenterStart,
+            ) {
+                Text(
+                    text = "📷 Câmera / ChatGPT",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = AppColors.Accent,
+                )
+            }
         }
         AppCard {
             OutlinedTextField(

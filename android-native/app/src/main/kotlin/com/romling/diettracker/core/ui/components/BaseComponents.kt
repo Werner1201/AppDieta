@@ -132,6 +132,10 @@ fun BottomPrimaryButton(
             contentColor = AppColors.Background,
         ),
     ) {
-        Text(text = text, style = MaterialTheme.typography.labelLarge)
+        Text(
+            text = text,
+            style = MaterialTheme.typography.labelLarge,
+            color = AppColors.Background,
+        )
     }
 }

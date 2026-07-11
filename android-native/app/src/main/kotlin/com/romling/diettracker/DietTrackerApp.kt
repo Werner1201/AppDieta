@@ -1,6 +1,7 @@
 package com.romling.diettracker
 
 import android.content.Intent
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.clickable
@@ -89,6 +90,29 @@ fun DietTrackerApp(
         if (importState.externalRequestId > 0) showImport = true
     }
 
+    BackHandler(
+        enabled = detailRecipe != null || showImport || showBackupImport || showCustomFoods ||
+            showWeight || showStreak || showCalendar || detailMeal != null || addMeal != null,
+    ) {
+        when {
+            detailRecipe != null -> {
+                detailRecipe = null
+                recipesViewModel.clearRecipe()
+            }
+            showImport -> {
+                chatGptImportViewModel.reset()
+                showImport = false
+            }
+            showBackupImport -> showBackupImport = false
+            showCustomFoods -> showCustomFoods = false
+            showWeight -> showWeight = false
+            showStreak -> showStreak = false
+            showCalendar -> showCalendar = false
+            detailMeal != null -> detailMeal = null
+            addMeal != null -> addMeal = null
+        }
+    }
+
     DietTrackerTheme {
         if (detailRecipe != null && !showImport) {
             RecipeDetailScreen(
@@ -168,6 +192,10 @@ fun DietTrackerApp(
                 onCloseFoodDetails = addFoodViewModel::closeFoodDetails,
                 onAddFood = { food, portion -> addFoodViewModel.addFood(addMeal!!.key, food.id, portion) { addMeal = null } },
                 onCreateFood = { input -> addFoodViewModel.createCustomFood(input) },
+                onOpenChatGptImport = {
+                    chatGptImportViewModel.reset()
+                    showImport = true
+                },
                 onClose = { addMeal = null },
             )
         } else {
