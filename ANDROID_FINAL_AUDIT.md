@@ -33,6 +33,8 @@ Validado no AVD Galaxy Z Fold 6, API 35, em 2026-07-11:
 - [x] Barra inferior informa semanticamente a aba selecionada e usa papel de tab.
 - [x] Acoes conhecidas de 36/44 dp foram elevadas ao minimo de 48 dp.
 - [x] Configuracoes permanece abaixo da barra de status durante a rolagem.
+- [x] Receitas e alimentos personalizados usam listas lazy com chaves estaveis.
+- [x] Busca de alimentos permanece limitada a 20 resultados; nenhuma virtualizacao desnecessaria foi aplicada.
 - [ ] Demais achados P1/P2/P3 e o Ciclo F de atividades continuam abertos.
 
 ## Pontuacao
@@ -105,9 +107,9 @@ Validado no AVD Galaxy Z Fold 6, API 35, em 2026-07-11:
 ### P2 - Alto valor de acabamento
 
 5. **Listas longas sem virtualizacao**
-   - Evidencia: busca de alimentos, receitas, detalhes e listas de registros usam `Column.verticalScroll`; o seed possui 218 alimentos.
+   - Evidencia corrigida: a busca principal limita a UI a 20 resultados; receitas e alimentos personalizados eram colecoes sem limite usando `Column.verticalScroll`.
    - Impacto: composicao mais cara, pior tempo de abertura e maior uso de memoria conforme os dados crescem.
-   - Acao: migrar colecoes dinamicas para `LazyColumn` com `key` estavel, preservando cabecalhos e botoes fixos.
+   - Acao: migrar somente colecoes realmente sem limite para `LazyColumn` com `key` estavel, preservando cabecalhos e botoes fixos.
    - Aceite: rolagem fluida e apenas itens visiveis compostos em listas de 200+ registros.
 
 6. **Iconografia baseada em emoji e simbolos de texto**

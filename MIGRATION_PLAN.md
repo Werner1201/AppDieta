@@ -5379,3 +5379,55 @@ Decisao:
 
 Nome:
 - Migrar listas longas para `LazyColumn` sem alterar a aparencia.
+
+## Ciclo 58
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Virtualizar somente listas realmente sem limite.
+
+Descoberta:
+- A busca de alimentos ja aplica `take(20)` antes de compor as linhas.
+- Receitas e alimentos personalizados nao possuem limite e usavam `Column.verticalScroll`.
+
+Decisao de escopo:
+- Nao alterar a busca principal sem evidencia de gargalo.
+- Migrar apenas receitas e alimentos personalizados para `LazyColumn`.
+- Usar IDs persistidos como chaves estaveis.
+
+### 2. DEV
+
+Implementacao feita:
+- `RecipesScreen` usa `LazyColumn` e `items` com chave `recipe.id`.
+- `CustomFoodsScreen` mantem um unico `AppCard` e usa `LazyColumn` interna com `itemsIndexed` e chave `food.id`.
+- Divisores, espacamentos, cabecalhos, estados vazios e acoes foram preservados.
+- Evidencia da auditoria foi corrigida para registrar o limite real de 20 resultados da busca.
+
+Arquivos alterados:
+- `feature/recipes/RecipesScreen.kt`
+- `feature/meal/CustomFoodsScreen.kt`
+- `ANDROID_FINAL_AUDIT.md`
+
+Como testou:
+- `gradlew.bat lintDebug testDebugUnitTest assembleDebug` - BUILD SUCCESSFUL.
+- APK reinstalado no AVD Galaxy Z Fold 6 API 35.
+- Estados vazios de Receitas e Meus alimentos validados visualmente.
+- Busca e tela Hoje permaneceram sem alteracao.
+
+### 3. QA
+
+Checklist final:
+- [x] Nenhuma virtualizacao desnecessaria na busca limitada a 20 itens.
+- [x] Colecoes sem limite usam listas lazy.
+- [x] Chaves estaveis usam IDs do banco.
+- [x] Estados vazios e cabecalhos preservados.
+- [x] Lint, testes e APK debug passam.
+
+Decisao:
+- APROVADO
+
+### Proxima tarefa aberta pelo Arquiteto
+
+Nome:
+- Padronizar estados de feedback e comandos destrutivos restantes.

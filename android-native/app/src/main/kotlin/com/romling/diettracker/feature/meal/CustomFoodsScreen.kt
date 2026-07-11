@@ -12,9 +12,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -72,18 +72,16 @@ fun CustomFoodsScreen(
                 )
             }
         } else {
-            Column(
+            AppCard(
                 modifier = Modifier
-                    .verticalScroll(rememberScrollState())
+                    .weight(1f)
                     .padding(horizontal = AppSpacing.ScreenHorizontal, vertical = AppSpacing.SectionGap),
             ) {
-                AppCard {
-                    Column {
-                        foods.forEachIndexed { index, food ->
-                            CustomFoodRow(food = food, onDelete = { onDelete(food.id) })
-                            if (index < foods.lastIndex) {
-                                HorizontalDivider(color = AppColors.Line, thickness = 1.dp)
-                            }
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    itemsIndexed(foods, key = { _, food -> food.id }) { index, food ->
+                        CustomFoodRow(food = food, onDelete = { onDelete(food.id) })
+                        if (index < foods.lastIndex) {
+                            HorizontalDivider(color = AppColors.Line, thickness = 1.dp)
                         }
                     }
                 }
