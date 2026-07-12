@@ -54,6 +54,7 @@ private val activityCatalog = listOf(
 @Composable
 fun ActivityScreen(
     weightKg: Double,
+    frequentNames: List<String> = emptyList(),
     onSave: (ActivityOption, Double, Int, Double?, String) -> Unit,
     onClose: () -> Unit,
 ) {
@@ -89,23 +90,13 @@ fun ActivityScreen(
         }
         val activity = selected
         if (activity == null) {
-            AppCard {
-                activityCatalog.forEachIndexed { index, option ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { selected = option }
-                            .padding(vertical = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    ) {
-                        Text(option.icon, style = MaterialTheme.typography.headlineSmall)
-                        Text(option.name, modifier = Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
-                        Text("→", style = MaterialTheme.typography.titleMedium)
-                    }
-                    if (index < activityCatalog.lastIndex) HorizontalDivider(color = AppColors.Line)
-                }
+            val frequent = frequentNames.mapNotNull { name -> activityCatalog.firstOrNull { it.name == name } }
+            if (frequent.isNotEmpty()) {
+                Text("Frequentes", style = MaterialTheme.typography.titleLarge)
+                ActivityOptionsCard(frequent, onSelect = { selected = it })
             }
+            Text("Todas", style = MaterialTheme.typography.titleLarge)
+            ActivityOptionsCard(activityCatalog.filterNot { it in frequent }, onSelect = { selected = it })
         } else {
             val minutes = duration.toIntOrNull() ?: 0
             val met = listOf(activity.lightMet, activity.moderateMet, activity.vigorousMet)[intensity]
@@ -152,6 +143,27 @@ fun ActivityScreen(
                 },
                 modifier = Modifier.fillMaxWidth(),
             )
+        }
+    }
+}
+
+@Composable
+private fun ActivityOptionsCard(options: List<ActivityOption>, onSelect: (ActivityOption) -> Unit) {
+    AppCard {
+        options.forEachIndexed { index, option ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onSelect(option) }
+                    .padding(vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                Text(option.icon, style = MaterialTheme.typography.headlineSmall)
+                Text(option.name, modifier = Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
+                Text("→", style = MaterialTheme.typography.titleMedium)
+            }
+            if (index < options.lastIndex) HorizontalDivider(color = AppColors.Line)
         }
     }
 }

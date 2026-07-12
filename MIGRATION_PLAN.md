@@ -5755,3 +5755,23 @@ Ordem minima de correcao:
 ### Proxima tarefa
 
 - Implementar atividades frequentes por contagem e recencia.
+
+## Ciclo 68
+
+### Implementacao
+
+- Room agrupa atividades por nome, ordena por quantidade e usa recencia como desempate.
+- Ate seis atividades aparecem em `Frequentes`.
+- O catalogo `Todas` omite itens ja mostrados em Frequentes.
+- Nenhuma nova tabela ou preferencia duplicada foi criada.
+
+### QA
+
+- `lintDebug testDebugUnitTest assembleDebug` - BUILD SUCCESSFUL.
+- Musculacao registrada anteriormente apareceu em Frequentes no AVD.
+- Musculacao nao foi duplicada em Todas.
+- APROVADO.
+
+### Proxima tarefa
+
+- Adicionar atividade personalizada e edicao de registros existentes.

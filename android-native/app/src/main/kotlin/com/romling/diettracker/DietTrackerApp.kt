@@ -70,6 +70,7 @@ fun DietTrackerApp(
 ) {
     val state by todayViewModel.state.collectAsState()
     val currentDate by todayViewModel.currentDate.collectAsState()
+    val frequentActivityNames by todayViewModel.frequentActivityNames.collectAsState()
     val calendarGreenDays by todayViewModel.calendarGreenDays.collectAsState()
     val addFoodState by addFoodViewModel.state.collectAsState()
     val customFoods by addFoodViewModel.customFoods.collectAsState()
@@ -167,6 +168,7 @@ fun DietTrackerApp(
         } else if (showActivities) {
             ActivityScreen(
                 weightKg = state.weight.currentKg,
+                frequentNames = frequentActivityNames,
                 onSave = { activity, met, minutes, distanceKm, note ->
                     if (minutes > 0) {
                         todayViewModel.addActivity(

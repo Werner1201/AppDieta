@@ -133,6 +133,14 @@ interface ActivityEntryDao {
     @Query("SELECT * FROM activity_entries WHERE date = :date ORDER BY created_at, id")
     fun entriesForDate(date: String): Flow<List<ActivityEntryEntity>>
 
+    @Query(
+        """SELECT name FROM activity_entries
+        GROUP BY name
+        ORDER BY COUNT(*) DESC, MAX(created_at) DESC
+        LIMIT 6""",
+    )
+    fun frequentNames(): Flow<List<String>>
+
     @Insert
     suspend fun insert(entry: ActivityEntryEntity): Long
 

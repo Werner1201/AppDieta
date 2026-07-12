@@ -63,6 +63,9 @@ class TodayViewModel(
     private val today = dateProvider()
     private val _date = MutableStateFlow(today)
     val currentDate: StateFlow<LocalDate> = _date.asStateFlow()
+    val frequentActivityNames: StateFlow<List<String>> =
+        (activityRepository?.frequentNames() ?: flowOf(emptyList()))
+            .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     private val _calendarMonth = MutableStateFlow(YearMonth.from(today))
 

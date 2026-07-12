@@ -10,6 +10,7 @@ class ActivityRepository(
     private val now: () -> String = { Instant.now().toString() },
 ) {
     fun entriesForDate(date: String) = dao.entriesForDate(date)
+    fun frequentNames() = dao.frequentNames()
 
     suspend fun add(
         date: String,
