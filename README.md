@@ -1,8 +1,19 @@
 # Dieta Local
 
-App local-first de registro alimentar para Android/Termux, com FastAPI, SQLite e telas mobile-first.
+App local-first de dieta e atividades. O produto principal e o Android nativo em `android-native/`; a versao FastAPI/Termux permanece como implementacao legada.
 
-## Rodar no Termux
+## Android nativo
+
+Abra `android-native/` no Android Studio e execute a configuracao `app`. Para build por linha de comando:
+
+```powershell
+cd android-native
+.\gradlew.bat lintDebug testDebugUnitTest assembleDebug
+```
+
+O APK e gerado em `android-native/app/build/outputs/apk/debug/app-debug.apk`. Consulte [android-native/README.md](android-native/README.md) para instalacao via ADB, deep link, backup e solucao de problemas.
+
+## Versao legada no Termux
 
 ```bash
 pkg update && pkg upgrade
@@ -37,7 +48,7 @@ Ou use:
 bash scripts/run_termux.sh
 ```
 
-## Testes
+## Testes da versao legada
 
 ```bash
 pytest
@@ -55,7 +66,7 @@ app local -> copiar prompt -> abrir GPT -> enviar foto -> receber JSON/link -> i
 
 O app não usa API key, não envia o banco para fora e nunca salva a estimativa sem confirmação. O link do GPT fica em `Metas > Link do GPT`.
 
-## Stack
+## Stack legada
 
 - Python + FastAPI
 - SQLite local em `data/diet.sqlite`

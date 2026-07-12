@@ -5879,3 +5879,21 @@ Ordem minima de correcao:
 ### Proxima tarefa
 
 - Atualizar README com build, instalacao, ADB, migracoes e fluxos Android.
+
+## Ciclo 74
+
+### Implementacao
+
+- README principal apresenta Android nativo como produto atual e Termux como legado.
+- README Android documenta requisitos, build, testes, APK, ADB e persistencia.
+- Backup, importador ChatGPT, deep link e solucao de problemas foram registrados.
+- Decisao atual de SharedPreferences foi documentada, removendo divergencia silenciosa.
+
+### QA
+
+- Comandos e caminhos conferidos contra o projeto e artefato gerado.
+- APROVADO.
+
+### Proxima tarefa
+
+- Investigar avisos de Gradle 10 e atualizar checklist historico da migracao.
