@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.romling.diettracker.data.local.entity.DiaryEntryEntity
+import com.romling.diettracker.data.local.entity.ActivityEntryEntity
+import com.romling.diettracker.data.repository.ActivityRepository
 import com.romling.diettracker.data.local.entity.WeightEntryEntity
 import com.romling.diettracker.data.repository.DiaryRepository
 import com.romling.diettracker.data.repository.DiaryBackupEntry
@@ -39,6 +41,7 @@ class TodayViewModel(
     private val waterRepository: WaterRepository,
     private val weightRepository: WeightRepository,
     private val settingsRepository: SettingsRepository? = null,
+    private val activityRepository: ActivityRepository? = null,
     private val greenDayService: GreenDayService = GreenDayService(),
     private val streakService: StreakService = StreakService(),
     dateProvider: () -> LocalDate = { LocalDate.now() },
@@ -65,13 +68,18 @@ class TodayViewModel(
 
     val state: StateFlow<TodayUiState> = _date.flatMapLatest { date ->
         val dateString = date.toString()
+        val diaryAndActivities = combine(
+            diaryRepository.entriesForDate(dateString),
+            activityRepository?.entriesForDate(dateString) ?: flowOf(emptyList()),
+        ) { entries, activities -> entries to activities }
         combine(
             settingsFlow,
-            diaryRepository.entriesForDate(dateString),
+            diaryAndActivities,
             waterRepository.entriesForDate(dateString),
             weightRepository.entries(),
             diaryRepository.activeDates(),
-        ) { settings, entries, waterEntries, weightEntries, activeDates ->
+        ) { settings, diaryAndActivities, waterEntries, weightEntries, activeDates ->
+            val (entries, activities) = diaryAndActivities
             entries.toTodayState(
                 date = date,
                 waterMl = waterEntries.sumOf { it.amountMl },
@@ -79,6 +87,7 @@ class TodayViewModel(
                 weightHistory = weightEntries,
                 streak = streakService.summary(activeDates, date),
                 settings = settings,
+                activities = activities,
             )
         }
     }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyState(today))
@@ -114,6 +123,33 @@ class TodayViewModel(
 
     fun addWeight(weightKg: Double) {
         viewModelScope.launch { weightRepository.addWeight(_date.value.toString(), weightKg) }
+    }
+
+    fun addActivity(
+        name: String,
+        icon: String,
+        met: Double,
+        durationMinutes: Int,
+        distanceKm: Double? = null,
+        note: String = "",
+    ) {
+        val repository = activityRepository ?: return
+        viewModelScope.launch {
+            repository.add(
+                date = _date.value.toString(),
+                name = name,
+                icon = icon,
+                met = met,
+                durationMinutes = durationMinutes,
+                weightKg = state.value.weight.currentKg,
+                distanceKm = distanceKm,
+                note = note,
+            )
+        }
+    }
+
+    fun removeActivity(id: Long) {
+        viewModelScope.launch { activityRepository?.deleteById(id) }
     }
 
     fun saveGoals(settings: GoalSettings) {
@@ -159,6 +195,7 @@ class TodayViewModel(
         weightHistory: List<WeightEntryEntity>,
         streak: StreakSummary,
         settings: GoalSettings,
+        activities: List<ActivityEntryEntity>,
     ): TodayUiState {
         val totals = TodayNutritionTotals(
             kcal = sumOf { it.kcal },
@@ -187,7 +224,15 @@ class TodayViewModel(
                     items = mealEntries.take(3).joinToString(", ") { it.foodNameSnapshot },
                 )
             },
-            remainingKcal = maxOf(0, (settings.dailyKcal - totals.kcal).roundToInt()),
+            activities = activities.map {
+                TodayActivitySummary(it.id, it.name, it.icon, it.durationMinutes, it.kcal)
+            },
+            spentKcal = activities.sumOf { it.kcal },
+            remainingKcal = calculateRemainingKcal(
+                settings.dailyKcal,
+                totals.kcal,
+                activities.sumOf { it.kcal },
+            ),
             isGreenDay = greenDayService.isGreenDay(this, settings.dailyKcal, settings.dailyProtein),
             water = TodayWaterSummary(consumedMl = waterMl, goalMl = settings.dailyWaterMl),
             weight = TodayWeightSummary(currentKg = weightKg, goalKg = settings.weightGoalKg),
@@ -218,10 +263,17 @@ class TodayViewModelFactory(
     private val waterRepository: WaterRepository,
     private val weightRepository: WeightRepository,
     private val settingsRepository: SettingsRepository? = null,
+    private val activityRepository: ActivityRepository? = null,
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T =
-        TodayViewModel(diaryRepository, waterRepository, weightRepository, settingsRepository) as T
+        TodayViewModel(
+            diaryRepository,
+            waterRepository,
+            weightRepository,
+            settingsRepository,
+            activityRepository,
+        ) as T
 }
 
 data class TodayUiState(
@@ -236,6 +288,8 @@ data class TodayUiState(
     val chatGptPrompt: String = DEFAULT_CHAT_GPT_PROMPT,
     val totals: TodayNutritionTotals = TodayNutritionTotals(),
     val entries: List<TodayEntrySummary> = emptyList(),
+    val activities: List<TodayActivitySummary> = emptyList(),
+    val spentKcal: Double = 0.0,
     val meals: List<TodayMealSummary> = defaultMeals(),
     val water: TodayWaterSummary = TodayWaterSummary(),
     val weight: TodayWeightSummary = TodayWeightSummary(),
@@ -286,6 +340,17 @@ data class TodayNutritionTotals(
     val protein: Double = 0.0,
     val fat: Double = 0.0,
 )
+
+data class TodayActivitySummary(
+    val id: Long,
+    val name: String,
+    val icon: String,
+    val durationMinutes: Int,
+    val kcal: Double,
+)
+
+fun calculateRemainingKcal(goal: Double, consumed: Double, spent: Double): Int =
+    maxOf(0, (goal - consumed + spent).roundToInt())
 
 data class TodayMealSummary(
     val key: String,

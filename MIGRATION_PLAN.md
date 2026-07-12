@@ -5693,3 +5693,23 @@ Ordem minima de correcao:
 ### Proxima tarefa
 
 - Integrar atividades ao estado Hoje, total `Gastas` e formula de `Restantes`.
+
+## Ciclo 65
+
+### Implementacao
+
+- `TodayViewModel` observa atividades da data selecionada.
+- `TodayUiState` expoe atividades e total de calorias gastas.
+- Resumo mostra `Gastas` e usa `meta - consumidas + gastas` em `Restantes`.
+- ViewModel adiciona atividades com o peso atual e remove por ID.
+- Sem repositorio, testes e previews continuam com lista vazia.
+
+### QA
+
+- Teste confirma: meta 2000 - consumidas 800 + gastas 300 = 1500 restantes.
+- `lintDebug testDebugUnitTest assembleDebug` - BUILD SUCCESSFUL.
+- APROVADO.
+
+### Proxima tarefa
+
+- Exibir a secao Atividades e criar o cadastro manual com catalogo inicial.

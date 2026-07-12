@@ -27,6 +27,7 @@ class MainActivity : ComponentActivity() {
                 container.waterRepository,
                 container.weightRepository,
                 container.settingsRepository,
+                container.activityRepository,
             ),
         )[TodayViewModel::class.java]
         val addFoodViewModel = ViewModelProvider(

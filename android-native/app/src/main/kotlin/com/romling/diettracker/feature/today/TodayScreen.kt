@@ -244,7 +244,7 @@ private fun SummaryCard(state: TodayUiState) {
                 ) {
                     SummarySideMetric(value = state.totals.kcal.toInt().toString(), label = "Consumidas")
                     SummarySideMetric(value = state.remainingKcal.toString(), label = "Restantes")
-                    SummarySideMetric(value = "0", label = "Gastas")
+                    SummarySideMetric(value = state.spentKcal.toInt().toString(), label = "Gastas")
                 }
             } else {
                 Row(
@@ -259,7 +259,7 @@ private fun SummaryCard(state: TodayUiState) {
                     }
                     RemainingRing(state)
                     Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                        SummarySideMetric(value = "0", label = "Gastas")
+                        SummarySideMetric(value = state.spentKcal.toInt().toString(), label = "Gastas")
                     }
                 }
             }

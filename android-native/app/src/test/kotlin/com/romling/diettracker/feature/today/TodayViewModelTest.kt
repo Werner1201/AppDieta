@@ -29,6 +29,11 @@ import kotlinx.coroutines.test.setMain
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class TodayViewModelTest {
+    @Test
+    fun remainingCaloriesIncludeActivities() {
+        assertEquals(1500, calculateRemainingKcal(goal = 2000.0, consumed = 800.0, spent = 300.0))
+    }
+
     private val dispatcher = StandardTestDispatcher()
 
     @BeforeTest
