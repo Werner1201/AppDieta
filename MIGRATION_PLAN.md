@@ -5652,14 +5652,17 @@ Ordem minima de correcao:
 
 ### Validacao
 
-- Build completo passou antes do ultimo ajuste da barra inferior.
+- `gradlew.bat lintDebug testDebugUnitTest assembleDebug` - BUILD SUCCESSFUL apos todos os ajustes.
 - 322 dp / fonte 200% foi validado visualmente: cabecalho, botoes, Resumo e rotulos deixaram de cortar.
 - Landscape compacto revelou altura excessiva da barra; a remocao condicional dos icones foi aplicada.
-- O build final dessa ultima alteracao ficou pendente por limite de creditos da ferramenta.
+- 322 dp landscape e 412 dp portrait foram aprovados visualmente com fonte 200%.
+- 360 dp iniciou corretamente em portrait e landscape com fonte 200%.
 - AVD restaurado para tamanho e densidade fisicos, fonte 1.0.
 
-### Proximo comando obrigatorio
+### QA
 
-`cd android-native && gradlew.bat lintDebug testDebugUnitTest assembleDebug`
+- APROVADO.
 
-Depois, reinstalar o APK e repetir 322/360/412 dp com fonte 200% em portrait e landscape.
+### Proxima tarefa
+
+- Implementar a primeira entrega de Atividades/Exercicios do Ciclo F.
