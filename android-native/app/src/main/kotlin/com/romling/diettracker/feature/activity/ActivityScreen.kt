@@ -31,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import kotlin.math.ceil
 import com.romling.diettracker.core.ui.components.AppCard
@@ -38,6 +39,7 @@ import com.romling.diettracker.core.ui.components.BottomPrimaryButton
 import com.romling.diettracker.core.ui.theme.AppColors
 import com.romling.diettracker.core.ui.theme.AppSpacing
 import com.romling.diettracker.domain.service.ActivityCalorieCalculator
+import com.romling.diettracker.R
 import com.romling.diettracker.feature.today.TodayActivitySummary
 
 data class ActivityOption(
@@ -100,10 +102,10 @@ fun ActivityScreen(
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(18.dp)) {
             IconButton(onClick = { if (selected != null) selected = null else onClose() }) {
-                Icon(Icons.Default.Close, contentDescription = "Voltar", tint = AppColors.TextPrimary)
+                Icon(Icons.Default.Close, contentDescription = stringResource(R.string.action_back), tint = AppColors.TextPrimary)
             }
             Text(
-                selected?.name ?: "Adicionar atividade",
+                selected?.name ?: stringResource(R.string.activity_add_title),
                 modifier = Modifier.weight(1f),
                 color = AppColors.TextPrimary,
                 style = MaterialTheme.typography.headlineSmall,
@@ -113,13 +115,13 @@ fun ActivityScreen(
         if (activity == null) {
             val frequent = frequentNames.mapNotNull { name -> activityCatalog.firstOrNull { it.name == name } }
             if (frequent.isNotEmpty()) {
-                Text("Frequentes", style = MaterialTheme.typography.titleLarge)
+                Text(stringResource(R.string.activity_frequent), style = MaterialTheme.typography.titleLarge)
                 ActivityOptionsCard(frequent, onSelect = { selected = it })
             }
-            Text("Todas", style = MaterialTheme.typography.titleLarge)
+            Text(stringResource(R.string.activity_all), style = MaterialTheme.typography.titleLarge)
             ActivityOptionsCard(activityCatalog.filterNot { it in frequent }, onSelect = { selected = it })
             Text(
-                "+ Atividade personalizada",
+                stringResource(R.string.activity_custom),
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable {
@@ -151,16 +153,16 @@ fun ActivityScreen(
                     value = steps,
                     onValueChange = { steps = it.filter(Char::isDigit).take(6) },
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Passos") },
+                    label = { Text(stringResource(R.string.activity_steps)) },
                     singleLine = true,
                 )
-                Text("Estimativa de duração: 100 passos/min", color = AppColors.TextSecondary)
+                Text(stringResource(R.string.activity_steps_estimate), color = AppColors.TextSecondary)
             } else {
                 OutlinedTextField(
                     value = duration,
                     onValueChange = { duration = it.filter(Char::isDigit).take(3) },
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Duração (min)") },
+                    label = { Text(stringResource(R.string.activity_duration_minutes)) },
                     singleLine = true,
                 )
             }
@@ -180,7 +182,11 @@ fun ActivityScreen(
                     singleLine = true,
                 )
             } else Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                listOf("Leve", "Moderada", "Vigorosa").forEachIndexed { index, label ->
+                listOf(
+                    stringResource(R.string.activity_intensity_light),
+                    stringResource(R.string.activity_intensity_moderate),
+                    stringResource(R.string.activity_intensity_vigorous),
+                ).forEachIndexed { index, label ->
                     FilterChip(
                         selected = intensity == index,
                         onClick = { intensity = index },
@@ -193,7 +199,7 @@ fun ActivityScreen(
                     value = distance,
                     onValueChange = { distance = it.filter { char -> char.isDigit() || char == ',' || char == '.' }.take(6) },
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Distância (km), opcional") },
+                    label = { Text(stringResource(R.string.activity_distance_optional)) },
                     singleLine = true,
                 )
             }
@@ -201,12 +207,16 @@ fun ActivityScreen(
                 value = note,
                 onValueChange = { note = it.take(500) },
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("Nota, opcional") },
+                label = { Text(stringResource(R.string.activity_note_optional)) },
                 minLines = 2,
             )
-            Text("Estimativa com ${weightKg.toInt()} kg", color = AppColors.TextSecondary, style = MaterialTheme.typography.bodyMedium)
+            Text(
+                stringResource(R.string.activity_weight_estimate, weightKg.toInt()),
+                color = AppColors.TextSecondary,
+                style = MaterialTheme.typography.bodyMedium,
+            )
             BottomPrimaryButton(
-                text = "Salvar",
+                text = stringResource(R.string.activity_save),
                 onClick = {
                     if (minutes > 0 && met > 0 && (!activity.custom || customName.isNotBlank())) {
                         onSave(
@@ -241,7 +251,7 @@ private fun ActivityOptionsCard(options: List<ActivityOption>, onSelect: (Activi
                 Text(option.name, modifier = Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
                 Icon(
                     Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                    contentDescription = "Abrir ${option.name}",
+                    contentDescription = stringResource(R.string.action_open_item, option.name),
                     tint = AppColors.TextSecondary,
                 )
             }

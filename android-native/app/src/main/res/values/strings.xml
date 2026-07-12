@@ -1,3 +1,22 @@
 <resources>
     <string name="app_name">Dieta Local</string>
+    <string name="nav_diary">Diário</string>
+    <string name="nav_recipes">Receitas</string>
+    <string name="nav_profile">Perfil</string>
+    <string name="activity_add_title">Adicionar atividade</string>
+    <string name="activity_frequent">Frequentes</string>
+    <string name="activity_all">Todas</string>
+    <string name="activity_custom">+ Atividade personalizada</string>
+    <string name="activity_steps">Passos</string>
+    <string name="activity_duration_minutes">Duração (min)</string>
+    <string name="activity_steps_estimate">Estimativa de duração: 100 passos/min</string>
+    <string name="activity_intensity_light">Leve</string>
+    <string name="activity_intensity_moderate">Moderada</string>
+    <string name="activity_intensity_vigorous">Vigorosa</string>
+    <string name="activity_distance_optional">Distância (km), opcional</string>
+    <string name="activity_note_optional">Nota, opcional</string>
+    <string name="activity_save">Salvar</string>
+    <string name="activity_weight_estimate">Estimativa com %1$d kg</string>
+    <string name="action_back">Voltar</string>
+    <string name="action_open_item">Abrir %1$s</string>
 </resources>

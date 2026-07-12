@@ -35,6 +35,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.annotation.StringRes
+import androidx.compose.ui.res.stringResource
+import com.romling.diettracker.R
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.semantics.Role
@@ -62,10 +65,10 @@ import com.romling.diettracker.feature.today.TodayScreen
 import com.romling.diettracker.feature.today.TodayViewModel
 import com.romling.diettracker.feature.weight.WeightScreen
 
-private enum class AppTab(val label: String, val icon: ImageVector) {
-    DIARY("Diário", Icons.Default.Home),
-    RECIPES("Receitas", Icons.AutoMirrored.Filled.List),
-    PROFILE("Perfil", Icons.Default.Person),
+private enum class AppTab(@StringRes val labelRes: Int, val icon: ImageVector) {
+    DIARY(R.string.nav_diary, Icons.Default.Home),
+    RECIPES(R.string.nav_recipes, Icons.AutoMirrored.Filled.List),
+    PROFILE(R.string.nav_profile, Icons.Default.Person),
 }
 
 @Composable
@@ -335,7 +338,7 @@ private fun AppBottomNavBar(selectedTab: AppTab, onTabSelected: (AppTab) -> Unit
                     Icon(imageVector = tab.icon, contentDescription = null)
                 }
                 Text(
-                    text = tab.label,
+                    text = stringResource(tab.labelRes),
                     style = MaterialTheme.typography.labelSmall,
                     color = if (isSelected) AppColors.Accent else AppColors.TextSecondary,
                     textAlign = TextAlign.Center,

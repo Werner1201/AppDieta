@@ -5861,3 +5861,21 @@ Ordem minima de correcao:
 ### Proxima tarefa
 
 - Centralizar strings do fluxo Atividades e navegacao em resources.
+
+## Ciclo 73
+
+### Implementacao
+
+- Abas e textos de interface do fluxo Atividades foram movidos para `strings.xml`.
+- Descricoes de acessibilidade usam recursos formatados.
+- Nomes canonicos de atividades permanecem no catalogo para preservar o ranking historico.
+
+### QA
+
+- `lintDebug testDebugUnitTest assembleDebug` - BUILD SUCCESSFUL.
+- Recursos com acentos e placeholders foram processados sem erros.
+- APROVADO PARCIAL: demais telas ainda possuem strings hardcoded.
+
+### Proxima tarefa
+
+- Atualizar README com build, instalacao, ADB, migracoes e fluxos Android.
