@@ -5489,3 +5489,48 @@ Decisao:
 
 Nome:
 - Melhorar o layout expandido de tablet sem alterar a experiencia de celular.
+
+## Ciclo 60
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Priorizar alimentos frequentes na busca de cada refeicao.
+
+Decisao de escopo:
+- Reusar o historico de `diary_entries`, sem nova tabela ou migracao.
+- Ordenar por quantidade de registros e usar recencia como desempate.
+- Manter a busca textual sobre todo o catalogo.
+
+### 2. DEV
+
+Implementacao feita:
+- A consulta Room agrupa alimentos registrados por `meal_type`.
+- A tela abre em `Frequentes` e permite alternar para `Todos`.
+- Cada refeicao tem seu proprio ranking de ate 20 alimentos.
+- Busca e selecoes anteriores sao limpas ao abrir uma refeicao.
+- Estado vazio explica quando os frequentes ainda nao existem.
+
+Como testou:
+- `gradlew.bat lintDebug testDebugUnitTest assembleDebug` - BUILD SUCCESSFUL.
+- Teste unitario cobre o carregamento de frequentes por refeicao e a limpeza da busca.
+- No AVD Galaxy Z Fold 6, foram validados estado vazio, aba Todos, busca por `arroz` e retorno automatico a Frequentes.
+- Apos registrar `Arroz Branco Cozido` no cafe da manha, o alimento apareceu na aba Frequentes dessa refeicao.
+
+### 3. QA
+
+Checklist final:
+- [x] Frequentes sao derivados do historico real.
+- [x] Ranking e separado por refeicao.
+- [x] Todos continua acessivel.
+- [x] Busca textual nao fica restrita aos frequentes.
+- [x] Reabertura limpa a busca anterior.
+- [x] Lint, testes e APK debug passam.
+
+Decisao:
+- APROVADO
+
+### Proxima tarefa aberta pelo Arquiteto
+
+Nome:
+- Melhorar o layout expandido de tablet sem alterar a experiencia de celular.

@@ -54,6 +54,21 @@ class AddFoodViewModelTest {
     }
 
     @Test
+    fun mealTypeLoadsItsFrequentFoods() = runTest(dispatcher) {
+        val viewModel = AddFoodViewModel(
+            foodRepository = FoodRepository(FakeFoodDao(), FakeFoodPortionDao()),
+            diaryRepository = DiaryRepository(FakeDiaryEntryDao()),
+        )
+
+        viewModel.updateQuery("arroz")
+        viewModel.setMealType("breakfast")
+        advanceUntilIdle()
+
+        assertEquals("", viewModel.state.value.query)
+        assertEquals("Café", viewModel.state.value.frequentFoods.single().name)
+    }
+
+    @Test
     fun addFoodSavesDefaultPortion() = runTest(dispatcher) {
         val diaryDao = FakeDiaryEntryDao()
         val viewModel = AddFoodViewModel(
@@ -171,6 +186,9 @@ private class FakeFoodDao : FoodDao {
         val normalized = query.lowercase()
         return flowOf(foods.filter { normalized.isBlank() || it.name.lowercase().contains(normalized) })
     }
+
+    override fun frequentForMeal(mealType: String): Flow<List<FoodEntity>> =
+        flowOf(if (mealType == "breakfast") listOf(foods.first()) else emptyList())
 
     override fun customFoods(): Flow<List<FoodEntity>> = flowOf(foods.filter { it.isCustom })
     override suspend fun getById(id: Long): FoodEntity? = foods.firstOrNull { it.id == id }

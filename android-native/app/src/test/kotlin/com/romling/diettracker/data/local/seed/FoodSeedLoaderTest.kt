@@ -46,6 +46,7 @@ private class FakeFoodDao : FoodDao {
     val foods = mutableListOf<FoodEntity>()
 
     override fun search(query: String, category: String): Flow<List<FoodEntity>> = flowOf(foods)
+    override fun frequentForMeal(mealType: String): Flow<List<FoodEntity>> = flowOf(emptyList())
     override fun customFoods(): Flow<List<FoodEntity>> = flowOf(foods.filter { it.isCustom })
     override suspend fun getById(id: Long): FoodEntity? = foods.firstOrNull { it.id == id }
     override suspend fun count(): Int = foods.size

@@ -16,11 +16,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,6 +42,7 @@ import com.romling.diettracker.feature.today.TodayMealSummary
 fun AddFoodScreen(
     meal: TodayMealSummary,
     state: AddFoodUiState,
+    onMealChanged: (String) -> Unit,
     onQueryChange: (String) -> Unit,
     onSelectFood: (Long) -> Unit,
     onOpenFoodDetails: (Long) -> Unit,
@@ -51,6 +54,9 @@ fun AddFoodScreen(
     modifier: Modifier = Modifier,
 ) {
     var showCreateFood by remember { mutableStateOf(false) }
+    var showFrequent by remember { mutableStateOf(true) }
+
+    LaunchedEffect(meal.key) { onMealChanged(meal.key) }
 
     BackHandler {
         when {
@@ -150,6 +156,8 @@ fun AddFoodScreen(
             )
             FoodsCard(
                 state = state,
+                showFrequent = showFrequent && state.query.isBlank(),
+                onShowFrequentChange = { showFrequent = it },
                 onSelectFood = onSelectFood,
                 onOpenFoodDetails = onOpenFoodDetails,
                 onAddFood = onAddFood,
@@ -161,12 +169,36 @@ fun AddFoodScreen(
 @Composable
 private fun FoodsCard(
     state: AddFoodUiState,
+    showFrequent: Boolean,
+    onShowFrequentChange: (Boolean) -> Unit,
     onSelectFood: (Long) -> Unit,
     onOpenFoodDetails: (Long) -> Unit,
     onAddFood: (FoodSearchItem, FoodPortionItem?) -> Unit,
 ) {
-    val foods = state.foods.take(20)
+    val foods = (if (showFrequent) state.frequentFoods else state.foods).take(20)
     Column {
+        if (state.query.isBlank()) {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FilterChip(
+                    selected = showFrequent,
+                    onClick = { onShowFrequentChange(true) },
+                    label = { Text("Frequentes") },
+                )
+                FilterChip(
+                    selected = !showFrequent,
+                    onClick = { onShowFrequentChange(false) },
+                    label = { Text("Todos") },
+                )
+            }
+        }
+        if (showFrequent && foods.isEmpty()) {
+            Text(
+                text = "Seus alimentos mais registrados nesta refeição aparecerão aqui.",
+                modifier = Modifier.padding(vertical = 18.dp),
+                style = MaterialTheme.typography.bodyMedium,
+                color = AppColors.TextSecondary,
+            )
+        }
         foods.forEachIndexed { index, food ->
             FoodRow(
                 food = food,

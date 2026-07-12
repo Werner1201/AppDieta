@@ -30,6 +30,18 @@ interface FoodDao {
     )
     fun search(query: String = "", category: String = ""): Flow<List<FoodEntity>>
 
+    @Query(
+        """
+        SELECT foods.* FROM foods
+        INNER JOIN diary_entries ON diary_entries.food_id = foods.id
+        WHERE diary_entries.meal_type = :mealType
+        GROUP BY foods.id
+        ORDER BY COUNT(*) DESC, MAX(diary_entries.created_at) DESC
+        LIMIT 20
+        """,
+    )
+    fun frequentForMeal(mealType: String): Flow<List<FoodEntity>>
+
     @Query("SELECT * FROM foods WHERE id = :id LIMIT 1")
     suspend fun getById(id: Long): FoodEntity?
 

@@ -10,6 +10,7 @@ class FoodRepository(
     private val foodPortionDao: FoodPortionDao,
 ) {
     fun search(query: String = "", category: String = "") = foodDao.search(query, category)
+    fun frequentForMeal(mealType: String) = foodDao.frequentForMeal(mealType)
     fun customFoods() = foodDao.customFoods()
     fun portionsForFood(foodId: Long) = foodPortionDao.portionsForFood(foodId)
     suspend fun getById(id: Long) = foodDao.getById(id)

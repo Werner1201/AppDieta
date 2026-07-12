@@ -188,6 +188,7 @@ fun DietTrackerApp(
             AddFoodScreen(
                 meal = addMeal!!,
                 state = addFoodState,
+                onMealChanged = addFoodViewModel::setMealType,
                 onQueryChange = addFoodViewModel::updateQuery,
                 onSelectFood = addFoodViewModel::selectFood,
                 onOpenFoodDetails = addFoodViewModel::openFoodDetails,

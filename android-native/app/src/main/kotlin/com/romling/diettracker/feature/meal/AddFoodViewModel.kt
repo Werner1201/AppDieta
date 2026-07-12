@@ -25,9 +25,14 @@ class AddFoodViewModel(
     private val dateProvider: () -> LocalDate = { LocalDate.now() },
 ) : ViewModel() {
     private val query = MutableStateFlow("")
+    private val mealType = MutableStateFlow("")
     private val selectedFoodId = MutableStateFlow<Long?>(null)
     private val detailFoodId = MutableStateFlow<Long?>(null)
     private val foods = query.flatMapLatest { foodRepository.search(it) }
+    private val frequentFoods = mealType.flatMapLatest {
+        if (it.isBlank()) flowOf(emptyList()) else foodRepository.frequentForMeal(it)
+    }
+    private val foodLists = combine(foods, frequentFoods) { all, frequent -> all to frequent }
 
     val customFoods: StateFlow<List<FoodSearchItem>> = foodRepository.customFoods()
         .map { list ->
@@ -44,33 +49,28 @@ class AddFoodViewModel(
         if (foodId == null) flowOf(emptyList()) else foodRepository.portionsForFood(foodId)
     }
 
-    val state: StateFlow<AddFoodUiState> = combine(query, foods, selectedFoodId, detailFoodId, portions) { query, foods, selectedFoodId, detailFoodId, portions ->
-        val items = foods.map {
-            FoodSearchItem(
-                id = it.id,
-                name = it.name,
-                serving = it.defaultUnit,
-                kcal = it.kcal100g,
-                carbs = it.carbs100g,
-                protein = it.protein100g,
-                fat = it.fat100g,
-                fiber = it.fiber100g,
-                sugar = it.sugar100g,
-                sodiumMg = it.sodiumMg100g,
-                source = it.source,
-            )
-        }
+    val state: StateFlow<AddFoodUiState> = combine(query, foodLists, selectedFoodId, detailFoodId, portions) { query, foodLists, selectedFoodId, detailFoodId, portions ->
+        val (foods, frequentFoods) = foodLists
+        val items = foods.map(::toSearchItem)
         AddFoodUiState(
             query = query,
             selectedFoodId = selectedFoodId,
             detailFood = items.firstOrNull { it.id == detailFoodId },
             portions = portions.map { FoodPortionItem(label = it.label, grams = it.grams) },
             foods = items,
+            frequentFoods = frequentFoods.map(::toSearchItem),
         )
     }.stateIn(viewModelScope, SharingStarted.Eagerly, AddFoodUiState())
 
     fun updateQuery(value: String) {
         query.value = value
+    }
+
+    fun setMealType(value: String) {
+        mealType.value = value
+        query.value = ""
+        selectedFoodId.value = null
+        detailFoodId.value = null
     }
 
     fun selectFood(foodId: Long) {
@@ -142,9 +142,24 @@ class AddFoodViewModelFactory(
 data class AddFoodUiState(
     val query: String = "",
     val foods: List<FoodSearchItem> = emptyList(),
+    val frequentFoods: List<FoodSearchItem> = emptyList(),
     val selectedFoodId: Long? = null,
     val detailFood: FoodSearchItem? = null,
     val portions: List<FoodPortionItem> = emptyList(),
+)
+
+private fun toSearchItem(food: FoodEntity) = FoodSearchItem(
+    id = food.id,
+    name = food.name,
+    serving = food.defaultUnit,
+    kcal = food.kcal100g,
+    carbs = food.carbs100g,
+    protein = food.protein100g,
+    fat = food.fat100g,
+    fiber = food.fiber100g,
+    sugar = food.sugar100g,
+    sodiumMg = food.sodiumMg100g,
+    source = food.source,
 )
 
 data class FoodSearchItem(
