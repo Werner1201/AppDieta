@@ -5734,3 +5734,24 @@ Ordem minima de correcao:
 ### Proxima tarefa
 
 - Validar salvamento no emulador e adicionar distancia, nota, intensidades e frequentes.
+
+## Ciclo 67
+
+### Implementacao
+
+- Atividades possuem intensidade leve, moderada e vigorosa com MET proprio.
+- Caminhada, ciclismo, corrida, trilha e natacao aceitam distancia opcional.
+- Nota opcional aceita ate 500 caracteres.
+- Estimativa reage imediatamente a duracao e intensidade.
+
+### QA
+
+- `lintDebug testDebugUnitTest assembleDebug` - BUILD SUCCESSFUL.
+- Musculacao moderada, 108 kg e 60 minutos exibiu 510 kcal.
+- Apos salvar, Resumo exibiu 510 Gastas e Restantes mudou de 2205 para 2715.
+- Registro apareceu na secao Atividades com nome, duracao e calorias.
+- APROVADO.
+
+### Proxima tarefa
+
+- Implementar atividades frequentes por contagem e recencia.

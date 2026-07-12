@@ -43,6 +43,7 @@ Validado no AVD Galaxy Z Fold 6, API 35, em 2026-07-11:
 - [x] Fundacao Room e calculo MET de Atividades passam nos exemplos de aceite.
 - [x] `Gastas` e `Restantes` reagem às atividades da data selecionada.
 - [x] Hoje possui secao Atividades e catalogo manual inicial.
+- [x] Fluxo manual de atividade atualiza `Gastas`, `Restantes` e a lista do dia.
 - [ ] Demais achados P1/P2/P3 e o Ciclo F de atividades continuam abertos.
 
 ## Pontuacao

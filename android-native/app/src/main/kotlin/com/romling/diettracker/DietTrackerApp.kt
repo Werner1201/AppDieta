@@ -167,9 +167,16 @@ fun DietTrackerApp(
         } else if (showActivities) {
             ActivityScreen(
                 weightKg = state.weight.currentKg,
-                onSave = { activity, minutes ->
+                onSave = { activity, met, minutes, distanceKm, note ->
                     if (minutes > 0) {
-                        todayViewModel.addActivity(activity.name, activity.icon, activity.met, minutes)
+                        todayViewModel.addActivity(
+                            activity.name,
+                            activity.icon,
+                            met,
+                            minutes,
+                            distanceKm,
+                            note,
+                        )
                         showActivities = false
                     }
                 },

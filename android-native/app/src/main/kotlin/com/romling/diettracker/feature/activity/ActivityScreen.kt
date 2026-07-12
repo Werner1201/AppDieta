@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -30,27 +31,37 @@ import com.romling.diettracker.core.ui.theme.AppColors
 import com.romling.diettracker.core.ui.theme.AppSpacing
 import com.romling.diettracker.domain.service.ActivityCalorieCalculator
 
-data class ActivityOption(val name: String, val icon: String, val met: Double)
+data class ActivityOption(
+    val name: String,
+    val icon: String,
+    val lightMet: Double,
+    val moderateMet: Double,
+    val vigorousMet: Double,
+    val tracksDistance: Boolean = false,
+)
 
 private val activityCatalog = listOf(
-    ActivityOption("Musculação", "💪", 4.5),
-    ActivityOption("Caminhada", "🚶", 3.5),
-    ActivityOption("Ciclismo", "🚴", 6.8),
-    ActivityOption("Corrida", "🏃", 8.0),
-    ActivityOption("Elíptico", "🏋️", 5.0),
-    ActivityOption("Trilha", "🥾", 6.0),
-    ActivityOption("Yoga", "🧘", 2.5),
-    ActivityOption("Natação", "🏊", 6.0),
+    ActivityOption("Musculação", "💪", 3.5, 4.5, 6.0),
+    ActivityOption("Caminhada", "🚶", 2.5, 3.5, 5.0, true),
+    ActivityOption("Ciclismo", "🚴", 4.0, 6.8, 10.0, true),
+    ActivityOption("Corrida", "🏃", 6.0, 8.0, 11.0, true),
+    ActivityOption("Elíptico", "🏋️", 4.0, 5.0, 8.0),
+    ActivityOption("Trilha", "🥾", 4.0, 6.0, 8.0, true),
+    ActivityOption("Yoga", "🧘", 2.0, 2.5, 4.0),
+    ActivityOption("Natação", "🏊", 4.0, 6.0, 9.0, true),
 )
 
 @Composable
 fun ActivityScreen(
     weightKg: Double,
-    onSave: (ActivityOption, Int) -> Unit,
+    onSave: (ActivityOption, Double, Int, Double?, String) -> Unit,
     onClose: () -> Unit,
 ) {
     var selected by remember { mutableStateOf<ActivityOption?>(null) }
     var duration by remember { mutableStateOf("30") }
+    var intensity by remember { mutableStateOf(1) }
+    var distance by remember { mutableStateOf("") }
+    var note by remember { mutableStateOf("") }
     BackHandler {
         if (selected != null) selected = null else onClose()
     }
@@ -97,7 +108,8 @@ fun ActivityScreen(
             }
         } else {
             val minutes = duration.toIntOrNull() ?: 0
-            val kcal = if (minutes > 0) ActivityCalorieCalculator.calculate(activity.met, weightKg, minutes).toInt() else 0
+            val met = listOf(activity.lightMet, activity.moderateMet, activity.vigorousMet)[intensity]
+            val kcal = if (minutes > 0) ActivityCalorieCalculator.calculate(met, weightKg, minutes).toInt() else 0
             Text(activity.icon, modifier = Modifier.fillMaxWidth(), style = MaterialTheme.typography.displayMedium, textAlign = TextAlign.Center)
             Text("$kcal kcal", modifier = Modifier.fillMaxWidth(), style = MaterialTheme.typography.headlineMedium, textAlign = TextAlign.Center)
             OutlinedTextField(
@@ -107,10 +119,37 @@ fun ActivityScreen(
                 label = { Text("Duração (min)") },
                 singleLine = true,
             )
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                listOf("Leve", "Moderada", "Vigorosa").forEachIndexed { index, label ->
+                    FilterChip(
+                        selected = intensity == index,
+                        onClick = { intensity = index },
+                        label = { Text(label) },
+                    )
+                }
+            }
+            if (activity.tracksDistance) {
+                OutlinedTextField(
+                    value = distance,
+                    onValueChange = { distance = it.filter { char -> char.isDigit() || char == ',' || char == '.' }.take(6) },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("Distância (km), opcional") },
+                    singleLine = true,
+                )
+            }
+            OutlinedTextField(
+                value = note,
+                onValueChange = { note = it.take(500) },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Nota, opcional") },
+                minLines = 2,
+            )
             Text("Estimativa com ${weightKg.toInt()} kg", color = AppColors.TextSecondary, style = MaterialTheme.typography.bodyMedium)
             BottomPrimaryButton(
                 text = "Salvar",
-                onClick = { onSave(activity, minutes) },
+                onClick = {
+                    onSave(activity, met, minutes, distance.replace(',', '.').toDoubleOrNull(), note.trim())
+                },
                 modifier = Modifier.fillMaxWidth(),
             )
         }
