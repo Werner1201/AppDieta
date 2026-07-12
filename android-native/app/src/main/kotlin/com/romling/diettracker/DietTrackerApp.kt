@@ -51,6 +51,7 @@ import com.romling.diettracker.feature.settings.BackupImportScreen
 import com.romling.diettracker.feature.today.CalendarScreen
 import com.romling.diettracker.feature.today.StreakScreen
 import com.romling.diettracker.feature.today.TodayMealSummary
+import com.romling.diettracker.feature.today.TodayActivitySummary
 import com.romling.diettracker.feature.today.TodayScreen
 import com.romling.diettracker.feature.today.TodayViewModel
 import com.romling.diettracker.feature.weight.WeightScreen
@@ -89,6 +90,7 @@ fun DietTrackerApp(
     var showCustomFoods by remember { mutableStateOf(false) }
     var showImport by remember { mutableStateOf(false) }
     var showActivities by remember { mutableStateOf(false) }
+    var selectedActivity by remember { mutableStateOf<TodayActivitySummary?>(null) }
     var showBackupImport by remember { mutableStateOf(false) }
     var selectedTab by remember { mutableStateOf(AppTab.DIARY) }
 
@@ -169,20 +171,21 @@ fun DietTrackerApp(
             ActivityScreen(
                 weightKg = state.weight.currentKg,
                 frequentNames = frequentActivityNames,
+                initialActivity = selectedActivity,
                 onSave = { activity, met, minutes, distanceKm, note ->
                     if (minutes > 0) {
-                        todayViewModel.addActivity(
-                            activity.name,
-                            activity.icon,
-                            met,
-                            minutes,
-                            distanceKm,
-                            note,
+                        selectedActivity?.let {
+                            todayViewModel.updateActivity(
+                                it.id, activity.name, activity.icon, met, minutes, distanceKm, note,
+                            )
+                        } ?: todayViewModel.addActivity(
+                            activity.name, activity.icon, met, minutes, distanceKm, note,
                         )
+                        selectedActivity = null
                         showActivities = false
                     }
                 },
-                onClose = { showActivities = false },
+                onClose = { selectedActivity = null; showActivities = false },
             )
         } else if (showCustomFoods) {
             CustomFoodsScreen(
@@ -254,7 +257,8 @@ fun DietTrackerApp(
                             onNextDay = todayViewModel::nextDay,
                             onOpenCalendar = { showCalendar = true },
                             onOpenStreak = { showStreak = true },
-                            onOpenActivities = { showActivities = true },
+                            onOpenActivities = { selectedActivity = null; showActivities = true },
+                            onEditActivity = { selectedActivity = it; showActivities = true },
                             onRemoveActivity = todayViewModel::removeActivity,
                         )
                         AppTab.PROFILE -> SettingsScreen(

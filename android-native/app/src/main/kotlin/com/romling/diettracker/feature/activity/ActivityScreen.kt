@@ -30,6 +30,7 @@ import com.romling.diettracker.core.ui.components.BottomPrimaryButton
 import com.romling.diettracker.core.ui.theme.AppColors
 import com.romling.diettracker.core.ui.theme.AppSpacing
 import com.romling.diettracker.domain.service.ActivityCalorieCalculator
+import com.romling.diettracker.feature.today.TodayActivitySummary
 
 data class ActivityOption(
     val name: String,
@@ -38,6 +39,7 @@ data class ActivityOption(
     val moderateMet: Double,
     val vigorousMet: Double,
     val tracksDistance: Boolean = false,
+    val custom: Boolean = false,
 )
 
 private val activityCatalog = listOf(
@@ -55,14 +57,24 @@ private val activityCatalog = listOf(
 fun ActivityScreen(
     weightKg: Double,
     frequentNames: List<String> = emptyList(),
+    initialActivity: TodayActivitySummary? = null,
     onSave: (ActivityOption, Double, Int, Double?, String) -> Unit,
     onClose: () -> Unit,
 ) {
-    var selected by remember { mutableStateOf<ActivityOption?>(null) }
-    var duration by remember { mutableStateOf("30") }
-    var intensity by remember { mutableStateOf(1) }
-    var distance by remember { mutableStateOf("") }
-    var note by remember { mutableStateOf("") }
+    val initialOption = initialActivity?.let { entry ->
+        activityCatalog.firstOrNull { it.name == entry.name }
+            ?: ActivityOption(entry.name, entry.icon, entry.met, entry.met, entry.met, custom = true)
+    }
+    var selected by remember(initialActivity?.id) { mutableStateOf(initialOption) }
+    var duration by remember(initialActivity?.id) { mutableStateOf(initialActivity?.durationMinutes?.toString() ?: "30") }
+    var intensity by remember(initialActivity?.id) {
+        val mets = initialOption?.let { listOf(it.lightMet, it.moderateMet, it.vigorousMet) }
+        mutableStateOf(mets?.indexOf(initialActivity?.met)?.takeIf { it >= 0 } ?: 1)
+    }
+    var distance by remember(initialActivity?.id) { mutableStateOf(initialActivity?.distanceKm?.toString() ?: "") }
+    var note by remember(initialActivity?.id) { mutableStateOf(initialActivity?.note ?: "") }
+    var customName by remember(initialActivity?.id) { mutableStateOf(initialActivity?.name ?: "") }
+    var customMet by remember(initialActivity?.id) { mutableStateOf(initialActivity?.met?.toString() ?: "") }
     BackHandler {
         if (selected != null) selected = null else onClose()
     }
@@ -97,10 +109,29 @@ fun ActivityScreen(
             }
             Text("Todas", style = MaterialTheme.typography.titleLarge)
             ActivityOptionsCard(activityCatalog.filterNot { it in frequent }, onSelect = { selected = it })
+            Text(
+                "+ Atividade personalizada",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        customName = ""
+                        customMet = ""
+                        selected = ActivityOption("Atividade personalizada", "➕", 1.0, 1.0, 1.0, custom = true)
+                    }
+                    .padding(vertical = 12.dp),
+                color = AppColors.Accent,
+                style = MaterialTheme.typography.titleMedium,
+            )
         } else {
             val minutes = duration.toIntOrNull() ?: 0
-            val met = listOf(activity.lightMet, activity.moderateMet, activity.vigorousMet)[intensity]
-            val kcal = if (minutes > 0) ActivityCalorieCalculator.calculate(met, weightKg, minutes).toInt() else 0
+            val met = if (activity.custom) {
+                customMet.replace(',', '.').toDoubleOrNull() ?: 0.0
+            } else {
+                listOf(activity.lightMet, activity.moderateMet, activity.vigorousMet)[intensity]
+            }
+            val kcal = if (minutes > 0 && met > 0) {
+                ActivityCalorieCalculator.calculate(met, weightKg, minutes).toInt()
+            } else 0
             Text(activity.icon, modifier = Modifier.fillMaxWidth(), style = MaterialTheme.typography.displayMedium, textAlign = TextAlign.Center)
             Text("$kcal kcal", modifier = Modifier.fillMaxWidth(), style = MaterialTheme.typography.headlineMedium, textAlign = TextAlign.Center)
             OutlinedTextField(
@@ -110,7 +141,22 @@ fun ActivityScreen(
                 label = { Text("Duração (min)") },
                 singleLine = true,
             )
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            if (activity.custom) {
+                OutlinedTextField(
+                    value = customName,
+                    onValueChange = { customName = it.take(60) },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("Nome") },
+                    singleLine = true,
+                )
+                OutlinedTextField(
+                    value = customMet,
+                    onValueChange = { customMet = it.filter { char -> char.isDigit() || char == ',' || char == '.' }.take(4) },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("MET") },
+                    singleLine = true,
+                )
+            } else Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 listOf("Leve", "Moderada", "Vigorosa").forEachIndexed { index, label ->
                     FilterChip(
                         selected = intensity == index,
@@ -139,7 +185,15 @@ fun ActivityScreen(
             BottomPrimaryButton(
                 text = "Salvar",
                 onClick = {
-                    onSave(activity, met, minutes, distance.replace(',', '.').toDoubleOrNull(), note.trim())
+                    if (minutes > 0 && met > 0 && (!activity.custom || customName.isNotBlank())) {
+                        onSave(
+                            if (activity.custom) activity.copy(name = customName.trim()) else activity,
+                            met,
+                            minutes,
+                            distance.replace(',', '.').toDoubleOrNull(),
+                            note.trim(),
+                        )
+                    }
                 },
                 modifier = Modifier.fillMaxWidth(),
             )

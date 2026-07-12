@@ -37,4 +37,29 @@ class ActivityRepository(
     )
 
     suspend fun deleteById(id: Long) = dao.deleteById(id)
+
+    suspend fun update(
+        id: Long,
+        name: String,
+        icon: String,
+        met: Double,
+        durationMinutes: Int,
+        weightKg: Double,
+        distanceKm: Double? = null,
+        note: String = "",
+    ) {
+        val current = dao.getById(id) ?: return
+        dao.update(
+            current.copy(
+                name = name,
+                icon = icon,
+                met = met,
+                durationMinutes = durationMinutes,
+                distanceKm = distanceKm,
+                weightKg = weightKg,
+                kcal = ActivityCalorieCalculator.calculate(met, weightKg, durationMinutes),
+                note = note,
+            ),
+        )
+    }
 }

@@ -155,6 +155,23 @@ class TodayViewModel(
         viewModelScope.launch { activityRepository?.deleteById(id) }
     }
 
+    fun updateActivity(
+        id: Long,
+        name: String,
+        icon: String,
+        met: Double,
+        durationMinutes: Int,
+        distanceKm: Double? = null,
+        note: String = "",
+    ) {
+        val repository = activityRepository ?: return
+        viewModelScope.launch {
+            repository.update(
+                id, name, icon, met, durationMinutes, state.value.weight.currentKg, distanceKm, note,
+            )
+        }
+    }
+
     fun saveGoals(settings: GoalSettings) {
         settingsRepository?.save(settings)
     }
@@ -228,7 +245,10 @@ class TodayViewModel(
                 )
             },
             activities = activities.map {
-                TodayActivitySummary(it.id, it.name, it.icon, it.durationMinutes, it.kcal)
+                TodayActivitySummary(
+                    it.id, it.name, it.icon, it.met, it.durationMinutes,
+                    it.distanceKm, it.kcal, it.note,
+                )
             },
             spentKcal = activities.sumOf { it.kcal },
             remainingKcal = calculateRemainingKcal(
@@ -348,8 +368,11 @@ data class TodayActivitySummary(
     val id: Long,
     val name: String,
     val icon: String,
+    val met: Double,
     val durationMinutes: Int,
+    val distanceKm: Double?,
     val kcal: Double,
+    val note: String,
 )
 
 fun calculateRemainingKcal(goal: Double, consumed: Double, spent: Double): Int =

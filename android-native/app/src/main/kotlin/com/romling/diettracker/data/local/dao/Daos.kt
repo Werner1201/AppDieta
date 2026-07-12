@@ -141,8 +141,14 @@ interface ActivityEntryDao {
     )
     fun frequentNames(): Flow<List<String>>
 
+    @Query("SELECT * FROM activity_entries WHERE id = :id LIMIT 1")
+    suspend fun getById(id: Long): ActivityEntryEntity?
+
     @Insert
     suspend fun insert(entry: ActivityEntryEntity): Long
+
+    @Update
+    suspend fun update(entry: ActivityEntryEntity)
 
     @Query("DELETE FROM activity_entries WHERE id = :id")
     suspend fun deleteById(id: Long)

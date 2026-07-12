@@ -45,6 +45,7 @@ Validado no AVD Galaxy Z Fold 6, API 35, em 2026-07-11:
 - [x] Hoje possui secao Atividades e catalogo manual inicial.
 - [x] Fluxo manual de atividade atualiza `Gastas`, `Restantes` e a lista do dia.
 - [x] Atividades frequentes refletem contagem e recencia do historico real.
+- [x] Atividades podem ser personalizadas e registros existentes podem ser editados.
 - [ ] Demais achados P1/P2/P3 e o Ciclo F de atividades continuam abertos.
 
 ## Pontuacao

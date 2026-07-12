@@ -5775,3 +5775,23 @@ Ordem minima de correcao:
 ### Proxima tarefa
 
 - Adicionar atividade personalizada e edicao de registros existentes.
+
+## Ciclo 69
+
+### Implementacao
+
+- Toque em uma atividade registrada abre o formulario preenchido.
+- Edicao preserva o ID e recalcula calorias no mesmo registro Room.
+- Atividade personalizada aceita nome, MET, duracao, distancia e nota.
+- Valores invalidos nao sao enviados ao ViewModel.
+
+### QA
+
+- Teste unitario confirma que editar mantem o ID e recalcula kcal.
+- Formulario de Musculacao abriu no AVD com 60 min, intensidade moderada e 510 kcal.
+- `lintDebug testDebugUnitTest assembleDebug` - BUILD SUCCESSFUL.
+- APROVADO.
+
+### Proxima tarefa
+
+- Adicionar entrada manual de passos e revisar o fechamento do Ciclo F.

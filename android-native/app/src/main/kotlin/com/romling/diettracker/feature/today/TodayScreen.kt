@@ -70,6 +70,7 @@ fun TodayScreen(
     onOpenStreak: () -> Unit = {},
     onOpenActivities: () -> Unit = {},
     onRemoveActivity: (Long) -> Unit = {},
+    onEditActivity: (TodayActivitySummary) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     var showRegisteredOnly by remember { mutableStateOf(false) }
@@ -151,21 +152,31 @@ fun TodayScreen(
             SectionTitle(title = "Valores corporais", onAction = onOpenWeight, actionLabel = "Ver histórico")
             WeightCard(weight = state.weight, onAddWeight = onAddWeight)
             SectionTitle(title = "Atividades", actionLabel = "Adicionar", onAction = onOpenActivities)
-            ActivitiesCard(state.activities, onRemove = { pendingActivityDelete = it })
+            ActivitiesCard(
+                state.activities,
+                onEdit = onEditActivity,
+                onRemove = { pendingActivityDelete = it },
+            )
         }
     }
     } // Box
 }
 
 @Composable
-private fun ActivitiesCard(activities: List<TodayActivitySummary>, onRemove: (TodayActivitySummary) -> Unit) {
+private fun ActivitiesCard(
+    activities: List<TodayActivitySummary>,
+    onEdit: (TodayActivitySummary) -> Unit,
+    onRemove: (TodayActivitySummary) -> Unit,
+) {
     AppCard {
         if (activities.isEmpty()) {
             Text("Nenhuma atividade registrada", color = AppColors.TextSecondary)
         } else {
             activities.forEachIndexed { index, activity ->
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onEdit(activity) },
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
