@@ -7,6 +7,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.romling.diettracker.data.local.entity.AiImportEntity
+import com.romling.diettracker.data.local.entity.ActivityEntryEntity
 import com.romling.diettracker.data.local.entity.DailyCommitmentEntity
 import com.romling.diettracker.data.local.entity.DiaryEntryEntity
 import com.romling.diettracker.data.local.entity.FoodEntity
@@ -125,6 +126,18 @@ interface WeightEntryDao {
 
     @Insert
     suspend fun insert(entry: WeightEntryEntity): Long
+}
+
+@Dao
+interface ActivityEntryDao {
+    @Query("SELECT * FROM activity_entries WHERE date = :date ORDER BY created_at, id")
+    fun entriesForDate(date: String): Flow<List<ActivityEntryEntity>>
+
+    @Insert
+    suspend fun insert(entry: ActivityEntryEntity): Long
+
+    @Query("DELETE FROM activity_entries WHERE id = :id")
+    suspend fun deleteById(id: Long)
 }
 
 @Dao

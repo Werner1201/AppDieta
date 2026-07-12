@@ -5666,3 +5666,30 @@ Ordem minima de correcao:
 ### Proxima tarefa
 
 - Implementar a primeira entrega de Atividades/Exercicios do Ciclo F.
+
+## Ciclo 64
+
+### Tarefa
+
+- Criar a fundacao persistente e testada de Atividades/Exercicios.
+
+### Implementacao
+
+- `ActivityEntryEntity` armazena data, atividade, MET, duracao, distancia opcional, peso usado, calorias e nota.
+- Migracao Room `3 -> 4` cria `activity_entries` e indice por data sem apagar o diario existente.
+- `ActivityRepository` lista por data, calcula e adiciona registros e permite remover por ID.
+- `ActivityCalorieCalculator` valida entradas e aplica `MET * 3.5 * peso / 200 * minutos`.
+- `AppContainer` disponibiliza o novo repositorio.
+
+### QA
+
+- Musculacao: 4,5 MET, 108 kg e 60 min = 510 kcal.
+- Caminhada: 3,5 MET, 100 kg e 30 min = 183 kcal inteiras.
+- Entradas com MET invalido sao rejeitadas.
+- `lintDebug testDebugUnitTest assembleDebug` - BUILD SUCCESSFUL.
+- APK atualizado abriu sobre o banco existente no AVD, validando a migracao incremental.
+- APROVADO.
+
+### Proxima tarefa
+
+- Integrar atividades ao estado Hoje, total `Gastas` e formula de `Restantes`.

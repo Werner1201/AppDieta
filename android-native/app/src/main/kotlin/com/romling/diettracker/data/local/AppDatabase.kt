@@ -5,6 +5,7 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.romling.diettracker.data.local.dao.AiImportDao
+import com.romling.diettracker.data.local.dao.ActivityEntryDao
 import com.romling.diettracker.data.local.dao.DailyCommitmentDao
 import com.romling.diettracker.data.local.dao.DiaryEntryDao
 import com.romling.diettracker.data.local.dao.FoodDao
@@ -14,6 +15,7 @@ import com.romling.diettracker.data.local.dao.RecipeIngredientDao
 import com.romling.diettracker.data.local.dao.WaterEntryDao
 import com.romling.diettracker.data.local.dao.WeightEntryDao
 import com.romling.diettracker.data.local.entity.AiImportEntity
+import com.romling.diettracker.data.local.entity.ActivityEntryEntity
 import com.romling.diettracker.data.local.entity.DailyCommitmentEntity
 import com.romling.diettracker.data.local.entity.DiaryEntryEntity
 import com.romling.diettracker.data.local.entity.FoodEntity
@@ -43,6 +45,27 @@ val MIGRATION_2_3 = object : Migration(2, 3) {
     }
 }
 
+val MIGRATION_3_4 = object : Migration(3, 4) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL(
+            """CREATE TABLE IF NOT EXISTS `activity_entries` (
+                `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                `date` TEXT NOT NULL,
+                `name` TEXT NOT NULL,
+                `icon` TEXT NOT NULL,
+                `met` REAL NOT NULL,
+                `duration_minutes` INTEGER NOT NULL,
+                `distance_km` REAL,
+                `weight_kg` REAL NOT NULL,
+                `kcal` REAL NOT NULL,
+                `note` TEXT NOT NULL,
+                `created_at` TEXT NOT NULL
+            )""",
+        )
+        database.execSQL("CREATE INDEX IF NOT EXISTS `index_activity_entries_date` ON `activity_entries` (`date`)")
+    }
+}
+
 val MIGRATION_1_2 = object : Migration(1, 2) {
     override fun migrate(database: SupportSQLiteDatabase) {
         database.execSQL(
@@ -67,8 +90,9 @@ val MIGRATION_1_2 = object : Migration(1, 2) {
         AiImportEntity::class,
         RecipeEntity::class,
         RecipeIngredientEntity::class,
+        ActivityEntryEntity::class,
     ],
-    version = 3,
+    version = 4,
     exportSchema = false,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -81,4 +105,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun aiImportDao(): AiImportDao
     abstract fun recipeDao(): RecipeDao
     abstract fun recipeIngredientDao(): RecipeIngredientDao
+    abstract fun activityEntryDao(): ActivityEntryDao
 }

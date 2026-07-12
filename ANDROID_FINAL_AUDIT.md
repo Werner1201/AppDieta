@@ -40,6 +40,7 @@ Validado no AVD Galaxy Z Fold 6, API 35, em 2026-07-11:
 - [x] Em tablets largos, a area funcional fica centralizada e limitada a 840 dp sem alterar celulares.
 - [x] Abas sem funcao `Jejum` e `Pro` foram removidas da navegacao.
 - [x] Fluxo Hoje passa em 322/360/412 dp, fonte 200%, portrait e landscape.
+- [x] Fundacao Room e calculo MET de Atividades passam nos exemplos de aceite.
 - [ ] Demais achados P1/P2/P3 e o Ciclo F de atividades continuam abertos.
 
 ## Pontuacao
