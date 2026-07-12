@@ -5816,3 +5816,28 @@ Ordem minima de correcao:
 ### Proxima tarefa
 
 - Auditar o Ciclo F completo, corrigir pendencias visuais e decidir se Health Connect e necessario.
+
+## Ciclo 71
+
+### Auditoria do Ciclo F
+
+- Criar, editar, listar e remover atividades funcionam sobre Room.
+- Cancelar remocao preserva o registro; confirmar remove e recalcula Resumo.
+- `Gastas` voltou de 510 para 0 e `Restantes` de 2715 para 2205 apos remover.
+- Fechar e remover possuem alvo minimo de 48 dp; remover tem descricao semantica.
+- Cabecalho permite quebra com fonte ampliada.
+- `lintDebug testDebugUnitTest assembleDebug` - BUILD SUCCESSFUL.
+
+### Decisao Health Connect
+
+- NAO IMPLEMENTAR NESTA ENTREGA.
+- Registro manual atende o escopo local-first sem permissoes ou risco de dupla contagem.
+- Reavaliar apenas se monitoramento automatico de passos virar requisito explicito.
+
+### Resultado
+
+- CICLO F APROVADO E ENCERRADO.
+
+### Proxima tarefa
+
+- Retomar pendencias P2/P3: iconografia, strings e documentacao Android.

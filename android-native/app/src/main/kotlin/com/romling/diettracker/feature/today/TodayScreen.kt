@@ -38,6 +38,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.BorderStroke
@@ -47,6 +49,7 @@ import com.romling.diettracker.core.ui.components.AppCard
 import com.romling.diettracker.core.ui.components.MacroProgressBar
 import com.romling.diettracker.core.ui.components.SectionTitle
 import com.romling.diettracker.core.ui.components.ConfirmDeleteDialog
+import com.romling.diettracker.core.ui.components.CircleActionButton
 import com.romling.diettracker.core.ui.theme.AppColors
 import com.romling.diettracker.core.ui.theme.AppShapes
 import com.romling.diettracker.core.ui.theme.AppSpacing
@@ -190,7 +193,13 @@ private fun ActivitiesCard(
                         )
                     }
                     Text("${activity.kcal.toInt()} kcal", style = MaterialTheme.typography.labelLarge)
-                    Text("−", modifier = Modifier.clickable { onRemove(activity) }, color = AppColors.Remove, style = MaterialTheme.typography.headlineSmall)
+                    CircleActionButton(
+                        label = "−",
+                        onClick = { onRemove(activity) },
+                        modifier = Modifier.semantics { contentDescription = "Remover ${activity.name}" },
+                        containerColor = AppColors.Panel,
+                        contentColor = AppColors.Remove,
+                    )
                 }
                 if (index < activities.lastIndex) HorizontalDivider(color = AppColors.Line)
             }
