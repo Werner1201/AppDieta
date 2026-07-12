@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.MaterialTheme
@@ -26,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -271,10 +273,11 @@ fun DietTrackerApp(
 
 @Composable
 private fun AppBottomNavBar(selectedTab: AppTab, onTabSelected: (AppTab) -> Unit) {
+    val largeText = LocalDensity.current.fontScale >= 1.5f
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(64.dp)
+            .heightIn(min = 64.dp)
             .background(AppColors.BottomBar),
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically,
@@ -289,15 +292,17 @@ private fun AppBottomNavBar(selectedTab: AppTab, onTabSelected: (AppTab) -> Unit
                         role = Role.Tab,
                         onClick = { onTabSelected(tab) },
                     )
-                    .padding(vertical = 6.dp),
+                    .padding(vertical = 8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(2.dp),
             ) {
-                Text(
-                    text = tab.icon,
-                    style = MaterialTheme.typography.titleSmall,
-                    textAlign = TextAlign.Center,
-                )
+                if (!largeText) {
+                    Text(
+                        text = tab.icon,
+                        style = MaterialTheme.typography.titleSmall,
+                        textAlign = TextAlign.Center,
+                    )
+                }
                 Text(
                     text = tab.label,
                     style = MaterialTheme.typography.labelSmall,

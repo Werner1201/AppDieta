@@ -5634,3 +5634,32 @@ Ordem minima de correcao:
 6. Registrar decisao definitiva entre SharedPreferences e DataStore.
 7. Investigar avisos de compatibilidade com Gradle 10.
 8. Repetir auditoria funcional completa e gerar APK final.
+
+## Ciclo 63
+
+### Tarefa
+
+- Corrigir os cortes encontrados em 322/360/412 dp com fonte 200%.
+
+### Implementacao
+
+- `SectionTitle` empilha titulo e acao em fonte grande.
+- Cabecalho Hoje move os contadores para uma segunda linha.
+- Dicas e Importar usam altura minima e padding vertical.
+- Resumo empilha calorias e macros em fonte grande, preservando o layout normal.
+- Botao primario cresce com o texto.
+- Barra inferior cresce com os rotulos e oculta icones somente em fonte grande.
+
+### Validacao
+
+- Build completo passou antes do ultimo ajuste da barra inferior.
+- 322 dp / fonte 200% foi validado visualmente: cabecalho, botoes, Resumo e rotulos deixaram de cortar.
+- Landscape compacto revelou altura excessiva da barra; a remocao condicional dos icones foi aplicada.
+- O build final dessa ultima alteracao ficou pendente por limite de creditos da ferramenta.
+- AVD restaurado para tamanho e densidade fisicos, fonte 1.0.
+
+### Proximo comando obrigatorio
+
+`cd android-native && gradlew.bat lintDebug testDebugUnitTest assembleDebug`
+
+Depois, reinstalar o APK e repetir 322/360/412 dp com fonte 200% em portrait e landscape.

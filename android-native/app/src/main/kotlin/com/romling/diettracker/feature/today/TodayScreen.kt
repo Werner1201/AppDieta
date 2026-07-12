@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -167,17 +168,13 @@ private fun FilterTab(text: String, selected: Boolean, onClick: () -> Unit, modi
 
 @Composable
 private fun TodayHeader(state: TodayUiState, onOpenCalendar: () -> Unit = {}, onOpenStreak: () -> Unit = {}) {
+    val largeText = LocalDensity.current.fontScale >= 1.5f
     val titleText = if (state.isToday) "Hoje" else {
         val d = LocalDate.parse(state.date)
         "${d.dayOfMonth}/${d.monthValue}"
     }
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(text = titleText, style = MaterialTheme.typography.headlineLarge)
+        val counters: @Composable () -> Unit = {
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 Text(text = "💎 0", style = MaterialTheme.typography.labelLarge)
                 Text(
@@ -192,6 +189,15 @@ private fun TodayHeader(state: TodayUiState, onOpenCalendar: () -> Unit = {}, on
                 )
             }
         }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(text = titleText, style = MaterialTheme.typography.headlineLarge)
+            if (!largeText) counters()
+        }
+        if (largeText) counters()
         Text(
             text = "Semana ${state.week}",
             style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Normal),
@@ -204,13 +210,13 @@ private fun SmartTipsButton() {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .height(76.dp),
+            .heightIn(min = 76.dp),
         shape = AppShapes.Button,
         color = AppColors.TipBackground,
         border = BorderStroke(3.dp, AppColors.TipBorder),
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 22.dp),
+            modifier = Modifier.padding(horizontal = 22.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
@@ -226,41 +232,70 @@ private fun SmartTipsButton() {
 
 @Composable
 private fun SummaryCard(state: TodayUiState) {
+    val largeText = LocalDensity.current.fontScale >= 1.5f
     AppCard(contentPadding = PaddingValues(0.dp)) {
         Column {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 22.dp, vertical = 24.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+            if (largeText) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 22.dp, vertical = 24.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
                     SummarySideMetric(value = state.totals.kcal.toInt().toString(), label = "Consumidas")
-                }
-                RemainingRing(state)
-                Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                    SummarySideMetric(value = state.remainingKcal.toString(), label = "Restantes")
                     SummarySideMetric(value = "0", label = "Gastas")
                 }
+            } else {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 22.dp, vertical = 24.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                        SummarySideMetric(value = state.totals.kcal.toInt().toString(), label = "Consumidas")
+                    }
+                    RemainingRing(state)
+                    Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                        SummarySideMetric(value = "0", label = "Gastas")
+                    }
+                }
             }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 22.dp, vertical = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(22.dp),
-            ) {
-                MacroMetric("Carbs", state.totals.carbs, state.dailyCarbs, Modifier.weight(1f))
-                MacroMetric("Proteína", state.totals.protein, state.dailyProtein, Modifier.weight(1f))
-                MacroMetric("Gordura", state.totals.fat, state.dailyFat, Modifier.weight(1f))
+            if (largeText) {
+                Column(
+                    modifier = Modifier.padding(horizontal = 22.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    MacroMetric("Carbs", state.totals.carbs, state.dailyCarbs, Modifier.fillMaxWidth())
+                    MacroMetric("Proteína", state.totals.protein, state.dailyProtein, Modifier.fillMaxWidth())
+                    MacroMetric("Gordura", state.totals.fat, state.dailyFat, Modifier.fillMaxWidth())
+                }
+            } else {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 22.dp, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(22.dp),
+                ) {
+                    MacroMetric("Carbs", state.totals.carbs, state.dailyCarbs, Modifier.weight(1f))
+                    MacroMetric("Proteína", state.totals.protein, state.dailyProtein, Modifier.weight(1f))
+                    MacroMetric("Gordura", state.totals.fat, state.dailyFat, Modifier.weight(1f))
+                }
             }
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(58.dp)
+                    .heightIn(min = 58.dp)
                     .background(AppColors.Green),
                 contentAlignment = Alignment.Center,
             ) {
-                Text(text = "🍽️ Agora: Comer", style = MaterialTheme.typography.bodyLarge)
+                Text(
+                    text = "🍽️ Agora: Comer",
+                    modifier = Modifier.padding(vertical = 10.dp),
+                    style = MaterialTheme.typography.bodyLarge,
+                )
             }
         }
     }
@@ -544,14 +579,14 @@ private fun ImportButton(onClick: () -> Unit) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .height(52.dp)
+            .heightIn(min = 52.dp)
             .clickable(onClick = onClick),
         shape = AppShapes.Button,
         color = AppColors.Panel,
         border = BorderStroke(1.dp, AppColors.Line),
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 22.dp),
+            modifier = Modifier.padding(horizontal = 22.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -25,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.romling.diettracker.core.ui.theme.AppColors
@@ -60,19 +62,38 @@ fun SectionTitle(
     actionLabel: String? = null,
     onAction: (() -> Unit)? = null,
 ) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(text = title, style = MaterialTheme.typography.headlineMedium)
-        if (actionLabel != null) {
-            Text(
-                text = actionLabel,
-                modifier = if (onAction != null) Modifier.clickable(onClick = onAction) else Modifier,
-                color = AppColors.Accent,
-                style = MaterialTheme.typography.labelLarge,
-            )
+    val largeText = LocalDensity.current.fontScale >= 1.5f
+    if (largeText) {
+        Column(
+            modifier = modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            Text(text = title, style = MaterialTheme.typography.headlineMedium)
+            if (actionLabel != null) {
+                Text(
+                    text = actionLabel,
+                    modifier = (if (onAction != null) Modifier.clickable(onClick = onAction) else Modifier)
+                        .align(Alignment.End),
+                    color = AppColors.Accent,
+                    style = MaterialTheme.typography.labelLarge,
+                )
+            }
+        }
+    } else {
+        Row(
+            modifier = modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(text = title, style = MaterialTheme.typography.headlineMedium)
+            if (actionLabel != null) {
+                Text(
+                    text = actionLabel,
+                    modifier = if (onAction != null) Modifier.clickable(onClick = onAction) else Modifier,
+                    color = AppColors.Accent,
+                    style = MaterialTheme.typography.labelLarge,
+                )
+            }
         }
     }
 }
@@ -127,7 +148,7 @@ fun BottomPrimaryButton(
         onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
-            .height(AppSpacing.ButtonMinHeight),
+            .heightIn(min = AppSpacing.ButtonMinHeight),
         shape = AppShapes.Button,
         colors = ButtonDefaults.buttonColors(
             containerColor = AppColors.TextPrimary,
