@@ -5534,3 +5534,45 @@ Decisao:
 
 Nome:
 - Melhorar o layout expandido de tablet sem alterar a experiencia de celular.
+
+## Ciclo 61
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Evitar que o layout de celular seja esticado em tablets largos.
+
+Decisao de escopo:
+- Aplicar a restricao no contêiner raiz compartilhado.
+- Preservar largura total em telas com ate 840 dp.
+- Nao duplicar layouts ou adicionar navegacao exclusiva de tablet sem necessidade funcional.
+
+### 2. DEV
+
+Implementacao feita:
+- Toda a area funcional foi centralizada com largura maxima de 840 dp.
+- O fundo continua preenchendo a janela inteira.
+- Telas e barra inferior mantem o comportamento atual em celulares e dobraveis estreitos.
+
+Como testou:
+- `gradlew.bat lintDebug testDebugUnitTest assembleDebug` - BUILD SUCCESSFUL.
+- APK validado no AVD Galaxy Z Fold 6 com 1856 x 2160 px e densidade 320.
+- Breakpoint validado temporariamente em 2560 x 1600 px e densidade 240.
+- A resolucao fisica do AVD foi restaurada apos o teste.
+
+### 3. QA
+
+Checklist final:
+- [x] Cartoes nao ocupam larguras excessivas em tablet.
+- [x] Conteudo permanece centralizado.
+- [x] Fundo cobre toda a janela.
+- [x] Celular e Fold mantem a largura original.
+- [x] Lint, testes e APK debug passam.
+
+Decisao:
+- APROVADO
+
+### Proxima tarefa aberta pelo Arquiteto
+
+Nome:
+- Executar a matriz restante de orientacao e fonte ampliada.

@@ -37,6 +37,7 @@ Validado no AVD Galaxy Z Fold 6, API 35, em 2026-07-11:
 - [x] Busca de alimentos permanece limitada a 20 resultados; nenhuma virtualizacao desnecessaria foi aplicada.
 - [x] Exclusoes persistentes pedem confirmacao com o nome do item antes de remover.
 - [x] Busca de alimentos oferece `Frequentes` por refeicao, `Todos` e busca no catalogo.
+- [x] Em tablets largos, a area funcional fica centralizada e limitada a 840 dp sem alterar celulares.
 - [ ] Demais achados P1/P2/P3 e o Ciclo F de atividades continuam abertos.
 
 ## Pontuacao
