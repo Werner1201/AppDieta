@@ -51,6 +51,7 @@ Validado no AVD Galaxy Z Fold 6, API 35, em 2026-07-11:
 - [x] Navegacao e comandos de Atividades usam Material Icons.
 - [x] Navegacao e fluxo Atividades usam recursos de string.
 - [x] README Android cobre build, APK, ADB, dados, backup, deep link e troubleshooting.
+- [x] Avisos do Gradle 10 foram atribuídos ao AGP 8.7.3 e documentados.
 - [ ] Demais achados P1/P2/P3 continuam abertos.
 
 ## Pontuacao

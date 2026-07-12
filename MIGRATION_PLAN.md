@@ -410,16 +410,16 @@ Checklist visual:
 - [x] App web atual preservado.
 - [x] Stack, schema, rotas, templates, CSS, seed e regras inspecionados.
 - [x] `UI_PARITY_PLAN` criado.
-- [ ] Projeto Android criado.
-- [ ] Tema Compose criado com tokens do app atual.
-- [ ] Room/DataStore configurados.
-- [ ] Seed carregado.
-- [ ] Regras principais testadas.
-- [ ] Tela Hoje com paridade visual.
-- [ ] Fluxos principais migrados.
-- [ ] Importador ChatGPT migrado.
+- [x] Projeto Android criado.
+- [x] Tema Compose criado com tokens do app atual.
+- [x] Room e persistencia de configuracoes locais configurados.
+- [x] Seed carregado.
+- [x] Regras principais testadas.
+- [x] Tela Hoje com paridade visual.
+- [x] Fluxos principais migrados.
+- [x] Importador ChatGPT migrado.
 - [x] Build Android passa para o esqueleto inicial.
-- [ ] README Android finalizado.
+- [x] README Android finalizado.
 
 ## Ciclo 1
 
@@ -5897,3 +5897,26 @@ Ordem minima de correcao:
 ### Proxima tarefa
 
 - Investigar avisos de Gradle 10 e atualizar checklist historico da migracao.
+
+## Ciclo 75
+
+### Auditoria Gradle
+
+- `assembleDebug --warning-mode all` passou.
+- Avisos de Gradle 10 vem do AGP 8.7.3 ao declarar dependencias internas de `lint-gradle` e `aapt2`.
+- Nao existe uso equivalente no build script do app para corrigir localmente.
+- Decisao: manter versoes atuais aprovadas e atualizar AGP/Gradle juntos em ciclo futuro dedicado.
+
+### Documentacao
+
+- Checklist historico foi atualizado para refletir entregas concluidas.
+- Referencia a DataStore foi corrigida para a decisao real: Room e configuracoes locais.
+
+### QA
+
+- BUILD SUCCESSFUL.
+- APROVADO.
+
+### Proxima tarefa
+
+- Revisar pendencias restantes da auditoria e definir o gate final de entrega.
