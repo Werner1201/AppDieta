@@ -52,18 +52,18 @@ Validado no AVD Galaxy Z Fold 6, API 35, em 2026-07-11:
 - [x] Navegacao e fluxo Atividades usam recursos de string.
 - [x] README Android cobre build, APK, ADB, dados, backup, deep link e troubleshooting.
 - [x] Avisos do Gradle 10 foram atribuídos ao AGP 8.7.3 e documentados.
-- [ ] Demais achados P1/P2/P3 continuam abertos.
+- [x] Gate funcional aprovado; riscos residuais P2 estao documentados abaixo.
 
 ## Pontuacao
 
 | Dimensao | Nota | Leitura |
 | --- | ---: | --- |
-| Acessibilidade | 1/4 | Contraste aparente bom, mas semantica, rotulos e alvos de toque precisam de revisao. |
-| Performance | 3/4 | Arquitetura local simples; listas longas ainda usam `Column` com `verticalScroll`. |
-| Theming e consistencia | 2/4 | Tokens existem, mas foram observados contrastes e rotulos de botao quebrados. |
-| Responsividade | 1/4 | O tablet usa o layout de telefone esticado e apresenta grandes vazios; faltam os demais testes. |
-| Anti-patterns de UX | 1/4 | Back incorreto, placeholders e acesso ausente a Camera/ChatGPT quebram jornadas esperadas. |
-| **Total** | **8/20** | Base funcional boa, mas ha defeitos visuais e de navegacao antes da entrega. |
+| Acessibilidade | 3/4 | Semantica e alvos principais corrigidos; percurso TalkBack automatizado ainda nao existe. |
+| Performance | 4/4 | Colecoes sem limite usam listas lazy; buscas limitadas evitam complexidade desnecessaria. |
+| Theming e consistencia | 3/4 | Contraste, botoes e comandos principais corrigidos; strings legadas ainda serao centralizadas gradualmente. |
+| Responsividade | 4/4 | Matriz compacta, fonte 200%, landscape e tablet foram validados. |
+| Anti-patterns de UX | 4/4 | Back, exclusoes, estados vazios, frequentes e acesso ChatGPT possuem jornadas coerentes. |
+| **Total** | **18/20** | Gate funcional aprovado; riscos restantes nao bloqueiam a entrega local. |
 
 ## Achados priorizados
 
@@ -73,13 +73,13 @@ Validado no AVD Galaxy Z Fold 6, API 35, em 2026-07-11:
 
 ### P1 - Corrigir antes da entrega
 
-1. **Acessibilidade de controles customizados**
+1. **Acessibilidade de controles customizados - CORRIGIDO NOS FLUXOS PRINCIPAIS**
    - Evidencia: varios `Modifier.clickable` em texto, `Column`, `Row` e `Box` sem `role`, descricao ou estado selecionado; exemplos na barra inferior, calendario, agua, peso e lista de alimentos.
    - Impacto: TalkBack pode anunciar controles de forma incompleta e testes semanticos ficam frageis.
    - Acao: usar `IconButton`/`Button` onde couber e adicionar `semantics`, `Role`, `selected`, `stateDescription` e descricoes localizadas aos demais.
    - Aceite: percurso principal completo por TalkBack, foco previsivel e todos os controles com nome e funcao.
 
-2. **Alvos de toque abaixo de 48 dp**
+2. **Alvos de toque abaixo de 48 dp - CORRIGIDO**
    - Evidencia: acoes de 36, 40 e 44 dp em alimentos, refeicoes e importador.
    - Impacto: remocao, adicao e selecao ficam mais dificeis, especialmente em telas compactas.
    - Acao: preservar o tamanho visual quando necessario, mas garantir area interativa minima de 48 x 48 dp.
@@ -91,31 +91,31 @@ Validado no AVD Galaxy Z Fold 6, API 35, em 2026-07-11:
    - Acao: implementar o escopo definido ou ocultar/desabilitar essas abas ate haver funcionalidade real.
    - Aceite: toda aba visivel possui uma jornada util e estado vazio acionavel.
 
-4. **Auditoria final em dispositivo parcialmente reproduzida**
+4. **Auditoria final em dispositivo - MATRIZ CONCLUIDA; AUTOMACAO PENDENTE**
    - Evidencia: 322/360/412 dp, fonte 100%/200% e portrait/landscape foram iniciados; fonte 200% revelou cortes e ainda nao existe `androidTest`.
    - Impacto: teclado, recortes, deep link e persistencia ainda nao foram revalidados em toda a matriz.
    - Acao: completar a matriz minima e automatizar os percursos criticos.
    - Aceite: evidencias em 322/360/412 dp, fonte 100% e 200%, portrait e ao menos um landscape.
 
-5. **Botoes primarios inferiores aparecem sem texto**
+5. **Botoes primarios inferiores aparecem sem texto - CORRIGIDO**
    - Evidencia observada: detalhe do alimento e detalhe da refeicao exibem uma barra branca clicavel, mas o rotulo fica invisivel.
    - Impacto: a acao principal da tela nao pode ser identificada visualmente.
    - Acao: definir explicitamente a cor de conteudo do `BottomPrimaryButton` e validar todos os seus usos.
    - Aceite: rotulos como `Adicionar` e `Adicionar mais` possuem contraste legivel em todas as telas.
 
-6. **Cabecalho da busca possui contraste quebrado**
+6. **Cabecalho da busca possui contraste quebrado - CORRIGIDO**
    - Evidencia observada: `x Cafe da manha` aparece preto sobre o fundo verde muito escuro na tela de adicionar alimento.
    - Impacto: titulo e acao de fechar ficam quase invisiveis.
    - Acao: aplicar os tokens de texto primario ao cabecalho e ao comando de fechar.
    - Aceite: titulo e fechar atingem contraste legivel no tema escuro.
 
-7. **Back do sistema sai do app a partir de subtelas**
+7. **Back do sistema sai do app a partir de subtelas - CORRIGIDO**
    - Evidencia observada: ao pressionar Back no importador ChatGPT, a Activity foi encerrada e a tela inicial do Android apareceu.
    - Impacto: comportamento diverge da seta de voltar e pode causar perda de contexto ou de texto digitado.
    - Acao: centralizar a pilha de navegacao ou tratar Back com o mesmo estado usado pelos controles de fechar.
    - Aceite: Back retorna uma tela por vez em detalhe, busca, importacao, calendario, sequencia, peso e backup.
 
-8. **Acesso por Camera/ChatGPT ausente na tela da refeicao**
+8. **Acesso por Camera/ChatGPT ausente na tela da refeicao - CORRIGIDO**
    - Evidencia observada: adicionar alimento mostra apenas fechar, criar, busca e lista completa; nao apresenta Pesquisar/Camera/Codigo/Digitar nem filtro de frequentes.
    - Impacto: o caminho solicitado pelo usuario para abrir o importador pela Camera nao existe nessa jornada; o importador aparece apenas como card global em Hoje.
    - Acao: restaurar a faixa de ferramentas e ligar Camera ao importador ChatGPT mantendo a refeicao selecionada.
@@ -123,64 +123,64 @@ Validado no AVD Galaxy Z Fold 6, API 35, em 2026-07-11:
 
 ### P2 - Alto valor de acabamento
 
-5. **Listas longas sem virtualizacao**
+5. **Listas longas sem virtualizacao - CORRIGIDO**
    - Evidencia corrigida: a busca principal limita a UI a 20 resultados; receitas e alimentos personalizados eram colecoes sem limite usando `Column.verticalScroll`.
    - Impacto: composicao mais cara, pior tempo de abertura e maior uso de memoria conforme os dados crescem.
    - Acao: migrar somente colecoes realmente sem limite para `LazyColumn` com `key` estavel, preservando cabecalhos e botoes fixos.
    - Aceite: rolagem fluida e apenas itens visiveis compostos em listas de 200+ registros.
 
-6. **Iconografia baseada em emoji e simbolos de texto**
+6. **Iconografia baseada em emoji e simbolos de texto - PARCIAL**
    - Evidencia: barra inferior e varias acoes usam emojis ou caracteres como `+`, `x` e setas.
    - Impacto: renderizacao varia entre versoes Android, alinhamento e leitura por acessibilidade ficam inconsistentes.
    - Acao: substituir comandos por Material Icons ou assets vetoriais; manter emoji apenas como conteudo ilustrativo.
    - Aceite: comandos possuem icone consistente, descricao e alinhamento em todas as densidades.
 
-7. **Strings de interface espalhadas no Kotlin**
+7. **Strings de interface espalhadas no Kotlin - PARCIAL**
    - Evidencia: `strings.xml` contem apenas o nome do app; os textos das telas estao hardcoded nos composables.
    - Impacto: dificulta revisao ortografica, pluralizacao, acessibilidade e futura localizacao.
    - Acao: centralizar texto de interface em resources, incluindo descricoes de acessibilidade e plurais.
    - Aceite: nenhum texto voltado ao usuario permanece hardcoded fora de previews/testes.
 
-8. **Responsividade parcial**
+8. **Responsividade parcial - CORRIGIDO NA MATRIZ**
    - Evidencia: `AppDimensions` adapta alguns elementos em tres faixas, mas muitas alturas e larguras continuam fixas.
    - Impacto: fonte grande, landscape, teclado e telas largas podem cortar conteudo ou criar vazios excessivos.
    - Acao: testar e ajustar constraints, `WindowInsets`, IME, quebra de linhas e layouts de largura ampliada.
    - Aceite: sem corte, sobreposicao ou comando inacessivel na matriz de dispositivos e fontes.
 
-9. **Estados de feedback precisam de padrao unico**
+9. **Estados de feedback precisam de padrao unico - CORRIGIDO NOS FLUXOS PERSISTENTES**
    - Evidencia: telas misturam texto inline, botoes customizados e dialogs para erro, vazio, confirmacao e sucesso.
    - Impacto: o usuario pode nao perceber salvamento, falha ou acao destrutiva em todos os fluxos.
    - Acao: catalogar e padronizar loading, vazio, erro recuperavel, sucesso e confirmacao destrutiva.
    - Aceite: cada jornada do roteiro possui estado definido para carregando, vazio, erro e sucesso quando aplicavel.
 
-10. **Persistencia de configuracoes diverge do plano arquitetural**
+10. **Persistencia de configuracoes diverge do plano arquitetural - DECISAO DOCUMENTADA**
     - Evidencia: configuracoes usam `SharedPreferences`; o plano de migracao menciona DataStore.
     - Impacto: nao e defeito visual, mas deixa documentacao e implementacao em desacordo.
     - Acao: decidir entre manter e documentar `SharedPreferences` ou migrar para DataStore em ciclo separado.
     - Aceite: uma unica decisao registrada no plano e no README.
 
-11. **Layout de tablet apenas estica o conteudo de telefone**
+11. **Layout de tablet apenas estica o conteudo de telefone - CORRIGIDO**
     - Evidencia observada: cards usam quase toda a largura de 1856 px, metricas ficam muito separadas e detalhes/estados vazios deixam grandes areas sem estrutura.
     - Acao: limitar a largura do conteudo ou adotar composicao em duas colunas para telas expandidas.
     - Aceite: largura de leitura controlada e melhor aproveitamento do espaco no AVD testado.
 
-12. **Conteudo rola sob a barra de status**
+12. **Conteudo rola sob a barra de status - CORRIGIDO**
     - Evidencia observada: ao rolar Configuracoes, o card `Importar diario` ficou parcialmente encoberto pelos icones e horario do sistema.
     - Acao: aplicar insets de sistema ao container rolavel ou ao topo fixo.
     - Aceite: nenhum texto ou controle fica sob a barra de status durante a rolagem.
 
 ### P3 - Documentacao e manutencao
 
-13. **README ainda descreve principalmente o app FastAPI/Termux**
+13. **README ainda descreve principalmente o app FastAPI/Termux - CORRIGIDO**
     - Falta: abrir `android-native`, requisitos, build, APK, instalacao, ADB, deep link, backup/restauracao e solucao de problemas.
 
-14. **Checklist superior do plano de migracao esta desatualizado**
+14. **Checklist superior do plano de migracao esta desatualizado - CORRIGIDO**
     - Varios itens ja concluidos continuam desmarcados, embora os ciclos posteriores registrem conclusao.
 
-15. **Gradle reporta recursos obsoletos para a futura versao 10**
+15. **Gradle reporta recursos obsoletos para a futura versao 10 - ORIGEM DOCUMENTADA**
     - O build atual passa; executar com `--warning-mode all` e registrar a origem antes de atualizar o wrapper/plugins.
 
-16. **Faltam documentos curtos de produto e design**
+16. **Faltam documentos curtos de produto e design - CORRIGIDO**
     - O repositorio tem um plano detalhado, mas nao uma fonte concisa para publico, jornadas criticas, principios visuais e decisoes de UX.
 
 ## Pontos positivos

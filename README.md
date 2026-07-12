@@ -13,6 +13,8 @@ cd android-native
 
 O APK e gerado em `android-native/app/build/outputs/apk/debug/app-debug.apk`. Consulte [android-native/README.md](android-native/README.md) para instalacao via ADB, deep link, backup e solucao de problemas.
 
+As referencias concisas de produto e interface estao em [PRODUCT.md](PRODUCT.md) e [DESIGN.md](DESIGN.md).
+
 ## Versao legada no Termux
 
 ```bash

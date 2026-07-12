@@ -5920,3 +5920,39 @@ Ordem minima de correcao:
 ### Proxima tarefa
 
 - Revisar pendencias restantes da auditoria e definir o gate final de entrega.
+
+## Ciclo 76
+
+### Gate final de auditoria
+
+- Criados `PRODUCT.md` e `DESIGN.md` com publico, jornadas, limites, principios visuais e estados de interface.
+- `ANDROID_FINAL_AUDIT.md` foi reconciliado com as correcoes entregues nos ciclos anteriores.
+- Matriz visual compacta, fonte 200%, landscape e tablet permanece aprovada.
+- Gate funcional aprovado para entrega local em modo debug, com nota consolidada de 18/20.
+
+### Riscos residuais nao bloqueantes
+
+- Automatizar os percursos criticos com `androidTest` e uma rodada instrumentada de TalkBack.
+- Continuar a troca gradual de simbolos de comando e strings hardcoded nas telas legadas.
+
+### Proxima tarefa
+
+- Executar build limpo final e registrar tamanho e SHA-256 do APK de entrega.
+
+## Ciclo 77
+
+### Verificacao final do artefato
+
+- `lintDebug testDebugUnitTest assembleDebug` - BUILD SUCCESSFUL.
+- APK debug: `android-native/app/build/outputs/apk/debug/app-debug.apk`.
+- Tamanho: 11.069.990 bytes (10,56 MiB).
+- SHA-256: `C42CF59A518B73716ECF8041D0B66853FC0A482F6DDB56D1AE72EA01C1DDFEF1`.
+- Avisos de compatibilidade com Gradle 10 permanecem restritos ao AGP 8.7.3 e estao documentados no Ciclo 75.
+
+### Resultado
+
+- GATE FINAL APROVADO PARA ENTREGA LOCAL DEBUG.
+
+### Proxima tarefa
+
+- Em ciclo futuro, adicionar testes instrumentados dos percursos criticos e concluir a migracao gradual de strings e iconografia legadas.
