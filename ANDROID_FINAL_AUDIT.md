@@ -42,6 +42,7 @@ Validado no AVD Galaxy Z Fold 6, API 35, em 2026-07-11:
 - [x] Fluxo Hoje passa em 322/360/412 dp, fonte 200%, portrait e landscape.
 - [x] Fundacao Room e calculo MET de Atividades passam nos exemplos de aceite.
 - [x] `Gastas` e `Restantes` reagem às atividades da data selecionada.
+- [x] Hoje possui secao Atividades e catalogo manual inicial.
 - [ ] Demais achados P1/P2/P3 e o Ciclo F de atividades continuam abertos.
 
 ## Pontuacao

@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import com.romling.diettracker.core.ui.theme.AppColors
 import com.romling.diettracker.core.ui.theme.DietTrackerTheme
 import com.romling.diettracker.feature.meal.AddFoodScreen
+import com.romling.diettracker.feature.activity.ActivityScreen
 import com.romling.diettracker.feature.meal.AddFoodViewModel
 import com.romling.diettracker.feature.chatgpt.ChatGptImportScreen
 import com.romling.diettracker.feature.chatgpt.ChatGptImportViewModel
@@ -86,6 +87,7 @@ fun DietTrackerApp(
     var showWeight by remember { mutableStateOf(false) }
     var showCustomFoods by remember { mutableStateOf(false) }
     var showImport by remember { mutableStateOf(false) }
+    var showActivities by remember { mutableStateOf(false) }
     var showBackupImport by remember { mutableStateOf(false) }
     var selectedTab by remember { mutableStateOf(AppTab.DIARY) }
 
@@ -94,7 +96,7 @@ fun DietTrackerApp(
     }
 
     BackHandler(
-        enabled = detailRecipe != null || showImport || showBackupImport || showCustomFoods ||
+        enabled = detailRecipe != null || showImport || showActivities || showBackupImport || showCustomFoods ||
             showWeight || showStreak || showCalendar || detailMeal != null || addMeal != null,
     ) {
         when {
@@ -106,6 +108,7 @@ fun DietTrackerApp(
                 chatGptImportViewModel.reset()
                 showImport = false
             }
+            showActivities -> showActivities = false
             showBackupImport -> showBackupImport = false
             showCustomFoods -> showCustomFoods = false
             showWeight -> showWeight = false
@@ -160,6 +163,17 @@ fun DietTrackerApp(
             BackupImportScreen(
                 onSave = { entries -> todayViewModel.importBackup(entries) { showBackupImport = false } },
                 onClose = { showBackupImport = false },
+            )
+        } else if (showActivities) {
+            ActivityScreen(
+                weightKg = state.weight.currentKg,
+                onSave = { activity, minutes ->
+                    if (minutes > 0) {
+                        todayViewModel.addActivity(activity.name, activity.icon, activity.met, minutes)
+                        showActivities = false
+                    }
+                },
+                onClose = { showActivities = false },
             )
         } else if (showCustomFoods) {
             CustomFoodsScreen(
@@ -231,6 +245,8 @@ fun DietTrackerApp(
                             onNextDay = todayViewModel::nextDay,
                             onOpenCalendar = { showCalendar = true },
                             onOpenStreak = { showStreak = true },
+                            onOpenActivities = { showActivities = true },
+                            onRemoveActivity = todayViewModel::removeActivity,
                         )
                         AppTab.PROFILE -> SettingsScreen(
                             state = state,

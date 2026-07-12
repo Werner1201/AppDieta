@@ -5713,3 +5713,24 @@ Ordem minima de correcao:
 ### Proxima tarefa
 
 - Exibir a secao Atividades e criar o cadastro manual com catalogo inicial.
+
+## Ciclo 66
+
+### Implementacao
+
+- Tela Hoje exibe Atividades, estado vazio, registros do dia e acao Adicionar.
+- Catalogo inicial inclui musculacao, caminhada, ciclismo, corrida, eliptico, trilha, yoga e natacao.
+- Detalhe calcula calorias em tempo real pela duracao e peso atual.
+- Salvar persiste na data selecionada; remover usa confirmacao compartilhada.
+- Back retorna do detalhe ao catalogo e depois para Hoje.
+
+### QA
+
+- `lintDebug testDebugUnitTest assembleDebug` - BUILD SUCCESSFUL.
+- Secao vazia e catalogo foram validados visualmente no AVD Galaxy Z Fold 6.
+- Contraste do cabecalho foi corrigido durante a inspecao.
+- Automacao do clique no item nao respondeu; salvamento visual completo permanece para a proxima verificacao.
+
+### Proxima tarefa
+
+- Validar salvamento no emulador e adicionar distancia, nota, intensidades e frequentes.

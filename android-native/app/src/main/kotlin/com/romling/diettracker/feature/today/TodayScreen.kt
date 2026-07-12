@@ -68,10 +68,13 @@ fun TodayScreen(
     onNextDay: () -> Unit = {},
     onOpenCalendar: () -> Unit = {},
     onOpenStreak: () -> Unit = {},
+    onOpenActivities: () -> Unit = {},
+    onRemoveActivity: (Long) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     var showRegisteredOnly by remember { mutableStateOf(false) }
     var pendingDelete by remember { mutableStateOf<TodayEntrySummary?>(null) }
+    var pendingActivityDelete by remember { mutableStateOf<TodayActivitySummary?>(null) }
 
     pendingDelete?.let { entry ->
         ConfirmDeleteDialog(
@@ -81,6 +84,16 @@ fun TodayScreen(
                 pendingDelete = null
             },
             onDismiss = { pendingDelete = null },
+        )
+    }
+    pendingActivityDelete?.let { activity ->
+        ConfirmDeleteDialog(
+            itemName = activity.name,
+            onConfirm = {
+                onRemoveActivity(activity.id)
+                pendingActivityDelete = null
+            },
+            onDismiss = { pendingActivityDelete = null },
         )
     }
     var dragOffset by remember { mutableFloatStateOf(0f) }
@@ -137,9 +150,37 @@ fun TodayScreen(
             WaterCard(water = state.water, onAddWater = onAddWater, onRemoveLastWater = onRemoveLastWater)
             SectionTitle(title = "Valores corporais", onAction = onOpenWeight, actionLabel = "Ver histórico")
             WeightCard(weight = state.weight, onAddWeight = onAddWeight)
+            SectionTitle(title = "Atividades", actionLabel = "Adicionar", onAction = onOpenActivities)
+            ActivitiesCard(state.activities, onRemove = { pendingActivityDelete = it })
         }
     }
     } // Box
+}
+
+@Composable
+private fun ActivitiesCard(activities: List<TodayActivitySummary>, onRemove: (TodayActivitySummary) -> Unit) {
+    AppCard {
+        if (activities.isEmpty()) {
+            Text("Nenhuma atividade registrada", color = AppColors.TextSecondary)
+        } else {
+            activities.forEachIndexed { index, activity ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    Text(activity.icon, style = MaterialTheme.typography.headlineSmall)
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(activity.name, style = MaterialTheme.typography.titleMedium)
+                        Text("${activity.durationMinutes} min", color = AppColors.TextSecondary)
+                    }
+                    Text("${activity.kcal.toInt()} kcal", style = MaterialTheme.typography.labelLarge)
+                    Text("−", modifier = Modifier.clickable { onRemove(activity) }, color = AppColors.Remove, style = MaterialTheme.typography.headlineSmall)
+                }
+                if (index < activities.lastIndex) HorizontalDivider(color = AppColors.Line)
+            }
+        }
+    }
 }
 
 @Composable
