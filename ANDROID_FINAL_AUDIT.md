@@ -38,6 +38,8 @@ Validado no AVD Galaxy Z Fold 6, API 35, em 2026-07-11:
 - [x] Exclusoes persistentes pedem confirmacao com o nome do item antes de remover.
 - [x] Busca de alimentos oferece `Frequentes` por refeicao, `Todos` e busca no catalogo.
 - [x] Em tablets largos, a area funcional fica centralizada e limitada a 840 dp sem alterar celulares.
+- [x] Abas sem funcao `Jejum` e `Pro` foram removidas da navegacao.
+- [ ] Fonte 200% ainda corta botoes, metricas e rotulos da barra inferior em 322/360/412 dp.
 - [ ] Demais achados P1/P2/P3 e o Ciclo F de atividades continuam abertos.
 
 ## Pontuacao
@@ -71,14 +73,14 @@ Validado no AVD Galaxy Z Fold 6, API 35, em 2026-07-11:
    - Acao: preservar o tamanho visual quando necessario, mas garantir area interativa minima de 48 x 48 dp.
    - Aceite: nenhum controle acionavel abaixo de 48 x 48 dp no Layout Inspector/teste semantico.
 
-3. **Abas `Jejum` e `Pro` levam apenas a `Em breve`**
+3. **Abas `Jejum` e `Pro` levam apenas a `Em breve` - CORRIGIDO**
    - Evidencia: destinos `FASTING` e `PRO` continuam expostos na navegacao principal sem fluxo funcional.
    - Impacto: navegacao promete funcionalidades indisponiveis e passa sensacao de app incompleto.
    - Acao: implementar o escopo definido ou ocultar/desabilitar essas abas ate haver funcionalidade real.
    - Aceite: toda aba visivel possui uma jornada util e estado vazio acionavel.
 
-4. **Auditoria final em dispositivo ainda nao reproduzida**
-   - Evidencia: o percurso foi iniciado no AVD Galaxy Z Fold 6, mas nao existe `androidTest` e a matriz de tamanhos/fontes continua pendente.
+4. **Auditoria final em dispositivo parcialmente reproduzida**
+   - Evidencia: 322/360/412 dp, fonte 100%/200% e portrait/landscape foram iniciados; fonte 200% revelou cortes e ainda nao existe `androidTest`.
    - Impacto: teclado, recortes, deep link e persistencia ainda nao foram revalidados em toda a matriz.
    - Acao: completar a matriz minima e automatizar os percursos criticos.
    - Aceite: evidencias em 322/360/412 dp, fonte 100% e 200%, portrait e ao menos um landscape.

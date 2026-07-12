@@ -5576,3 +5576,61 @@ Decisao:
 
 Nome:
 - Executar a matriz restante de orientacao e fonte ampliada.
+
+## Ciclo 62
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Simplificar a navegacao e iniciar a matriz compacta com fonte ampliada.
+
+Decisoes:
+- Remover `Jejum` e `Pro`, pois nao fazem parte do produto solicitado.
+- Testar 322, 360 e 412 dp, fonte 100% e 200%, portrait e landscape.
+- Registrar falhas antes de alterar componentes compartilhados.
+
+### 2. DEV
+
+Implementacao feita:
+- Navegacao inferior agora possui apenas Diario, Receitas e Perfil.
+- `TabPlaceholder` e destinos sem funcao foram removidos.
+
+Testes executados:
+- `gradlew.bat lintDebug testDebugUnitTest assembleDebug` - BUILD SUCCESSFUL.
+- Smoke test executado em 322/360/412 dp, fonte 100%/200% e portrait/landscape.
+- AVD restaurado para 1856 x 2160 px, densidade 320 e fonte 1.0.
+
+### 3. QA
+
+Achados com fonte 200%:
+- Cabecalho sobrepoe contadores em 322 dp.
+- Botoes de altura fixa cortam texto em todas as larguras testadas.
+- Metricas e macros do Resumo comprimem ou truncam rotulos.
+- Barra inferior corta os nomes das abas em portrait e landscape.
+- Landscape permite rolagem, mas deixa pouco conteudo acima da barra inferior.
+
+Decisao:
+- REPROVADO PARA FONTE 200%; fonte 100% permanece funcional.
+
+### Proxima tarefa aberta pelo Arquiteto
+
+Nome:
+- Corrigir componentes para fonte 200% e repetir a matriz.
+
+Ordem minima de correcao:
+1. Trocar alturas fixas de botoes e abas por altura minima e padding.
+2. Permitir quebra/reorganizacao no cabecalho Hoje.
+3. Reorganizar o Resumo em largura compacta com fonte grande.
+4. Tornar a barra inferior adaptavel sem cortar rotulos.
+5. Repetir 322/360/412 dp em portrait e landscape.
+
+## Pendencias finais registradas
+
+1. Implementar Atividades/Exercicios e calculo MET do Ciclo F.
+2. Substituir emojis usados como comandos por Material Icons.
+3. Migrar textos de interface para `strings.xml`.
+4. Adicionar testes Compose instrumentados para jornadas criticas.
+5. Atualizar README Android e o checklist historico da migracao.
+6. Registrar decisao definitiva entre SharedPreferences e DataStore.
+7. Investigar avisos de compatibilidade com Gradle 10.
+8. Repetir auditoria funcional completa e gerar APK final.

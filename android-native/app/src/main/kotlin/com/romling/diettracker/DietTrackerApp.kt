@@ -54,10 +54,8 @@ import com.romling.diettracker.feature.weight.WeightScreen
 
 private enum class AppTab(val label: String, val icon: String) {
     DIARY("Diário", "📋"),
-    FASTING("Jejum", "⏱️"),
     RECIPES("Receitas", "🥘"),
     PROFILE("Perfil", "👤"),
-    PRO("Pro", "⭐"),
 }
 
 @Composable
@@ -258,7 +256,6 @@ fun DietTrackerApp(
                                 detailRecipe = recipe
                             },
                         )
-                        else -> TabPlaceholder(selectedTab)
                     }
                 }
                 AppBottomNavBar(
@@ -308,22 +305,6 @@ private fun AppBottomNavBar(selectedTab: AppTab, onTabSelected: (AppTab) -> Unit
                     textAlign = TextAlign.Center,
                 )
             }
-        }
-    }
-}
-
-@Composable
-private fun TabPlaceholder(tab: AppTab) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(AppColors.Background),
-        contentAlignment = Alignment.Center,
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(text = tab.icon, style = MaterialTheme.typography.displayMedium)
-            Text(text = tab.label, style = MaterialTheme.typography.headlineMedium)
-            Text(text = "Em breve", style = MaterialTheme.typography.bodyLarge, color = AppColors.TextSecondary)
         }
     }
 }
