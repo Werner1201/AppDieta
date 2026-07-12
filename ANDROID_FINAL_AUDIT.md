@@ -35,6 +35,7 @@ Validado no AVD Galaxy Z Fold 6, API 35, em 2026-07-11:
 - [x] Configuracoes permanece abaixo da barra de status durante a rolagem.
 - [x] Receitas e alimentos personalizados usam listas lazy com chaves estaveis.
 - [x] Busca de alimentos permanece limitada a 20 resultados; nenhuma virtualizacao desnecessaria foi aplicada.
+- [x] Exclusoes persistentes pedem confirmacao com o nome do item antes de remover.
 - [ ] Demais achados P1/P2/P3 e o Ciclo F de atividades continuam abertos.
 
 ## Pontuacao

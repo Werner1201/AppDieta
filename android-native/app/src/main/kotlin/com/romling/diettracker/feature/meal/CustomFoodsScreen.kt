@@ -21,11 +21,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.romling.diettracker.core.ui.components.AppCard
+import com.romling.diettracker.core.ui.components.ConfirmDeleteDialog
 import com.romling.diettracker.core.ui.theme.AppColors
 import com.romling.diettracker.core.ui.theme.AppSpacing
 
@@ -36,6 +41,19 @@ fun CustomFoodsScreen(
     onClose: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    var pendingDelete by remember { mutableStateOf<FoodSearchItem?>(null) }
+
+    pendingDelete?.let { food ->
+        ConfirmDeleteDialog(
+            itemName = food.name,
+            onConfirm = {
+                onDelete(food.id)
+                pendingDelete = null
+            },
+            onDismiss = { pendingDelete = null },
+        )
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -79,7 +97,7 @@ fun CustomFoodsScreen(
             ) {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
                     itemsIndexed(foods, key = { _, food -> food.id }) { index, food ->
-                        CustomFoodRow(food = food, onDelete = { onDelete(food.id) })
+                        CustomFoodRow(food = food, onDelete = { pendingDelete = food })
                         if (index < foods.lastIndex) {
                             HorizontalDivider(color = AppColors.Line, thickness = 1.dp)
                         }

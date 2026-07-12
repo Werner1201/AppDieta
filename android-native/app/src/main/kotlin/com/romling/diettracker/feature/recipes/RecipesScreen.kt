@@ -30,6 +30,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.romling.diettracker.core.ui.components.AppCard
+import com.romling.diettracker.core.ui.components.ConfirmDeleteDialog
 import com.romling.diettracker.core.ui.theme.AppColors
 import com.romling.diettracker.core.ui.theme.AppSpacing
 import com.romling.diettracker.data.local.entity.RecipeEntity
@@ -45,6 +46,18 @@ fun RecipesScreen(
     var showCreate by remember { mutableStateOf(false) }
     var newName by remember { mutableStateOf("") }
     var newDescription by remember { mutableStateOf("") }
+    var pendingDelete by remember { mutableStateOf<RecipeEntity?>(null) }
+
+    pendingDelete?.let { recipe ->
+        ConfirmDeleteDialog(
+            itemName = recipe.name,
+            onConfirm = {
+                onDelete(recipe.id)
+                pendingDelete = null
+            },
+            onDismiss = { pendingDelete = null },
+        )
+    }
 
     if (showCreate) {
         AlertDialog(
@@ -133,7 +146,7 @@ fun RecipesScreen(
                 items(recipes, key = { it.id }) { recipe ->
                     RecipeCard(
                         recipe = recipe,
-                        onDelete = { onDelete(recipe.id) },
+                        onDelete = { pendingDelete = recipe },
                         onClick = { onRecipeClick(recipe) },
                     )
                 }

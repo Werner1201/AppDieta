@@ -45,6 +45,7 @@ import java.time.LocalDate
 import com.romling.diettracker.core.ui.components.AppCard
 import com.romling.diettracker.core.ui.components.MacroProgressBar
 import com.romling.diettracker.core.ui.components.SectionTitle
+import com.romling.diettracker.core.ui.components.ConfirmDeleteDialog
 import com.romling.diettracker.core.ui.theme.AppColors
 import com.romling.diettracker.core.ui.theme.AppShapes
 import com.romling.diettracker.core.ui.theme.AppSpacing
@@ -69,6 +70,18 @@ fun TodayScreen(
     modifier: Modifier = Modifier,
 ) {
     var showRegisteredOnly by remember { mutableStateOf(false) }
+    var pendingDelete by remember { mutableStateOf<TodayEntrySummary?>(null) }
+
+    pendingDelete?.let { entry ->
+        ConfirmDeleteDialog(
+            itemName = entry.name,
+            onConfirm = {
+                onRemoveEntry(entry.id)
+                pendingDelete = null
+            },
+            onDismiss = { pendingDelete = null },
+        )
+    }
     var dragOffset by remember { mutableFloatStateOf(0f) }
     val density = LocalDensity.current
     val swipeThresholdPx = with(density) { 60.dp.toPx() }
@@ -111,7 +124,10 @@ fun TodayScreen(
         }
         if (state.entries.isNotEmpty()) {
             SectionTitle(title = if (showRegisteredOnly) "Registrados hoje" else "Registrados")
-            EntriesCard(entries = state.entries, onRemoveEntry = onRemoveEntry)
+            EntriesCard(
+                entries = state.entries,
+                onRemoveEntry = { entry -> pendingDelete = entry },
+            )
         } else if (showRegisteredOnly) {
             EmptyEntriesCard()
         }
@@ -393,11 +409,11 @@ private fun MealRow(
 }
 
 @Composable
-private fun EntriesCard(entries: List<TodayEntrySummary>, onRemoveEntry: (Long) -> Unit) {
+private fun EntriesCard(entries: List<TodayEntrySummary>, onRemoveEntry: (TodayEntrySummary) -> Unit) {
     AppCard(contentPadding = PaddingValues(horizontal = 22.dp, vertical = 0.dp)) {
         Column {
             entries.forEachIndexed { index, entry ->
-                EntryRow(entry = entry, onRemoveEntry = onRemoveEntry)
+                EntryRow(entry = entry, onRemoveEntry = { onRemoveEntry(entry) })
                 if (index < entries.lastIndex) {
                     HorizontalDivider(color = AppColors.Line, thickness = 1.dp)
                 }

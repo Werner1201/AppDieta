@@ -35,6 +35,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.romling.diettracker.core.ui.components.AppCard
 import com.romling.diettracker.core.ui.components.BottomPrimaryButton
+import com.romling.diettracker.core.ui.components.ConfirmDeleteDialog
 import com.romling.diettracker.core.ui.theme.AppColors
 import com.romling.diettracker.core.ui.theme.AppSpacing
 import com.romling.diettracker.feature.today.TodayEntrySummary
@@ -57,6 +58,18 @@ fun MealDetailScreen(
     val totalFat = mealEntries.sumOf { it.fat }
     var editingEntry by remember { mutableStateOf<TodayEntrySummary?>(null) }
     var editGrams by remember { mutableStateOf("") }
+    var pendingDelete by remember { mutableStateOf<TodayEntrySummary?>(null) }
+
+    pendingDelete?.let { entry ->
+        ConfirmDeleteDialog(
+            itemName = entry.name,
+            onConfirm = {
+                onRemoveEntry(entry.id)
+                pendingDelete = null
+            },
+            onDismiss = { pendingDelete = null },
+        )
+    }
 
     editingEntry?.let { entry ->
         AlertDialog(
@@ -110,7 +123,7 @@ fun MealDetailScreen(
                             mealEntries.forEachIndexed { index, entry ->
                                 MealEntryRow(
                                     entry = entry,
-                                    onRemove = { onRemoveEntry(entry.id) },
+                                    onRemove = { pendingDelete = entry },
                                     onEdit = {
                                         editGrams = entry.gramsTotal.toInt().toString()
                                         editingEntry = entry

@@ -5431,3 +5431,61 @@ Decisao:
 
 Nome:
 - Padronizar estados de feedback e comandos destrutivos restantes.
+
+## Ciclo 59
+
+### 1. ARQUITETO
+
+Nome da tarefa:
+- Confirmar exclusoes persistentes antes de alterar o banco.
+
+Escopo:
+- Alimento personalizado.
+- Receita.
+- Ingrediente de receita.
+- Alimento registrado na tela Hoje.
+- Alimento registrado no detalhe da refeicao.
+
+Decisao de escopo:
+- Reusar um unico dialogo Compose.
+- Manter a remocao do ultimo copo de agua direta, pois e reversivel com um toque.
+- Nao adicionar Snackbar quando a lista atualizada ja confirma visualmente o resultado.
+
+### 2. DEV
+
+Implementacao feita:
+- `ConfirmDeleteDialog` mostra o nome do item e informa que a acao nao pode ser desfeita.
+- Cancelar apenas fecha o dialogo.
+- Remover chama o callback existente e fecha o dialogo.
+- Os cinco fluxos destrutivos usam o mesmo componente.
+
+Arquivos alterados:
+- `core/ui/components/BaseComponents.kt`
+- `feature/meal/CustomFoodsScreen.kt`
+- `feature/recipes/RecipesScreen.kt`
+- `feature/meal/MealDetailScreen.kt`
+- `feature/recipes/RecipeDetailScreen.kt`
+- `feature/today/TodayScreen.kt`
+
+Como testou:
+- `gradlew.bat lintDebug testDebugUnitTest assembleDebug` - BUILD SUCCESSFUL.
+- APK reinstalado no AVD Galaxy Z Fold 6 API 35.
+- Dialogo validado visualmente com o alimento `Abacate`.
+- UI Automator confirmou que Cancelar preserva o item e Remover o exclui.
+
+### 3. QA
+
+Checklist final:
+- [x] Dialogo identifica o item.
+- [x] Cancelar nao altera dados.
+- [x] Confirmar executa uma unica exclusao.
+- [x] Lista atualiza apos a exclusao.
+- [x] Lint, testes e APK debug passam.
+
+Decisao:
+- APROVADO
+
+### Proxima tarefa aberta pelo Arquiteto
+
+Nome:
+- Melhorar o layout expandido de tablet sem alterar a experiencia de celular.

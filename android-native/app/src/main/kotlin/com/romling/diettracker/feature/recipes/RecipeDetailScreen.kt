@@ -36,6 +36,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.romling.diettracker.core.ui.components.AppCard
 import com.romling.diettracker.core.ui.components.BottomPrimaryButton
+import com.romling.diettracker.core.ui.components.ConfirmDeleteDialog
 import com.romling.diettracker.core.ui.theme.AppColors
 import com.romling.diettracker.core.ui.theme.AppSpacing
 import com.romling.diettracker.data.local.entity.RecipeEntity
@@ -64,6 +65,18 @@ fun RecipeDetailScreen(
     var foodQuery by remember { mutableStateOf("") }
     var gramsText by remember { mutableStateOf("") }
     var showMealPicker by remember { mutableStateOf(false) }
+    var pendingDelete by remember { mutableStateOf<RecipeIngredientEntity?>(null) }
+
+    pendingDelete?.let { ingredient ->
+        ConfirmDeleteDialog(
+            itemName = ingredient.foodNameSnapshot,
+            onConfirm = {
+                onRemoveIngredient(ingredient.id)
+                pendingDelete = null
+            },
+            onDismiss = { pendingDelete = null },
+        )
+    }
 
     val totalKcal = ingredients.sumOf { it.kcal }
     val totalCarbs = ingredients.sumOf { it.carbs }
@@ -242,7 +255,7 @@ fun RecipeDetailScreen(
                     AppCard {
                         Column {
                             ingredients.forEachIndexed { index, ing ->
-                                IngredientRow(ingredient = ing, onRemove = { onRemoveIngredient(ing.id) })
+                                IngredientRow(ingredient = ing, onRemove = { pendingDelete = ing })
                                 if (index < ingredients.lastIndex) {
                                     HorizontalDivider(color = AppColors.Line, thickness = 1.dp)
                                 }
