@@ -17,6 +17,11 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Icon
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -29,6 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.semantics.Role
@@ -56,10 +62,10 @@ import com.romling.diettracker.feature.today.TodayScreen
 import com.romling.diettracker.feature.today.TodayViewModel
 import com.romling.diettracker.feature.weight.WeightScreen
 
-private enum class AppTab(val label: String, val icon: String) {
-    DIARY("Diário", "📋"),
-    RECIPES("Receitas", "🥘"),
-    PROFILE("Perfil", "👤"),
+private enum class AppTab(val label: String, val icon: ImageVector) {
+    DIARY("Diário", Icons.Default.Home),
+    RECIPES("Receitas", Icons.AutoMirrored.Filled.List),
+    PROFILE("Perfil", Icons.Default.Person),
 }
 
 @Composable
@@ -326,11 +332,7 @@ private fun AppBottomNavBar(selectedTab: AppTab, onTabSelected: (AppTab) -> Unit
                 verticalArrangement = Arrangement.spacedBy(2.dp),
             ) {
                 if (!largeText) {
-                    Text(
-                        text = tab.icon,
-                        style = MaterialTheme.typography.titleSmall,
-                        textAlign = TextAlign.Center,
-                    )
+                    Icon(imageVector = tab.icon, contentDescription = null)
                 }
                 Text(
                     text = tab.label,

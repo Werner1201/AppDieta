@@ -48,6 +48,7 @@ Validado no AVD Galaxy Z Fold 6, API 35, em 2026-07-11:
 - [x] Atividades podem ser personalizadas e registros existentes podem ser editados.
 - [x] Passos podem ser registrados manualmente com estimativa explicita.
 - [x] Ciclo F de Atividades foi auditado e encerrado; Health Connect foi adiado por decisao de produto.
+- [x] Navegacao e comandos de Atividades usam Material Icons.
 - [ ] Demais achados P1/P2/P3 continuam abertos.
 
 ## Pontuacao

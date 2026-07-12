@@ -5841,3 +5841,23 @@ Ordem minima de correcao:
 ### Proxima tarefa
 
 - Retomar pendencias P2/P3: iconografia, strings e documentacao Android.
+
+## Ciclo 72
+
+### Implementacao
+
+- Adicionado pacote oficial `material-icons-core` alinhado ao Compose BOM.
+- Barra inferior usa Home, List e Person em vez de emojis de comando.
+- Tela de atividades usa Close, KeyboardArrowRight e Delete.
+- Emojis permanecem somente como ilustracao de alimentos e atividades.
+- Icones direcionais usam variantes AutoMirrored.
+
+### QA
+
+- `lintDebug testDebugUnitTest assembleDebug` - BUILD SUCCESSFUL.
+- Recompilacao apos AutoMirrored passou sem avisos de icones.
+- APROVADO PARCIAL: outros simbolos de comando ainda serao migrados por tela.
+
+### Proxima tarefa
+
+- Centralizar strings do fluxo Atividades e navegacao em resources.

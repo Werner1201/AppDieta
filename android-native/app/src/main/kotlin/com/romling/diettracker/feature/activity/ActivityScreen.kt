@@ -16,6 +16,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -94,13 +99,8 @@ fun ActivityScreen(
         verticalArrangement = Arrangement.spacedBy(22.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(18.dp)) {
-            Box(
-                modifier = Modifier
-                    .size(48.dp)
-                    .clickable { if (selected != null) selected = null else onClose() },
-                contentAlignment = Alignment.Center,
-            ) {
-                Text("×", color = AppColors.TextPrimary, style = MaterialTheme.typography.headlineSmall)
+            IconButton(onClick = { if (selected != null) selected = null else onClose() }) {
+                Icon(Icons.Default.Close, contentDescription = "Voltar", tint = AppColors.TextPrimary)
             }
             Text(
                 selected?.name ?: "Adicionar atividade",
@@ -239,7 +239,11 @@ private fun ActivityOptionsCard(options: List<ActivityOption>, onSelect: (Activi
             ) {
                 Text(option.icon, style = MaterialTheme.typography.headlineSmall)
                 Text(option.name, modifier = Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
-                Text("→", style = MaterialTheme.typography.titleMedium)
+                Icon(
+                    Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = "Abrir ${option.name}",
+                    tint = AppColors.TextSecondary,
+                )
             }
             if (index < options.lastIndex) HorizontalDivider(color = AppColors.Line)
         }
