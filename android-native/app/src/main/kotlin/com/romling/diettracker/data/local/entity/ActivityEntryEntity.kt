@@ -14,6 +14,7 @@ data class ActivityEntryEntity(
     val met: Double,
     @ColumnInfo(name = "duration_minutes") val durationMinutes: Int,
     @ColumnInfo(name = "distance_km") val distanceKm: Double? = null,
+    val steps: Int? = null,
     @ColumnInfo(name = "weight_kg") val weightKg: Double,
     val kcal: Double,
     val note: String = "",

@@ -21,6 +21,7 @@ class ActivityRepository(
         weightKg: Double,
         distanceKm: Double? = null,
         note: String = "",
+        steps: Int? = null,
     ) = dao.insert(
         ActivityEntryEntity(
             date = date,
@@ -32,6 +33,7 @@ class ActivityRepository(
             weightKg = weightKg,
             kcal = ActivityCalorieCalculator.calculate(met, weightKg, durationMinutes),
             note = note,
+            steps = steps,
             createdAt = now(),
         ),
     )
@@ -47,6 +49,7 @@ class ActivityRepository(
         weightKg: Double,
         distanceKm: Double? = null,
         note: String = "",
+        steps: Int? = null,
     ) {
         val current = dao.getById(id) ?: return
         dao.update(
@@ -59,6 +62,7 @@ class ActivityRepository(
                 weightKg = weightKg,
                 kcal = ActivityCalorieCalculator.calculate(met, weightKg, durationMinutes),
                 note = note,
+                steps = steps,
             ),
         )
     }

@@ -25,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import kotlin.math.ceil
 import com.romling.diettracker.core.ui.components.AppCard
 import com.romling.diettracker.core.ui.components.BottomPrimaryButton
 import com.romling.diettracker.core.ui.theme.AppColors
@@ -39,10 +40,12 @@ data class ActivityOption(
     val moderateMet: Double,
     val vigorousMet: Double,
     val tracksDistance: Boolean = false,
+    val tracksSteps: Boolean = false,
     val custom: Boolean = false,
 )
 
 private val activityCatalog = listOf(
+    ActivityOption("Passos (manual)", "👟", 2.0, 3.0, 4.0, tracksSteps = true),
     ActivityOption("Musculação", "💪", 3.5, 4.5, 6.0),
     ActivityOption("Caminhada", "🚶", 2.5, 3.5, 5.0, true),
     ActivityOption("Ciclismo", "🚴", 4.0, 6.8, 10.0, true),
@@ -58,7 +61,7 @@ fun ActivityScreen(
     weightKg: Double,
     frequentNames: List<String> = emptyList(),
     initialActivity: TodayActivitySummary? = null,
-    onSave: (ActivityOption, Double, Int, Double?, String) -> Unit,
+    onSave: (ActivityOption, Double, Int, Double?, String, Int?) -> Unit,
     onClose: () -> Unit,
 ) {
     val initialOption = initialActivity?.let { entry ->
@@ -73,6 +76,7 @@ fun ActivityScreen(
     }
     var distance by remember(initialActivity?.id) { mutableStateOf(initialActivity?.distanceKm?.toString() ?: "") }
     var note by remember(initialActivity?.id) { mutableStateOf(initialActivity?.note ?: "") }
+    var steps by remember(initialActivity?.id) { mutableStateOf(initialActivity?.steps?.toString() ?: "") }
     var customName by remember(initialActivity?.id) { mutableStateOf(initialActivity?.name ?: "") }
     var customMet by remember(initialActivity?.id) { mutableStateOf(initialActivity?.met?.toString() ?: "") }
     BackHandler {
@@ -123,7 +127,10 @@ fun ActivityScreen(
                 style = MaterialTheme.typography.titleMedium,
             )
         } else {
-            val minutes = duration.toIntOrNull() ?: 0
+            val stepCount = steps.toIntOrNull()
+            val minutes = if (activity.tracksSteps && stepCount != null) {
+                ceil(stepCount / 100.0).toInt()
+            } else duration.toIntOrNull() ?: 0
             val met = if (activity.custom) {
                 customMet.replace(',', '.').toDoubleOrNull() ?: 0.0
             } else {
@@ -134,13 +141,24 @@ fun ActivityScreen(
             } else 0
             Text(activity.icon, modifier = Modifier.fillMaxWidth(), style = MaterialTheme.typography.displayMedium, textAlign = TextAlign.Center)
             Text("$kcal kcal", modifier = Modifier.fillMaxWidth(), style = MaterialTheme.typography.headlineMedium, textAlign = TextAlign.Center)
-            OutlinedTextField(
-                value = duration,
-                onValueChange = { duration = it.filter(Char::isDigit).take(3) },
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text("Duração (min)") },
-                singleLine = true,
-            )
+            if (activity.tracksSteps) {
+                OutlinedTextField(
+                    value = steps,
+                    onValueChange = { steps = it.filter(Char::isDigit).take(6) },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("Passos") },
+                    singleLine = true,
+                )
+                Text("Estimativa de duração: 100 passos/min", color = AppColors.TextSecondary)
+            } else {
+                OutlinedTextField(
+                    value = duration,
+                    onValueChange = { duration = it.filter(Char::isDigit).take(3) },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("Duração (min)") },
+                    singleLine = true,
+                )
+            }
             if (activity.custom) {
                 OutlinedTextField(
                     value = customName,
@@ -192,6 +210,7 @@ fun ActivityScreen(
                             minutes,
                             distance.replace(',', '.').toDoubleOrNull(),
                             note.trim(),
+                            stepCount,
                         )
                     }
                 },

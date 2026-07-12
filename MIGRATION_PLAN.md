@@ -5795,3 +5795,24 @@ Ordem minima de correcao:
 ### Proxima tarefa
 
 - Adicionar entrada manual de passos e revisar o fechamento do Ciclo F.
+
+## Ciclo 70
+
+### Implementacao
+
+- `Passos (manual)` foi adicionado ao catalogo de atividades.
+- Contagem de passos e armazenada em coluna propria via migracao Room `4 -> 5`.
+- Duracao estimada usa a regra explicita de 100 passos/min.
+- Usuario escolhe intensidade/MET antes de salvar.
+- Lista do dia mostra passos e duracao estimada.
+
+### QA
+
+- `lintDebug testDebugUnitTest assembleDebug` - BUILD SUCCESSFUL.
+- APK abriu sobre o banco versao 4, validando a migracao incremental.
+- Integracao Health Connect permanece opcional e nao foi implementada.
+- PRIMEIRA ENTREGA DO CICLO F APROVADA.
+
+### Proxima tarefa
+
+- Auditar o Ciclo F completo, corrigir pendencias visuais e decidir se Health Connect e necessario.

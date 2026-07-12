@@ -183,7 +183,11 @@ private fun ActivitiesCard(
                     Text(activity.icon, style = MaterialTheme.typography.headlineSmall)
                     Column(modifier = Modifier.weight(1f)) {
                         Text(activity.name, style = MaterialTheme.typography.titleMedium)
-                        Text("${activity.durationMinutes} min", color = AppColors.TextSecondary)
+                        Text(
+                            activity.steps?.let { "$it passos · ${activity.durationMinutes} min" }
+                                ?: "${activity.durationMinutes} min",
+                            color = AppColors.TextSecondary,
+                        )
                     }
                     Text("${activity.kcal.toInt()} kcal", style = MaterialTheme.typography.labelLarge)
                     Text("−", modifier = Modifier.clickable { onRemove(activity) }, color = AppColors.Remove, style = MaterialTheme.typography.headlineSmall)

@@ -172,14 +172,14 @@ fun DietTrackerApp(
                 weightKg = state.weight.currentKg,
                 frequentNames = frequentActivityNames,
                 initialActivity = selectedActivity,
-                onSave = { activity, met, minutes, distanceKm, note ->
+                onSave = { activity, met, minutes, distanceKm, note, steps ->
                     if (minutes > 0) {
                         selectedActivity?.let {
                             todayViewModel.updateActivity(
-                                it.id, activity.name, activity.icon, met, minutes, distanceKm, note,
+                                it.id, activity.name, activity.icon, met, minutes, distanceKm, note, steps,
                             )
                         } ?: todayViewModel.addActivity(
-                            activity.name, activity.icon, met, minutes, distanceKm, note,
+                            activity.name, activity.icon, met, minutes, distanceKm, note, steps,
                         )
                         selectedActivity = null
                         showActivities = false

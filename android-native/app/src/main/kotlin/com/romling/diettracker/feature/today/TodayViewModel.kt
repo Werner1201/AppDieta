@@ -135,6 +135,7 @@ class TodayViewModel(
         durationMinutes: Int,
         distanceKm: Double? = null,
         note: String = "",
+        steps: Int? = null,
     ) {
         val repository = activityRepository ?: return
         viewModelScope.launch {
@@ -147,6 +148,7 @@ class TodayViewModel(
                 weightKg = state.value.weight.currentKg,
                 distanceKm = distanceKm,
                 note = note,
+                steps = steps,
             )
         }
     }
@@ -163,11 +165,12 @@ class TodayViewModel(
         durationMinutes: Int,
         distanceKm: Double? = null,
         note: String = "",
+        steps: Int? = null,
     ) {
         val repository = activityRepository ?: return
         viewModelScope.launch {
             repository.update(
-                id, name, icon, met, durationMinutes, state.value.weight.currentKg, distanceKm, note,
+                id, name, icon, met, durationMinutes, state.value.weight.currentKg, distanceKm, note, steps,
             )
         }
     }
@@ -247,7 +250,7 @@ class TodayViewModel(
             activities = activities.map {
                 TodayActivitySummary(
                     it.id, it.name, it.icon, it.met, it.durationMinutes,
-                    it.distanceKm, it.kcal, it.note,
+                    it.distanceKm, it.steps, it.kcal, it.note,
                 )
             },
             spentKcal = activities.sumOf { it.kcal },
@@ -371,6 +374,7 @@ data class TodayActivitySummary(
     val met: Double,
     val durationMinutes: Int,
     val distanceKm: Double?,
+    val steps: Int?,
     val kcal: Double,
     val note: String,
 )

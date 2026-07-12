@@ -7,6 +7,7 @@ import com.romling.diettracker.data.local.AppDatabase
 import com.romling.diettracker.data.local.MIGRATION_1_2
 import com.romling.diettracker.data.local.MIGRATION_2_3
 import com.romling.diettracker.data.local.MIGRATION_3_4
+import com.romling.diettracker.data.local.MIGRATION_4_5
 import com.romling.diettracker.data.local.seed.FoodSeedLoader
 import com.romling.diettracker.data.repository.DiaryRepository
 import com.romling.diettracker.data.repository.ActivityRepository
@@ -43,7 +44,7 @@ class AppContainer(private val context: Context) {
 
     val database: AppDatabase
         get() = databaseInstance ?: Room.databaseBuilder(context, AppDatabase::class.java, "diet_tracker.db")
-            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
             .build()
             .also { databaseInstance = it }
     val foodRepository: FoodRepository by lazy {
