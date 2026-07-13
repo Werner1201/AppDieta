@@ -5956,3 +5956,19 @@ Ordem minima de correcao:
 ### Proxima tarefa
 
 - Em ciclo futuro, adicionar testes instrumentados dos percursos criticos e concluir a migracao gradual de strings e iconografia legadas.
+
+## Ciclo 78
+
+### Animacoes de estado
+
+- Videos de referencia analisados quadro a quadro.
+- Troca horizontal de dia acompanha o gesto e mantem as duas paginas durante a transicao.
+- Anel de calorias, barras de macros, totais, agua e estimativa de atividade interpolam mudancas de valor.
+- Adicionar alimento mantem a busca aberta e confirma no proprio botao com `+` para `check` temporario.
+- Movimento usa apenas APIs Compose e respeita a escala de animacao do Android.
+
+### QA
+
+- Transicao de dias e confirmacao de alimento gravadas e revisadas no AVD Galaxy Z Fold 6.
+- Nenhum quadro vazio, corte ou bloqueio de toque observado.
+- `lintDebug testDebugUnitTest assembleDebug` - BUILD SUCCESSFUL.

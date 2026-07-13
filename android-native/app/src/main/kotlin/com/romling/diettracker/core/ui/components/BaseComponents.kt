@@ -1,5 +1,8 @@
 package com.romling.diettracker.core.ui.components
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -103,8 +106,13 @@ fun MacroProgressBar(
     progress: Float,
     modifier: Modifier = Modifier,
 ) {
+    val animatedProgress = animateFloatAsState(
+        targetValue = progress.coerceIn(0f, 1f),
+        animationSpec = tween(240, easing = CubicBezierEasing(0.22f, 1f, 0.36f, 1f)),
+        label = "macro progress",
+    )
     LinearProgressIndicator(
-        progress = { progress.coerceIn(0f, 1f) },
+        progress = { animatedProgress.value },
         modifier = modifier
             .fillMaxWidth()
             .height(AppSpacing.MacroProgressHeight),

@@ -1,5 +1,14 @@
 package com.romling.diettracker.feature.today
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -30,6 +39,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,6 +48,8 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -49,6 +61,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.PaddingValues
 import java.time.LocalDate
+import kotlinx.coroutines.launch
+import kotlin.math.abs
 import com.romling.diettracker.core.ui.components.AppCard
 import com.romling.diettracker.core.ui.components.MacroProgressBar
 import com.romling.diettracker.core.ui.components.SectionTitle
@@ -103,24 +117,72 @@ fun TodayScreen(
             onDismiss = { pendingActivityDelete = null },
         )
     }
-    var dragOffset by remember { mutableFloatStateOf(0f) }
+    val slideOffset = remember { Animatable(0f) }
+    var contentWidthPx by remember { mutableFloatStateOf(1f) }
+    var pendingDirection by remember { mutableStateOf(0) }
+    val animationScope = rememberCoroutineScope()
     val density = LocalDensity.current
     val swipeThresholdPx = with(density) { 60.dp.toPx() }
+    val motionEasing = remember { CubicBezierEasing(0.22f, 1f, 0.36f, 1f) }
 
     Box(
         modifier = modifier
             .fillMaxSize()
-            .pointerInput(Unit) {
+            .onSizeChanged { contentWidthPx = it.width.toFloat().coerceAtLeast(1f) }
+            .pointerInput(state.date, contentWidthPx) {
                 detectHorizontalDragGestures(
                     onDragEnd = {
-                        if (dragOffset > swipeThresholdPx) onPreviousDay()
-                        else if (dragOffset < -swipeThresholdPx) onNextDay()
-                        dragOffset = 0f
+                        animationScope.launch {
+                            val direction = when {
+                                slideOffset.value > swipeThresholdPx -> 1
+                                slideOffset.value < -swipeThresholdPx -> -1
+                                else -> 0
+                            }
+                            if (direction == 0) {
+                                slideOffset.animateTo(0f, tween(180, easing = motionEasing))
+                            } else {
+                                slideOffset.animateTo(
+                                    direction * contentWidthPx * 0.18f,
+                                    tween(120, easing = motionEasing),
+                                )
+                                pendingDirection = direction
+                                slideOffset.snapTo(0f)
+                                if (direction > 0) onPreviousDay() else onNextDay()
+                            }
+                        }
                     },
-                    onDragCancel = { dragOffset = 0f },
-                ) { _, dragAmount -> dragOffset += dragAmount }
+                    onDragCancel = {
+                        animationScope.launch { slideOffset.animateTo(0f, tween(180, easing = motionEasing)) }
+                    },
+                ) { _, dragAmount ->
+                    animationScope.launch {
+                        slideOffset.snapTo(
+                            (slideOffset.value + dragAmount).coerceIn(-contentWidthPx, contentWidthPx),
+                        )
+                    }
+                }
             },
     ) {
+    AnimatedContent(
+        targetState = state,
+        contentKey = { it.date },
+        modifier = Modifier
+            .fillMaxSize()
+            .graphicsLayer {
+                translationX = slideOffset.value
+                alpha = 1f - 0.12f * abs(slideOffset.value / contentWidthPx)
+            },
+        transitionSpec = {
+            if (pendingDirection < 0) {
+                slideInHorizontally(tween(220, easing = motionEasing)) { it } togetherWith
+                    slideOutHorizontally(tween(180, easing = motionEasing)) { -it }
+            } else {
+                slideInHorizontally(tween(220, easing = motionEasing)) { -it } togetherWith
+                    slideOutHorizontally(tween(180, easing = motionEasing)) { it }
+            }
+        },
+        label = "day transition",
+    ) { displayedState ->
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -129,11 +191,11 @@ fun TodayScreen(
             .padding(horizontal = AppSpacing.ScreenHorizontal, vertical = 28.dp),
         verticalArrangement = Arrangement.spacedBy(28.dp),
     ) {
-        TodayHeader(state = state, onOpenCalendar = onOpenCalendar, onOpenStreak = onOpenStreak)
+        TodayHeader(state = displayedState, onOpenCalendar = onOpenCalendar, onOpenStreak = onOpenStreak)
         SmartTipsButton()
         ImportButton(onClick = onOpenImport)
         SectionTitle(title = "Resumo", actionLabel = "Detalhes")
-        SummaryCard(state)
+        SummaryCard(displayedState)
         SectionTitle(title = "Alimentação", actionLabel = "Mais")
         FoodFilterTabs(
             showRegisteredOnly = showRegisteredOnly,
@@ -141,12 +203,12 @@ fun TodayScreen(
             onShowRegistered = { showRegisteredOnly = true },
         )
         if (!showRegisteredOnly) {
-            MealsCard(meals = state.meals, onAddMeal = onAddMeal, onOpenDetail = onOpenMealDetail)
+            MealsCard(meals = displayedState.meals, onAddMeal = onAddMeal, onOpenDetail = onOpenMealDetail)
         }
-        if (state.entries.isNotEmpty()) {
+        if (displayedState.entries.isNotEmpty()) {
             SectionTitle(title = if (showRegisteredOnly) "Registrados hoje" else "Registrados")
             EntriesCard(
-                entries = state.entries,
+                entries = displayedState.entries,
                 onRemoveEntry = { entry -> pendingDelete = entry },
             )
         } else if (showRegisteredOnly) {
@@ -154,16 +216,17 @@ fun TodayScreen(
         }
         if (!showRegisteredOnly) {
             SectionTitle(title = "Monitor de água")
-            WaterCard(water = state.water, onAddWater = onAddWater, onRemoveLastWater = onRemoveLastWater)
+            WaterCard(water = displayedState.water, onAddWater = onAddWater, onRemoveLastWater = onRemoveLastWater)
             SectionTitle(title = "Valores corporais", onAction = onOpenWeight, actionLabel = "Ver histórico")
-            WeightCard(weight = state.weight, onAddWeight = onAddWeight)
+            WeightCard(weight = displayedState.weight, onAddWeight = onAddWeight)
             SectionTitle(title = "Atividades", actionLabel = "Adicionar", onAction = onOpenActivities)
             ActivitiesCard(
-                state.activities,
+                displayedState.activities,
                 onEdit = onEditActivity,
                 onRemove = { pendingActivityDelete = it },
             )
         }
+    }
     }
     } // Box
 }
@@ -309,9 +372,9 @@ private fun SummaryCard(state: TodayUiState) {
                         .padding(horizontal = 22.dp, vertical = 24.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
-                    SummarySideMetric(value = state.totals.kcal.toInt().toString(), label = "Consumidas")
-                    SummarySideMetric(value = state.remainingKcal.toString(), label = "Restantes")
-                    SummarySideMetric(value = state.spentKcal.toInt().toString(), label = "Gastas")
+                    SummarySideMetric(value = state.totals.kcal.toInt(), label = "Consumidas")
+                    SummarySideMetric(value = state.remainingKcal, label = "Restantes")
+                    SummarySideMetric(value = state.spentKcal.toInt(), label = "Gastas")
                 }
             } else {
                 Row(
@@ -322,11 +385,11 @@ private fun SummaryCard(state: TodayUiState) {
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                        SummarySideMetric(value = state.totals.kcal.toInt().toString(), label = "Consumidas")
+                        SummarySideMetric(value = state.totals.kcal.toInt(), label = "Consumidas")
                     }
                     RemainingRing(state)
                     Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                        SummarySideMetric(value = state.spentKcal.toInt().toString(), label = "Gastas")
+                        SummarySideMetric(value = state.spentKcal.toInt(), label = "Gastas")
                     }
                 }
             }
@@ -369,12 +432,17 @@ private fun SummaryCard(state: TodayUiState) {
 }
 
 @Composable
-private fun SummarySideMetric(value: String, label: String) {
+private fun SummarySideMetric(value: Int, label: String) {
+    val animatedValue by animateIntAsState(
+        targetValue = value,
+        animationSpec = tween(240, easing = CubicBezierEasing(0.22f, 1f, 0.36f, 1f)),
+        label = "$label value",
+    )
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(text = value, style = MaterialTheme.typography.titleLarge, maxLines = 1)
+        Text(text = animatedValue.toString(), style = MaterialTheme.typography.titleLarge, maxLines = 1)
         Text(
             text = label,
             style = MaterialTheme.typography.labelSmall,
@@ -390,6 +458,16 @@ private fun SummarySideMetric(value: String, label: String) {
 private fun RemainingRing(state: TodayUiState) {
     val dims = LocalAppDimensions.current
     val progress = if (state.dailyKcal <= 0.0) 0f else (state.totals.kcal / state.dailyKcal).toFloat()
+    val animatedProgress by animateFloatAsState(
+        targetValue = progress.coerceIn(0f, 1f),
+        animationSpec = tween(240, easing = CubicBezierEasing(0.22f, 1f, 0.36f, 1f)),
+        label = "calorie progress",
+    )
+    val animatedRemaining by animateIntAsState(
+        targetValue = state.remainingKcal,
+        animationSpec = tween(240, easing = CubicBezierEasing(0.22f, 1f, 0.36f, 1f)),
+        label = "remaining calories",
+    )
     Box(modifier = Modifier.size(dims.summaryRingBox), contentAlignment = Alignment.Center) {
         Canvas(modifier = Modifier.size(dims.summaryRingCanvas)) {
             val stroke = Stroke(width = dims.summaryRingStroke.toPx(), cap = StrokeCap.Round)
@@ -407,7 +485,7 @@ private fun RemainingRing(state: TodayUiState) {
             drawArc(
                 color = AppColors.Accent,
                 startAngle = 135f,
-                sweepAngle = 270f * progress.coerceIn(0f, 1f),
+                sweepAngle = 270f * animatedProgress,
                 useCenter = false,
                 topLeft = Offset(inset, inset),
                 size = arcSize,
@@ -415,7 +493,7 @@ private fun RemainingRing(state: TodayUiState) {
             )
         }
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(text = state.remainingKcal.toString(), style = MaterialTheme.typography.titleLarge)
+            Text(text = animatedRemaining.toString(), style = MaterialTheme.typography.titleLarge)
             Text(text = "Restantes", style = MaterialTheme.typography.labelSmall)
         }
     }
@@ -533,11 +611,16 @@ private fun EmptyEntriesCard() {
 
 @Composable
 private fun WaterCard(water: TodayWaterSummary, onAddWater: (Int) -> Unit, onRemoveLastWater: () -> Unit) {
+    val animatedLiters by animateFloatAsState(
+        targetValue = water.consumedLiters.toFloat(),
+        animationSpec = tween(240, easing = CubicBezierEasing(0.22f, 1f, 0.36f, 1f)),
+        label = "water consumed",
+    )
     AppCard {
         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Text(text = "Água", style = MaterialTheme.typography.titleLarge)
             Text(text = "Objetivo: ${"%.1f".format(water.goalLiters)} litros", style = MaterialTheme.typography.bodyMedium)
-            Text(text = "%.2f L".format(water.consumedLiters), style = MaterialTheme.typography.headlineLarge)
+            Text(text = "%.2f L".format(animatedLiters), style = MaterialTheme.typography.headlineLarge)
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 listOf(100, 200, 250, 500).forEach { amount ->
                     WaterButton(text = "+${amount}", onClick = { onAddWater(amount) }, modifier = Modifier.weight(1f))

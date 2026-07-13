@@ -1,5 +1,8 @@
 package com.romling.diettracker.feature.activity
 
+import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.tween
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -146,8 +149,13 @@ fun ActivityScreen(
             val kcal = if (minutes > 0 && met > 0) {
                 ActivityCalorieCalculator.calculate(met, weightKg, minutes).toInt()
             } else 0
+            val animatedKcal by animateIntAsState(
+                targetValue = kcal,
+                animationSpec = tween(240, easing = CubicBezierEasing(0.22f, 1f, 0.36f, 1f)),
+                label = "activity calories",
+            )
             Text(activity.icon, modifier = Modifier.fillMaxWidth(), style = MaterialTheme.typography.displayMedium, textAlign = TextAlign.Center)
-            Text("$kcal kcal", modifier = Modifier.fillMaxWidth(), style = MaterialTheme.typography.headlineMedium, textAlign = TextAlign.Center)
+            Text("$animatedKcal kcal", modifier = Modifier.fillMaxWidth(), style = MaterialTheme.typography.headlineMedium, textAlign = TextAlign.Center)
             if (activity.tracksSteps) {
                 OutlinedTextField(
                     value = steps,

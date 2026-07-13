@@ -1,5 +1,11 @@
 package com.romling.diettracker.feature.meal
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.tween
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -33,6 +39,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
 import com.romling.diettracker.core.ui.components.AppCard
 import com.romling.diettracker.core.ui.theme.AppColors
 import com.romling.diettracker.core.ui.theme.AppSpacing
@@ -225,6 +232,15 @@ private fun FoodRow(
     onOpenFoodDetails: (Long) -> Unit,
     onAddFood: (FoodSearchItem, FoodPortionItem?) -> Unit,
 ) {
+    var added by remember(food.id) { mutableStateOf(false) }
+
+    LaunchedEffect(added) {
+        if (added) {
+            delay(700)
+            added = false
+        }
+    }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -250,13 +266,29 @@ private fun FoodRow(
             maxLines = 1,
         )
         Surface(
-            modifier = Modifier.clickable { onAddFood(food, null) },
+            modifier = Modifier.clickable {
+                added = true
+                onAddFood(food, null)
+            },
             shape = androidx.compose.foundation.shape.CircleShape,
-            color = AppColors.Background,
+            color = if (added) AppColors.Accent else AppColors.Background,
             border = androidx.compose.foundation.BorderStroke(2.dp, AppColors.Accent),
         ) {
             Box(modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp), contentAlignment = Alignment.Center) {
-                Text(text = "+", color = AppColors.Accent, style = MaterialTheme.typography.bodyLarge)
+                AnimatedContent(
+                    targetState = added,
+                    transitionSpec = {
+                        fadeIn(tween(140, easing = CubicBezierEasing(0.22f, 1f, 0.36f, 1f))) togetherWith
+                            fadeOut(tween(100))
+                    },
+                    label = "food added",
+                ) { isAdded ->
+                    Text(
+                        text = if (isAdded) "✓" else "+",
+                        color = if (isAdded) AppColors.Background else AppColors.Accent,
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
+                }
             }
         }
     }
